@@ -1,0 +1,181 @@
+{
+  "@@locale": "en",
+  "retry": "Retry",
+  "@retry": {
+    "description": "Button label to retry a failed action"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Button label to cancel/dismiss an action"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Button label to save/confirm an action"
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Generic loading indicator label"
+  },
+  "somethingWentWrong": "Something went wrong. Please try again.",
+  "@somethingWentWrong": {
+    "description": "Generic fallback error message"
+  },
+  "noInternetConnection": "No internet connection. We'll retry automatically once you're back online.",
+  "@noInternetConnection": {
+    "description": "Shown when a request fails due to no network connectivity"
+  },
+  "fieldRequired": "This field is required.",
+  "@fieldRequired": {
+    "description": "Generic required-field validation message for any form"
+  },
+  "sessionNotFound": "Reading session not found.",
+  "@sessionNotFound": {
+    "description": "Backend error SESSION_NOT_FOUND, localized"
+  },
+  "appName": "BacaYu",
+  "@appName": {
+    "description": "Product name, shown on auth screens"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Email field label"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+  "name": "Name",
+  "@name": {
+    "description": "Full name field label, used at registration"
+  },
+  "login": "Log in",
+  "@login": {
+    "description": "Login button label"
+  },
+  "register": "Sign up",
+  "@register": {
+    "description": "Register/sign up button label"
+  },
+  "welcomeBack": "Welcome back",
+  "@welcomeBack": {
+    "description": "Login page headline"
+  },
+  "createYourAccount": "Create your account",
+  "@createYourAccount": {
+    "description": "Register page headline"
+  },
+  "dontHaveAccount": "Don't have an account? Sign up",
+  "@dontHaveAccount": {
+    "description": "Link on the login page to go to registration"
+  },
+  "alreadyHaveAccount": "Already have an account? Log in",
+  "@alreadyHaveAccount": {
+    "description": "Link on the register page to go to login"
+  },
+  "emailAlreadyExists": "This email is already registered.",
+  "@emailAlreadyExists": {
+    "description": "Backend error EMAIL_ALREADY_EXISTS, localized"
+  },
+  "invalidCredentials": "Invalid email or password.",
+  "@invalidCredentials": {
+    "description": "Backend error INVALID_CREDENTIALS, localized"
+  },
+  "searchBooksHint": "Search by title, author, or ISBN",
+  "@searchBooksHint": {
+    "description": "Book search field placeholder"
+  },
+  "scanBarcode": "Scan barcode",
+  "@scanBarcode": {
+    "description": "Button that opens the ISBN barcode scanner"
+  },
+  "scanIsbnGuide": "Line up the barcode inside the frame",
+  "@scanIsbnGuide": {
+    "description": "Instruction text under the scanner guide box"
+  },
+  "addToShelf": "Add to shelf",
+  "@addToShelf": {
+    "description": "Button to add a looked-up/imported book to the user's shelf"
+  },
+  "bookAddedToShelf": "Added to your shelf.",
+  "@bookAddedToShelf": {
+    "description": "Confirmation after successfully adding a book to the shelf"
+  },
+  "noSearchResults": "No books found. Try a different search.",
+  "@noSearchResults": {
+    "description": "Empty state for book search with no results"
+  },
+  "pagesCount": "{pages} pages",
+  "@pagesCount": {
+    "description": "Book page count, shown on a book result card",
+    "placeholders": {
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "byAuthor": "by {authors}",
+  "@byAuthor": {
+    "description": "Author line on a book result card",
+    "placeholders": {
+      "authors": {
+        "type": "String"
+      }
+    }
+  },
+  "bookNotFound": "Book not found.",
+  "@bookNotFound": {
+    "description": "Backend error BOOK_NOT_FOUND, localized"
+  },
+  "alreadyInShelf": "This book is already in your shelf.",
+  "@alreadyInShelf": {
+    "description": "Backend error ALREADY_IN_SHELF, localized"
+  },
+  "shelfTitle": "My shelf",
+  "@shelfTitle": {
+    "description": "Shelf page app bar title"
+  },
+  "filterAll": "All",
+  "@filterAll": {
+    "description": "Shelf filter tab: no status filter"
+  },
+  "statusWantToRead": "Want to read",
+  "@statusWantToRead": {
+    "description": "Shelf status: want_to_read — used as both filter tab and status chip label"
+  },
+  "statusReading": "Reading",
+  "@statusReading": {
+    "description": "Shelf status: reading — used as both filter tab and status chip label"
+  },
+  "statusFinished": "Finished",
+  "@statusFinished": {
+    "description": "Shelf status: finished — used as both filter tab and status chip label"
+  },
+  "statusDnf": "DNF",
+  "@statusDnf": {
+    "description": "Shelf status: dnf (did not finish) — used as both filter tab and status chip label"
+  },
+  "emptyShelfHeadline": "Your shelf is empty",
+  "@emptyShelfHeadline": {
+    "description": "Shelf empty state headline"
+  },
+  "emptyShelfBody": "Add your first book to start tracking",
+  "@emptyShelfBody": {
+    "description": "Shelf empty state body text"
+  },
+  "addABook": "Add a book",
+  "@addABook": {
+    "description": "Shelf empty state CTA button"
+  },
+  "pageProgress": "Page {current} of {total}",
+  "@pageProgress": {
+    "description": "Reading progress caption under a Reading-status shelf card",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
+}

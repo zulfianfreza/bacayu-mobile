@@ -1,0 +1,10 @@
+openapi: 3.0.3
+info:
+  title: BacaYu API
+  version: 0.1.0
+  description: API contract for the BacaYu backend. Populated per feature as endpoints are implemented.
+servers:
+  - url: /api/v1
+paths: {}
+components:
+  schemas: {}
