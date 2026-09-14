@@ -5,7 +5,13 @@ import 'package:injectable/injectable.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/shelf/presentation/pages/shelf_page.dart';
+import '../../features/stats/presentation/pages/stats_page.dart';
+import '../../l10n/app_localizations.dart';
+import '../localization/build_context_extension.dart';
+import '../navigation/app_shell.dart';
 import '../storage/secure_token_storage.dart';
 
 /// Route paths as constants — never hardcode a path string at a call site.
@@ -17,6 +23,9 @@ class AppRoutes {
   static const register = '/register';
   static const onboarding = '/onboarding';
   static const home = '/home';
+  static const shelf = '/shelf';
+  static const stats = '/stats';
+  static const profile = '/profile';
 }
 
 /// Routes reachable without an auth token.
@@ -58,25 +67,64 @@ abstract class AppRouterModule {
           path: AppRoutes.onboarding,
           builder: (context, state) => const OnboardingPage(),
         ),
-        GoRoute(
-          path: AppRoutes.home,
-          builder: (context, state) => const _PlaceholderPage(title: 'Home'),
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) =>
+              AppShell(navigationShell: navigationShell),
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.home,
+                  builder: (context, state) => const HomePage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.shelf,
+                  builder: (context, state) => const ShelfPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.stats,
+                  builder: (context, state) => const StatsPage(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppRoutes.profile,
+                  builder: (context, state) => _PlaceholderTabPage(
+                    titleBuilder: (l10n) => l10n.tabProfile,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     );
   }
 }
 
-/// Stand-in until `home` lands with its own feature.
-class _PlaceholderPage extends StatelessWidget {
-  const _PlaceholderPage({required this.title});
+/// Stand-in for `profile` — not scoped yet (same gap `onboarding` was in
+/// before `books`/`shelf` landed).
+class _PlaceholderTabPage extends StatelessWidget {
+  const _PlaceholderTabPage({required this.titleBuilder});
 
-  final String title;
+  final String Function(AppLocalizations l10n) titleBuilder;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      body: Center(child: Text(title)),
+      appBar: AppBar(title: Text(titleBuilder(l10n))),
+      body: Center(child: Text(l10n.comingSoon)),
     );
   }
 }

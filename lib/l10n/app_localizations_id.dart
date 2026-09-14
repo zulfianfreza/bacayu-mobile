@@ -245,4 +245,103 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get newBadge => 'Badge baru!';
+
+  @override
+  String get tabHome => 'Home';
+
+  @override
+  String get tabShelf => 'Rak';
+
+  @override
+  String get tabStats => 'Statistik';
+
+  @override
+  String get tabProfile => 'Profil';
+
+  @override
+  String get comingSoon => 'Segera hadir';
+
+  @override
+  String get startSession => 'Mulai sesi';
+
+  @override
+  String get yourStats => 'Statistikmu';
+
+  @override
+  String get rangeWeek => 'Minggu ini';
+
+  @override
+  String get rangeMonth => 'Bulan ini';
+
+  @override
+  String get rangeYear => 'Tahun ini';
+
+  @override
+  String get rangeAll => 'Sepanjang waktu';
+
+  @override
+  String get metricBooksFinished => 'Buku selesai';
+
+  @override
+  String get metricPagesRead => 'Halaman dibaca';
+
+  @override
+  String get metricTimeReading => 'Waktu membaca';
+
+  @override
+  String get metricAvgSpeed => 'Kecepatan rata-rata (ppm)';
+
+  @override
+  String get yourBadges => 'Badge kamu';
+
+  @override
+  String get seeAll => 'Lihat semua';
+
+  @override
+  String get noBadgesYet => 'Belum ada badge — terus baca!';
+
+  @override
+  String get badgeGalleryTitle => 'Badge kamu';
+
+  @override
+  String get awesome => 'Keren!';
+
+  @override
+  String get feedTitle => 'Aktivitas';
+
+  @override
+  String get feedEmpty =>
+      'Belum ada aktivitas — mulai sesi baca buat lihat di sini.';
+
+  @override
+  String speedPpmValue(String speed) {
+    return '$speed ppm';
+  }
+
+  @override
+  String homeGreeting(String name) {
+    return 'Hai, $name';
+  }
+
+  @override
+  String get dayStreak => 'hari beruntun';
+
+  @override
+  String get viewFullHeatmap => 'Lihat heatmap lengkap';
+
+  @override
+  String get continueReading => 'Lanjut baca';
+
+  @override
+  String get recentActivity => 'Aktivitas terbaru';
+
+  @override
+  String get viewAllActivity => 'Lihat semua';
+
+  @override
+  String get startFirstSessionCta => 'Mulai sesi membaca pertamamu';
+
+  @override
+  String get startFirstSessionBody =>
+      'Pilih buku dari rakmu dan mulai timer pertamamu.';
 }

@@ -37,6 +37,16 @@ import 'package:mobile/features/auth/domain/usecases/update_profile.dart'
     as _i362;
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart'
     as _i948;
+import 'package:mobile/features/badges/data/datasources/badge_remote_datasource.dart'
+    as _i257;
+import 'package:mobile/features/badges/data/repositories/badge_repository_impl.dart'
+    as _i584;
+import 'package:mobile/features/badges/domain/repositories/badge_repository.dart'
+    as _i787;
+import 'package:mobile/features/badges/domain/usecases/get_all_badges.dart'
+    as _i437;
+import 'package:mobile/features/badges/presentation/cubit/badge_cubit.dart'
+    as _i945;
 import 'package:mobile/features/books/data/datasources/book_remote_datasource.dart'
     as _i701;
 import 'package:mobile/features/books/data/repositories/book_repository_impl.dart'
@@ -55,6 +65,17 @@ import 'package:mobile/features/books/domain/usecases/search_books.dart'
     as _i791;
 import 'package:mobile/features/books/presentation/bloc/book_search_bloc.dart'
     as _i380;
+import 'package:mobile/features/feed/data/datasources/feed_remote_datasource.dart'
+    as _i932;
+import 'package:mobile/features/feed/data/repositories/feed_repository_impl.dart'
+    as _i487;
+import 'package:mobile/features/feed/domain/repositories/feed_repository.dart'
+    as _i674;
+import 'package:mobile/features/feed/domain/usecases/get_feed.dart' as _i108;
+import 'package:mobile/features/feed/presentation/cubit/feed_cubit.dart'
+    as _i498;
+import 'package:mobile/features/home/presentation/cubit/home_cubit.dart'
+    as _i1054;
 import 'package:mobile/features/onboarding/presentation/cubit/onboarding_cubit.dart'
     as _i423;
 import 'package:mobile/features/sessions/data/datasources/session_local_datasource.dart'
@@ -86,6 +107,18 @@ import 'package:mobile/features/shelf/domain/usecases/update_shelf_status.dart'
     as _i88;
 import 'package:mobile/features/shelf/presentation/cubit/shelf_cubit.dart'
     as _i1011;
+import 'package:mobile/features/stats/data/datasources/stats_remote_datasource.dart'
+    as _i711;
+import 'package:mobile/features/stats/data/repositories/stats_repository_impl.dart'
+    as _i554;
+import 'package:mobile/features/stats/domain/repositories/stats_repository.dart'
+    as _i385;
+import 'package:mobile/features/stats/domain/usecases/get_heatmap.dart'
+    as _i485;
+import 'package:mobile/features/stats/domain/usecases/get_stats_summary.dart'
+    as _i884;
+import 'package:mobile/features/stats/presentation/cubit/stats_cubit.dart'
+    as _i428;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -123,8 +156,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1044.AuthRemoteDataSource>(
       () => _i1044.AuthRemoteDataSource(gh<_i361.Dio>()),
     );
+    gh.factory<_i257.BadgeRemoteDataSource>(
+      () => _i257.BadgeRemoteDataSource(gh<_i361.Dio>()),
+    );
     gh.factory<_i701.BookRemoteDataSource>(
       () => _i701.BookRemoteDataSource(gh<_i361.Dio>()),
+    );
+    gh.factory<_i932.FeedRemoteDataSource>(
+      () => _i932.FeedRemoteDataSource(gh<_i361.Dio>()),
     );
     gh.factory<_i871.SessionRemoteDataSource>(
       () => _i871.SessionRemoteDataSource(gh<_i361.Dio>()),
@@ -132,11 +171,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i192.ShelfRemoteDataSource>(
       () => _i192.ShelfRemoteDataSource(gh<_i361.Dio>()),
     );
+    gh.factory<_i711.StatsRemoteDataSource>(
+      () => _i711.StatsRemoteDataSource(gh<_i361.Dio>()),
+    );
     gh.lazySingleton<_i202.AuthRepository>(
       () => _i950.AuthRepositoryImpl(
         gh<_i1044.AuthRemoteDataSource>(),
         gh<_i839.SecureTokenStorage>(),
       ),
+    );
+    gh.lazySingleton<_i385.StatsRepository>(
+      () => _i554.StatsRepositoryImpl(gh<_i711.StatsRemoteDataSource>()),
     );
     gh.factory<_i310.CompleteOnboarding>(
       () => _i310.CompleteOnboarding(gh<_i202.AuthRepository>()),
@@ -157,6 +202,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i362.UpdateProfile>(),
         gh<_i310.CompleteOnboarding>(),
       ),
+    );
+    gh.lazySingleton<_i787.BadgeRepository>(
+      () => _i584.BadgeRepositoryImpl(gh<_i257.BadgeRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i674.FeedRepository>(
+      () => _i487.FeedRepositoryImpl(gh<_i932.FeedRemoteDataSource>()),
+    );
+    gh.factory<_i485.GetHeatmap>(
+      () => _i485.GetHeatmap(gh<_i385.StatsRepository>()),
+    );
+    gh.factory<_i884.GetStatsSummary>(
+      () => _i884.GetStatsSummary(gh<_i385.StatsRepository>()),
     );
     gh.lazySingleton<_i104.SessionSyncWorker>(
       () => _i104.SessionSyncWorker(
@@ -203,6 +260,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i451.ImportBookFromGoogle>(),
       ),
     );
+    gh.factory<_i437.GetAllBadges>(
+      () => _i437.GetAllBadges(gh<_i787.BadgeRepository>()),
+    );
+    gh.factory<_i945.BadgeCubit>(
+      () => _i945.BadgeCubit(gh<_i437.GetAllBadges>()),
+    );
+    gh.factory<_i428.StatsCubit>(
+      () =>
+          _i428.StatsCubit(gh<_i884.GetStatsSummary>(), gh<_i485.GetHeatmap>()),
+    );
+    gh.factory<_i108.GetFeed>(() => _i108.GetFeed(gh<_i674.FeedRepository>()));
     gh.lazySingleton<_i180.ShelfRepository>(
       () => _i841.ShelfRepositoryImpl(
         gh<_i192.ShelfRemoteDataSource>(),
@@ -215,6 +283,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i621.SubmitSession>(
       () => _i621.SubmitSession(gh<_i769.SessionRepository>()),
     );
+    gh.factory<_i498.FeedCubit>(() => _i498.FeedCubit(gh<_i108.GetFeed>()));
     gh.factory<_i928.SessionTimerCubit>(
       () => _i928.SessionTimerCubit(gh<_i621.SubmitSession>()),
     );
@@ -226,6 +295,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i88.UpdateShelfStatus>(
       () => _i88.UpdateShelfStatus(gh<_i180.ShelfRepository>()),
+    );
+    gh.factory<_i1054.HomeCubit>(
+      () => _i1054.HomeCubit(
+        gh<_i1052.GetCurrentUser>(),
+        gh<_i485.GetHeatmap>(),
+        gh<_i156.ListShelf>(),
+        gh<_i108.GetFeed>(),
+      ),
     );
     gh.factory<_i1011.ShelfCubit>(
       () => _i1011.ShelfCubit(

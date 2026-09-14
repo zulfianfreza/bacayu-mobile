@@ -547,6 +547,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New badge!'**
   String get newBadge;
+
+  /// Bottom nav tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get tabHome;
+
+  /// Bottom nav tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Shelf'**
+  String get tabShelf;
+
+  /// Bottom nav tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Stats'**
+  String get tabStats;
+
+  /// Bottom nav tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get tabProfile;
+
+  /// Placeholder body text for a tab not built yet
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get comingSoon;
+
+  /// FAB tooltip — opens the book picker to start a reading session
+  ///
+  /// In en, this message translates to:
+  /// **'Start session'**
+  String get startSession;
+
+  /// Stats page app bar title
+  ///
+  /// In en, this message translates to:
+  /// **'Your stats'**
+  String get yourStats;
+
+  /// Stats range segmented control option
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get rangeWeek;
+
+  /// Stats range segmented control option
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get rangeMonth;
+
+  /// Stats range segmented control option
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get rangeYear;
+
+  /// Stats range segmented control option
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get rangeAll;
+
+  /// Stats metric card label
+  ///
+  /// In en, this message translates to:
+  /// **'Books finished'**
+  String get metricBooksFinished;
+
+  /// Stats metric card label
+  ///
+  /// In en, this message translates to:
+  /// **'Pages read'**
+  String get metricPagesRead;
+
+  /// Stats metric card label
+  ///
+  /// In en, this message translates to:
+  /// **'Time reading'**
+  String get metricTimeReading;
+
+  /// Stats metric card label
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. speed (ppm)'**
+  String get metricAvgSpeed;
+
+  /// Badge preview row heading on the stats page
+  ///
+  /// In en, this message translates to:
+  /// **'Your badges'**
+  String get yourBadges;
+
+  /// Link to the full badge collection (not built yet)
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAll;
+
+  /// Badge preview row empty state
+  ///
+  /// In en, this message translates to:
+  /// **'No badges yet — keep reading!'**
+  String get noBadgesYet;
+
+  /// Badge gallery page app bar title
+  ///
+  /// In en, this message translates to:
+  /// **'Your badges'**
+  String get badgeGalleryTitle;
+
+  /// Dismiss button on the badge-unlocked modal
+  ///
+  /// In en, this message translates to:
+  /// **'Awesome!'**
+  String get awesome;
+
+  /// Feed page app bar title
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get feedTitle;
+
+  /// Feed empty state
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet — start a reading session to see it here.'**
+  String get feedEmpty;
+
+  /// Reading speed shown on a session activity card
+  ///
+  /// In en, this message translates to:
+  /// **'{speed} ppm'**
+  String speedPpmValue(String speed);
+
+  /// Home page header greeting
+  ///
+  /// In en, this message translates to:
+  /// **'Hi, {name}'**
+  String homeGreeting(String name);
+
+  /// Label under the big streak number on the home page
+  ///
+  /// In en, this message translates to:
+  /// **'day streak'**
+  String get dayStreak;
+
+  /// Link under the home page's 7-day heatmap strip, opens Stats
+  ///
+  /// In en, this message translates to:
+  /// **'View full heatmap'**
+  String get viewFullHeatmap;
+
+  /// Home page section heading
+  ///
+  /// In en, this message translates to:
+  /// **'Continue reading'**
+  String get continueReading;
+
+  /// Home page section heading
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get recentActivity;
+
+  /// Link at the end of the home page's Recent activity section, opens Feed
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get viewAllActivity;
+
+  /// Home page empty-state call to action (new user, no sessions yet)
+  ///
+  /// In en, this message translates to:
+  /// **'Start your first reading session'**
+  String get startFirstSessionCta;
+
+  /// Home page empty-state supporting text
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a book from your shelf and start your first timer.'**
+  String get startFirstSessionBody;
 }
 
 class _AppLocalizationsDelegate

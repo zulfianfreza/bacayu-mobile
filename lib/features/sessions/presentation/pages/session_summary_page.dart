@@ -3,12 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
+import '../../../badges/presentation/widgets/badge_unlocked_modal.dart';
 import '../../../shelf/domain/entities/user_book.dart';
-import '../../domain/entities/unlocked_badge.dart';
 import '../cubit/session_timer_cubit.dart';
 import '../cubit/session_timer_state.dart';
 
@@ -29,6 +27,11 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
       TextEditingController(text: widget.userBook.currentPage.toString());
   final _endPageController = TextEditingController();
 
+  // A late `onSyncedWithBadges` callback can re-emit `SessionTimerSubmitted`
+  // after the badges already showed once — track which ones we've already
+  // popped the modal for so it never shows twice.
+  final Set<String> _shownBadgeIds = {};
+
   @override
   void dispose() {
     _startPageController.dispose();
@@ -41,6 +44,19 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
         int.tryParse(_startPageController.text) ?? widget.userBook.currentPage;
     final endPage = int.tryParse(_endPageController.text) ?? startPage;
     context.read<SessionTimerCubit>().submit(startPage: startPage, endPage: endPage);
+  }
+
+  Future<void> _showNewBadges(BuildContext context, SessionTimerSubmitted state) async {
+    for (final badge in state.badgesUnlocked) {
+      if (!_shownBadgeIds.add(badge.badgeId)) continue;
+      if (!context.mounted) return;
+      await BadgeUnlockedModal.show(
+        context,
+        name: badge.name,
+        icon: badge.icon,
+        description: badge.description,
+      );
+    }
   }
 
   @override
@@ -56,6 +72,8 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.failure.localizedMessage(context))),
               );
+            } else if (state is SessionTimerSubmitted && state.badgesUnlocked.isNotEmpty) {
+              _showNewBadges(context, state);
             }
           },
           builder: (context, state) {
@@ -110,14 +128,6 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
                     ),
                   ],
                 ),
-                if (submitted != null && submitted.badgesUnlocked.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  for (final badge in submitted.badgesUnlocked)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _BadgeBanner(badge: badge),
-                    ),
-                ],
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: (submitted != null || isSubmitting)
@@ -138,43 +148,6 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
             );
           },
         ),
-      ),
-    );
-  }
-}
-
-class _BadgeBanner extends StatelessWidget {
-  const _BadgeBanner({required this.badge});
-
-  final UnlockedBadge badge;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.sunshine100,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.military_tech, color: AppColors.sunshine700, size: 32),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.newBadge,
-                  style: AppTypography.caption.copyWith(color: AppColors.sunshine700),
-                ),
-                Text(badge.name, style: AppTypography.subheading),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

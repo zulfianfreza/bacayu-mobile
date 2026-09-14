@@ -245,4 +245,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newBadge => 'New badge!';
+
+  @override
+  String get tabHome => 'Home';
+
+  @override
+  String get tabShelf => 'Shelf';
+
+  @override
+  String get tabStats => 'Stats';
+
+  @override
+  String get tabProfile => 'Profile';
+
+  @override
+  String get comingSoon => 'Coming soon';
+
+  @override
+  String get startSession => 'Start session';
+
+  @override
+  String get yourStats => 'Your stats';
+
+  @override
+  String get rangeWeek => 'This week';
+
+  @override
+  String get rangeMonth => 'This month';
+
+  @override
+  String get rangeYear => 'This year';
+
+  @override
+  String get rangeAll => 'All time';
+
+  @override
+  String get metricBooksFinished => 'Books finished';
+
+  @override
+  String get metricPagesRead => 'Pages read';
+
+  @override
+  String get metricTimeReading => 'Time reading';
+
+  @override
+  String get metricAvgSpeed => 'Avg. speed (ppm)';
+
+  @override
+  String get yourBadges => 'Your badges';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get noBadgesYet => 'No badges yet — keep reading!';
+
+  @override
+  String get badgeGalleryTitle => 'Your badges';
+
+  @override
+  String get awesome => 'Awesome!';
+
+  @override
+  String get feedTitle => 'Activity';
+
+  @override
+  String get feedEmpty =>
+      'No activity yet — start a reading session to see it here.';
+
+  @override
+  String speedPpmValue(String speed) {
+    return '$speed ppm';
+  }
+
+  @override
+  String homeGreeting(String name) {
+    return 'Hi, $name';
+  }
+
+  @override
+  String get dayStreak => 'day streak';
+
+  @override
+  String get viewFullHeatmap => 'View full heatmap';
+
+  @override
+  String get continueReading => 'Continue reading';
+
+  @override
+  String get recentActivity => 'Recent activity';
+
+  @override
+  String get viewAllActivity => 'View all';
+
+  @override
+  String get startFirstSessionCta => 'Start your first reading session';
+
+  @override
+  String get startFirstSessionBody =>
+      'Pick a book from your shelf and start your first timer.';
 }

@@ -297,5 +297,139 @@
   "newBadge": "New badge!",
   "@newBadge": {
     "description": "Celebratory banner heading when a session unlocks a badge"
+  },
+  "tabHome": "Home",
+  "@tabHome": {
+    "description": "Bottom nav tab label"
+  },
+  "tabShelf": "Shelf",
+  "@tabShelf": {
+    "description": "Bottom nav tab label"
+  },
+  "tabStats": "Stats",
+  "@tabStats": {
+    "description": "Bottom nav tab label"
+  },
+  "tabProfile": "Profile",
+  "@tabProfile": {
+    "description": "Bottom nav tab label"
+  },
+  "comingSoon": "Coming soon",
+  "@comingSoon": {
+    "description": "Placeholder body text for a tab not built yet"
+  },
+  "startSession": "Start session",
+  "@startSession": {
+    "description": "FAB tooltip — opens the book picker to start a reading session"
+  },
+  "yourStats": "Your stats",
+  "@yourStats": {
+    "description": "Stats page app bar title"
+  },
+  "rangeWeek": "This week",
+  "@rangeWeek": {
+    "description": "Stats range segmented control option"
+  },
+  "rangeMonth": "This month",
+  "@rangeMonth": {
+    "description": "Stats range segmented control option"
+  },
+  "rangeYear": "This year",
+  "@rangeYear": {
+    "description": "Stats range segmented control option"
+  },
+  "rangeAll": "All time",
+  "@rangeAll": {
+    "description": "Stats range segmented control option"
+  },
+  "metricBooksFinished": "Books finished",
+  "@metricBooksFinished": {
+    "description": "Stats metric card label"
+  },
+  "metricPagesRead": "Pages read",
+  "@metricPagesRead": {
+    "description": "Stats metric card label"
+  },
+  "metricTimeReading": "Time reading",
+  "@metricTimeReading": {
+    "description": "Stats metric card label"
+  },
+  "metricAvgSpeed": "Avg. speed (ppm)",
+  "@metricAvgSpeed": {
+    "description": "Stats metric card label"
+  },
+  "yourBadges": "Your badges",
+  "@yourBadges": {
+    "description": "Badge preview row heading on the stats page"
+  },
+  "seeAll": "See all",
+  "@seeAll": {
+    "description": "Link to the full badge collection (not built yet)"
+  },
+  "noBadgesYet": "No badges yet — keep reading!",
+  "@noBadgesYet": {
+    "description": "Badge preview row empty state"
+  },
+  "badgeGalleryTitle": "Your badges",
+  "@badgeGalleryTitle": {
+    "description": "Badge gallery page app bar title"
+  },
+  "awesome": "Awesome!",
+  "@awesome": {
+    "description": "Dismiss button on the badge-unlocked modal"
+  },
+  "feedTitle": "Activity",
+  "@feedTitle": {
+    "description": "Feed page app bar title"
+  },
+  "feedEmpty": "No activity yet — start a reading session to see it here.",
+  "@feedEmpty": {
+    "description": "Feed empty state"
+  },
+  "speedPpmValue": "{speed} ppm",
+  "@speedPpmValue": {
+    "description": "Reading speed shown on a session activity card",
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreeting": "Hi, {name}",
+  "@homeGreeting": {
+    "description": "Home page header greeting",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dayStreak": "day streak",
+  "@dayStreak": {
+    "description": "Label under the big streak number on the home page"
+  },
+  "viewFullHeatmap": "View full heatmap",
+  "@viewFullHeatmap": {
+    "description": "Link under the home page's 7-day heatmap strip, opens Stats"
+  },
+  "continueReading": "Continue reading",
+  "@continueReading": {
+    "description": "Home page section heading"
+  },
+  "recentActivity": "Recent activity",
+  "@recentActivity": {
+    "description": "Home page section heading"
+  },
+  "viewAllActivity": "View all",
+  "@viewAllActivity": {
+    "description": "Link at the end of the home page's Recent activity section, opens Feed"
+  },
+  "startFirstSessionCta": "Start your first reading session",
+  "@startFirstSessionCta": {
+    "description": "Home page empty-state call to action (new user, no sessions yet)"
+  },
+  "startFirstSessionBody": "Pick a book from your shelf and start your first timer.",
+  "@startFirstSessionBody": {
+    "description": "Home page empty-state supporting text"
   }
 }

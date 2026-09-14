@@ -14,19 +14,25 @@ import '../widgets/book_picker_bottom_sheet.dart';
 import 'session_summary_page.dart';
 
 class SessionTimerPage extends StatelessWidget {
-  const SessionTimerPage({super.key});
+  const SessionTimerPage({super.key, this.initialUserBook});
+
+  /// When provided (e.g. the shell FAB already ran the picker), the page
+  /// starts the timer immediately instead of showing its own picker.
+  final UserBook? initialUserBook;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => getIt<SessionTimerCubit>(),
-      child: const _SessionTimerView(),
+      child: _SessionTimerView(initialUserBook: initialUserBook),
     );
   }
 }
 
 class _SessionTimerView extends StatefulWidget {
-  const _SessionTimerView();
+  const _SessionTimerView({this.initialUserBook});
+
+  final UserBook? initialUserBook;
 
   @override
   State<_SessionTimerView> createState() => _SessionTimerViewState();
@@ -38,7 +44,15 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _pickBook());
+    final preselected = widget.initialUserBook;
+    if (preselected != null) {
+      _selectedBook = preselected;
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => context.read<SessionTimerCubit>().start(userBookId: preselected.id),
+      );
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _pickBook());
+    }
   }
 
   Future<void> _pickBook() async {
