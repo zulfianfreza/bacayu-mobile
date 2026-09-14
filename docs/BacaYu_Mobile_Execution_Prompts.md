@@ -133,7 +133,7 @@ Scope:
 
 - presentation/cubit/shelf_cubit.dart: Cubit biasa cukup (tidak perlu debounce/event kompleks di sini), state berisi list + filter status aktif
 - presentation/pages/shelf_page.dart: filter pill tabs (All/Want to Read/Reading/Finished/DNF) sesuai UI Generation Prompts Section 3, list ShelfBookCard (cover, title, status chip warna sesuai Style Guide Section 6.5, progress bar Lagoon untuk status Reading)
-- presentation/widgets/shelf_book_card.dart
+- presentation/widgets/shelf_book_card.dart — tap card navigasi ke book_detail_page milik fitur "books" (reuse, JANGAN bikin halaman detail baru di sini — sesuai catatan di retrofit books kemarin)
 
 CATATAN UX — jangan berharap badges_unlocked muncul di response AddToShelf/UpdateShelfStatus: fast-path badge sinkron cuma diimplementasikan di endpoint sessions (lihat CLAUDE.md backend Section 8.4), bukan di shelf. Kalau user menyelesaikan buku (status→finished) dan itu trigger badge books_finished, badge-nya baru muncul async lewat push notification atau saat buka tab Badge — BUKAN langsung di response PATCH ini. Jangan bikin UI yang menunggu/berharap field itu ada di response shelf.
 
@@ -162,24 +162,26 @@ Semua copy onboarding (headline, genre chip label, CTA) lewat context.l10n.
 ### Contoh konkret — fitur `sessions` (paling kritikal, offline-first):
 
 ```
-Implementasikan fitur "sessions" sesuai CLAUDE.md, khususnya Section 6 (Offline-First Session) — WAJIB dibaca ulang sebelum mulai.
+Implementasikan fitur "sessions" sesuai CLAUDE.md, khususnya Section 6 (Offline-First Session, termasuk Section 6.1 Akurasi Timer & 6.2 Offline-First Sync) — WAJIB dibaca ulang sebelum mulai.
 
 Scope:
 - domain/: entity ReadingSession + PauseInterval, abstract SessionRepository (submitSession, getHistory), usecases SubmitSession, GetSessionHistory
 - data/:
-  - Tambahkan tabel Drift PendingSessions (client_id PK, payload JSON, synced bool, created_at) di app_database.dart
+  - Tambahkan tabel Drift PendingSessions (client_id PK, payload JSON, synced bool, created_at) di app_database.dart — ini HANYA untuk sesi yang sudah di-Stop & lengkap datanya (Tahap B), BUKAN untuk timer yang masih berjalan (Tahap A tidak perlu persistence apa pun, lihat CLAUDE.md 6.1)
   - SessionRemoteDataSource: POST /sessions, GET /sessions
   - SessionLocalDataSource: enqueue(session) ke PendingSessions, markSynced(clientId), getUnsynced()
   - SessionRepositoryImpl: submitSession() enqueue local DULU (return sukses ke Cubit dari local save, tidak nunggu network), lalu coba kirim ke remote di background; kalau gagal, biarkan row tetap unsynced untuk di-retry sync worker
   - SessionSyncWorker: pakai workmanager atau listener connectivity_plus, jalan periodik/saat reconnect, kirim ulang semua PendingSessions yang unsynced, exponential backoff sederhana
 - presentation/:
-  - SessionTimerCubit — state machine idle/running/paused/stopped/submitting/submitted/error, expose start()/pause()/resume()/stop(), hitung active_duration_seconds & pause_intervals di dalam Cubit ini sendiri (logic timer di frontend, sesuai keputusan awal di PRD)
+  - BookPickerBottomSheet — daftar buku status "Reading" untuk dipilih sebelum mulai timer. REUSE ListShelf usecase milik fitur "shelf" (filter status=reading), JANGAN query ulang/duplikasi logic di sini.
+  - SessionTimerCubit — state machine idle/running/paused/stopped/submitting/submitted/error. WAJIB hitung active_duration_seconds dari SELISIH TIMESTAMP (start_time, pause_intervals dengan pausedAt/resumedAt, DateTime.now() saat perlu), BUKAN dari counter yang di-increment Timer.periodic. Implementasikan WidgetsBindingObserver untuk detect AppLifecycleState: saat paused/inactive cukup hentikan UI ticker kosmetik (tanpa menambah pause_interval — app di-background TIDAK dianggap pause, sesuai keputusan produk), saat resumed hitung ulang elapsed dari timestamp & restart ticker dengan nilai benar.
+  - Kalau app di-kill total saat status masih running/paused (belum sempat Stop): terima sebagai reset, SessionTimerCubit mulai dari idle lagi saat app dibuka — ini keputusan produk yang disengaja, JANGAN implementasikan mekanisme recovery/restore untuk kasus ini.
   - SessionTimerPage — UI sesuai UI Generation Prompts Section 5 (circular timer, pause/stop button)
-  - SessionSummaryPage — setelah stop, input start_page/end_page, tampilkan badges_unlocked kalau ada di response (fast-path badge dari backend)
+  - SessionSummaryPage — setelah stop, input start_page (PREFILL dari UserBook.currentPage milik buku yang dipilih — ambil dari data shelf yang sudah di-load di BookPickerBottomSheet, jangan minta user ketik manual dari 0 tiap kali) & end_page, tampilkan badges_unlocked kalau ada di response (fast-path badge dari backend)
 
-client_id di-generate pakai package uuid SAAT user tap "Start", bukan saat submit — supaya kalau app crash di tengah sesi, client_id yang sama masih bisa dipakai untuk resume/retry nanti (opsional improvement, minimal generate di awal timer).
+client_id di-generate pakai package uuid SAAT user tap "Start", bukan saat submit — ini cuma soal kapan ID-nya dibuat (dipakai nanti pas submit ke tahap B), BUKAN untuk resume timer yang crash di tahap A (yang sudah disepakati: reset saja, tidak ada recovery).
 
-Tulis unit test untuk SessionTimerCubit (state transition idle→running→paused→running→stopped, pastikan pause_intervals ter-record dengan benar) dan SessionRepositoryImpl (submit saat offline harus tetap "sukses" dari sisi Cubit, tersimpan di PendingSessions, tidak error ke UI).
+Tulis unit test untuk SessionTimerCubit: state transition idle→running→paused→running→stopped (pastikan pause_intervals ter-record dengan benar), DAN kasus khusus — simulasikan app background lalu resume (mock DateTime/lifecycle), pastikan active_duration_seconds dihitung benar dari timestamp meski UI ticker sempat berhenti selama "background". Tulis juga unit test SessionRepositoryImpl (submit saat offline harus tetap "sukses" dari sisi Cubit, tersimpan di PendingSessions, tidak error ke UI).
 
 Semua label di SessionTimerPage/SessionSummaryPage lewat context.l10n.
 ```

@@ -64,5 +64,15 @@
   "genreMystery": "Misteri",
   "genreBiography": "Biografi",
   "genreSciFi": "Fiksi ilmiah",
-  "genrePoetry": "Puisi"
+  "genrePoetry": "Puisi",
+  "whatAreYouReading": "Lagi baca buku apa?",
+  "noReadingBooks": "Belum ada buku yang lagi dibaca. Tambah dulu ke rakmu.",
+  "pausesSoFar": "{count} kali jeda",
+  "sessionSummary": "Ringkasan sesi",
+  "totalDuration": "Total durasi",
+  "startPage": "Halaman awal",
+  "endPage": "Halaman akhir",
+  "saveSession": "Simpan sesi",
+  "sessionSaved": "Sesi tersimpan",
+  "newBadge": "Badge baru!"
 }

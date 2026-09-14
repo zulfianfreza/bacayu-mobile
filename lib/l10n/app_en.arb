@@ -252,5 +252,50 @@
   "genreMystery": "Mystery",
   "genreBiography": "Biography",
   "genreSciFi": "Sci-fi",
-  "genrePoetry": "Poetry"
+  "genrePoetry": "Poetry",
+  "whatAreYouReading": "What are you reading?",
+  "@whatAreYouReading": {
+    "description": "Book picker bottom sheet heading, before starting a reading session"
+  },
+  "noReadingBooks": "No books in progress. Add one to your shelf first.",
+  "@noReadingBooks": {
+    "description": "Book picker empty state — no shelf entries with status Reading"
+  },
+  "pausesSoFar": "{count} pauses so far",
+  "@pausesSoFar": {
+    "description": "Caption under the running/paused session timer",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionSummary": "Session summary",
+  "@sessionSummary": {
+    "description": "Session summary page app bar title"
+  },
+  "totalDuration": "Total duration",
+  "@totalDuration": {
+    "description": "Session summary card label"
+  },
+  "startPage": "Start page",
+  "@startPage": {
+    "description": "Session summary start page field label"
+  },
+  "endPage": "End page",
+  "@endPage": {
+    "description": "Session summary end page field label"
+  },
+  "saveSession": "Save session",
+  "@saveSession": {
+    "description": "Session summary primary button"
+  },
+  "sessionSaved": "Session saved",
+  "@sessionSaved": {
+    "description": "Session summary button label after a successful submit"
+  },
+  "newBadge": "New badge!",
+  "@newBadge": {
+    "description": "Celebratory banner heading when a session unlocks a badge"
+  }
 }

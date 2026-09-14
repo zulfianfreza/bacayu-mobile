@@ -212,4 +212,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get genrePoetry => 'Poetry';
+
+  @override
+  String get whatAreYouReading => 'What are you reading?';
+
+  @override
+  String get noReadingBooks =>
+      'No books in progress. Add one to your shelf first.';
+
+  @override
+  String pausesSoFar(int count) {
+    return '$count pauses so far';
+  }
+
+  @override
+  String get sessionSummary => 'Session summary';
+
+  @override
+  String get totalDuration => 'Total duration';
+
+  @override
+  String get startPage => 'Start page';
+
+  @override
+  String get endPage => 'End page';
+
+  @override
+  String get saveSession => 'Save session';
+
+  @override
+  String get sessionSaved => 'Session saved';
+
+  @override
+  String get newBadge => 'New badge!';
 }

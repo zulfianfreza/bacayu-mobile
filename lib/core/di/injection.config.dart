@@ -10,6 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 
+import 'package:connectivity_plus/connectivity_plus.dart' as _i895;
 import 'package:dio/dio.dart' as _i361;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:go_router/go_router.dart' as _i583;
@@ -56,6 +57,22 @@ import 'package:mobile/features/books/presentation/bloc/book_search_bloc.dart'
     as _i380;
 import 'package:mobile/features/onboarding/presentation/cubit/onboarding_cubit.dart'
     as _i423;
+import 'package:mobile/features/sessions/data/datasources/session_local_datasource.dart'
+    as _i677;
+import 'package:mobile/features/sessions/data/datasources/session_remote_datasource.dart'
+    as _i871;
+import 'package:mobile/features/sessions/data/repositories/session_repository_impl.dart'
+    as _i431;
+import 'package:mobile/features/sessions/data/sync/session_sync_worker.dart'
+    as _i104;
+import 'package:mobile/features/sessions/domain/repositories/session_repository.dart'
+    as _i769;
+import 'package:mobile/features/sessions/domain/usecases/get_session_history.dart'
+    as _i759;
+import 'package:mobile/features/sessions/domain/usecases/submit_session.dart'
+    as _i621;
+import 'package:mobile/features/sessions/presentation/cubit/session_timer_cubit.dart'
+    as _i928;
 import 'package:mobile/features/shelf/data/datasources/shelf_remote_datasource.dart'
     as _i192;
 import 'package:mobile/features/shelf/data/repositories/shelf_repository_impl.dart'
@@ -79,6 +96,7 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final sharedPreferencesModule = _$SharedPreferencesModule();
+    final connectivityModule = _$ConnectivityModule();
     final dioClientModule = _$DioClientModule();
     final appRouterModule = _$AppRouterModule();
     await gh.factoryAsync<_i460.SharedPreferences>(
@@ -89,6 +107,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i839.SecureTokenStorage>(
       () => _i839.SecureTokenStorage(),
     );
+    gh.lazySingleton<_i895.Connectivity>(() => connectivityModule.connectivity);
     gh.lazySingleton<_i390.LocaleCubit>(
       () => _i390.LocaleCubit(gh<_i460.SharedPreferences>()),
     );
@@ -98,11 +117,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i583.GoRouter>(
       () => appRouterModule.goRouter(gh<_i839.SecureTokenStorage>()),
     );
+    gh.factory<_i677.SessionLocalDataSource>(
+      () => _i677.SessionLocalDataSource(gh<_i141.AppDatabase>()),
+    );
     gh.factory<_i1044.AuthRemoteDataSource>(
       () => _i1044.AuthRemoteDataSource(gh<_i361.Dio>()),
     );
     gh.factory<_i701.BookRemoteDataSource>(
       () => _i701.BookRemoteDataSource(gh<_i361.Dio>()),
+    );
+    gh.factory<_i871.SessionRemoteDataSource>(
+      () => _i871.SessionRemoteDataSource(gh<_i361.Dio>()),
     );
     gh.factory<_i192.ShelfRemoteDataSource>(
       () => _i192.ShelfRemoteDataSource(gh<_i361.Dio>()),
@@ -133,6 +158,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i310.CompleteOnboarding>(),
       ),
     );
+    gh.lazySingleton<_i104.SessionSyncWorker>(
+      () => _i104.SessionSyncWorker(
+        gh<_i677.SessionLocalDataSource>(),
+        gh<_i871.SessionRemoteDataSource>(),
+        gh<_i895.Connectivity>(),
+      ),
+    );
     gh.lazySingleton<_i223.BookRepository>(
       () => _i401.BookRepositoryImpl(gh<_i701.BookRemoteDataSource>()),
     );
@@ -150,6 +182,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i791.SearchBooks>(
       () => _i791.SearchBooks(gh<_i223.BookRepository>()),
+    );
+    gh.lazySingleton<_i769.SessionRepository>(
+      () => _i431.SessionRepositoryImpl(
+        gh<_i871.SessionRemoteDataSource>(),
+        gh<_i677.SessionLocalDataSource>(),
+      ),
     );
     gh.factory<_i948.AuthCubit>(
       () => _i948.AuthCubit(
@@ -171,6 +209,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i223.BookRepository>(),
       ),
     );
+    gh.factory<_i759.GetSessionHistory>(
+      () => _i759.GetSessionHistory(gh<_i769.SessionRepository>()),
+    );
+    gh.factory<_i621.SubmitSession>(
+      () => _i621.SubmitSession(gh<_i769.SessionRepository>()),
+    );
+    gh.factory<_i928.SessionTimerCubit>(
+      () => _i928.SessionTimerCubit(gh<_i621.SubmitSession>()),
+    );
     gh.factory<_i640.AddToShelf>(
       () => _i640.AddToShelf(gh<_i180.ShelfRepository>()),
     );
@@ -191,6 +238,8 @@ extension GetItInjectableX on _i174.GetIt {
 }
 
 class _$SharedPreferencesModule extends _i390.SharedPreferencesModule {}
+
+class _$ConnectivityModule extends _i104.ConnectivityModule {}
 
 class _$DioClientModule extends _i873.DioClientModule {}
 

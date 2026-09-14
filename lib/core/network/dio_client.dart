@@ -15,7 +15,7 @@ abstract class DioClientModule {
   Dio dio(SecureTokenStorage tokenStorage) {
     final dio = Dio(
       BaseOptions(
-        baseUrl: const String.fromEnvironment('API_BASE_URL'),
+        baseUrl: 'http://localhost:8080/api/v1',
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
       ),
@@ -54,14 +54,8 @@ class AuthInterceptor extends Interceptor {
 /// can be correlated to the matching backend log line.
 class RequestLoggingInterceptor extends Interceptor {
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
-    developer.log(
-      '--> ${options.method} ${options.uri}',
-      name: 'DioClient',
-    );
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    developer.log('--> ${options.method} ${options.uri}', name: 'DioClient');
     handler.next(options);
   }
 
@@ -80,10 +74,7 @@ class RequestLoggingInterceptor extends Interceptor {
   }
 
   @override
-  void onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     final requestId = _requestIdOf(err.response);
     developer.log(
       '<-- ERROR ${err.response?.statusCode} ${err.requestOptions.uri} '
@@ -120,7 +111,8 @@ Failure mapDioExceptionToFailure(DioException exception) {
 
   final body = response.data;
   final envelope = body is Map<String, dynamic> ? body : null;
-  final message = envelope?['message'] as String? ??
+  final message =
+      envelope?['message'] as String? ??
       exception.message ??
       'unexpected error';
   final data = envelope?['data'];

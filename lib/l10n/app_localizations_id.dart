@@ -212,4 +212,37 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get genrePoetry => 'Puisi';
+
+  @override
+  String get whatAreYouReading => 'Lagi baca buku apa?';
+
+  @override
+  String get noReadingBooks =>
+      'Belum ada buku yang lagi dibaca. Tambah dulu ke rakmu.';
+
+  @override
+  String pausesSoFar(int count) {
+    return '$count kali jeda';
+  }
+
+  @override
+  String get sessionSummary => 'Ringkasan sesi';
+
+  @override
+  String get totalDuration => 'Total durasi';
+
+  @override
+  String get startPage => 'Halaman awal';
+
+  @override
+  String get endPage => 'Halaman akhir';
+
+  @override
+  String get saveSession => 'Simpan sesi';
+
+  @override
+  String get sessionSaved => 'Sesi tersimpan';
+
+  @override
+  String get newBadge => 'Badge baru!';
 }

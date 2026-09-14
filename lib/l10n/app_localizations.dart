@@ -487,6 +487,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Poetry'**
   String get genrePoetry;
+
+  /// Book picker bottom sheet heading, before starting a reading session
+  ///
+  /// In en, this message translates to:
+  /// **'What are you reading?'**
+  String get whatAreYouReading;
+
+  /// Book picker empty state — no shelf entries with status Reading
+  ///
+  /// In en, this message translates to:
+  /// **'No books in progress. Add one to your shelf first.'**
+  String get noReadingBooks;
+
+  /// Caption under the running/paused session timer
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pauses so far'**
+  String pausesSoFar(int count);
+
+  /// Session summary page app bar title
+  ///
+  /// In en, this message translates to:
+  /// **'Session summary'**
+  String get sessionSummary;
+
+  /// Session summary card label
+  ///
+  /// In en, this message translates to:
+  /// **'Total duration'**
+  String get totalDuration;
+
+  /// Session summary start page field label
+  ///
+  /// In en, this message translates to:
+  /// **'Start page'**
+  String get startPage;
+
+  /// Session summary end page field label
+  ///
+  /// In en, this message translates to:
+  /// **'End page'**
+  String get endPage;
+
+  /// Session summary primary button
+  ///
+  /// In en, this message translates to:
+  /// **'Save session'**
+  String get saveSession;
+
+  /// Session summary button label after a successful submit
+  ///
+  /// In en, this message translates to:
+  /// **'Session saved'**
+  String get sessionSaved;
+
+  /// Celebratory banner heading when a session unlocks a badge
+  ///
+  /// In en, this message translates to:
+  /// **'New badge!'**
+  String get newBadge;
 }
 
 class _AppLocalizationsDelegate

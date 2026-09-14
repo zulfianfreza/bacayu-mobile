@@ -252,20 +252,31 @@ bacayu-mobile/
 - Log `request_id` dari response header/body di setiap error — memudahkan korelasi ke log backend saat debugging bareng tim backend.
 - Base URL & timeout Dio dari environment config (`--dart-define`), jangan hardcode.
 
-### 5.5 Localization
-
-- BacaYu mendukung Bahasa Indonesia & English (PRD Section 2.2). **Semua string yang tampil ke user** (label, button, error message, empty state, dst) **WAJIB** lewat `context.l10n.xxx` (`AppLocalizations` via extension di `core/localization/build_context_extension.dart`) — **TIDAK ADA** string hardcoded di widget manapun mulai Fase 2 dan seterusnya.
-- Sumber string: `lib/l10n/app_en.arb` (template) & `lib/l10n/app_id.arb`. Key generik lintas fitur (`retry`, `cancel`, `save`, dst) sudah ada dari setup awal; key spesifik 1 fitur ditambahkan **saat fitur itu dibangun**, bukan diisi di muka.
-- Error dari backend (`Failure`) di-localize lewat `core/error/failure_localizer.dart` — mapping `ServerFailure.code` ke key `l10n` yang sesuai. Kalau code belum ada mapping-nya (backend nambah error code baru duluan), **fallback ke `Failure.message` asli dari backend**, jangan sampai hilang/crash.
-- Locale aktif dikelola `core/localization/locale_cubit.dart`, persist ke `shared_preferences` (bukan data sensitif, beda dari auth token yang di `flutter_secure_storage`). Default ikut locale device kalau user belum pernah pilih manual.
-
 ---
 
 ## 6. Offline-First Session — Kontrak Penting dengan Backend
 
 Ini bagian paling kritikal karena **langsung terhubung ke desain backend** (`client_id` untuk idempotency, lihat CLAUDE.md backend Section 6.4).
 
-- Setiap sesi yang di-submit **selalu generate `client_id` (UUID) di sisi mobile**, sebelum tahu apakah akan sukses terkirim atau tidak.
+**Ada 2 tahap yang harus dibedakan perlakuannya** — jangan disamakan:
+
+| Tahap                                                          | Kondisi                                               | Kalau app di-kill OS                                                                                                                          |
+| -------------------------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A. Timer berjalan/pause** (sebelum user tekan Stop)          | Data cuma di memory (SessionTimerCubit)               | **Hilang, by design** — reset ke idle saat app dibuka lagi. TIDAK ADA mekanisme recovery untuk tahap ini (keputusan produk, bukan kelalaian). |
+| **B. Sesi sudah di-Stop & diisi start/end page** (siap submit) | Data lengkap, tersimpan ke `pending_sessions` (Drift) | **WAJIB selamat** — ini yang di-cover flow offline-first di bawah. Kalau tahap ini ikut hilang, itu bug.                                      |
+
+### 6.1 Akurasi Timer (Tahap A) — Timestamp, Bukan Counter
+
+- `active_duration_seconds` **dihitung dari selisih timestamp** (`DateTime.now()` di tiap event start/pause/resume/stop), **BUKAN** dari counter yang nambah tiap tick `Timer.periodic`. Kalau pakai counter, begitu app di-background (apalagi iOS yang agresif suspend timer), tick berhenti padahal waktu beneran jalan terus — hasil akhirnya durasi kependekan dari kenyataan.
+- **App di-background TIDAK otomatis pause** (keputusan produk: user sering lock phone sambil baca buku fisik, itu tetap dihitung waktu membaca aktif). Pakai `WidgetsBindingObserver` untuk detect `AppLifecycleState`:
+  - Saat `paused`/`inactive` (app di-background): hentikan **UI ticker kosmetik** (`Timer.periodic` yang cuma buat update tampilan MM:SS), TAPI jangan sentuh data timestamp apa pun — data tetap berjalan konsepnya karena dihitung dari selisih timestamp, bukan dari ticker ini.
+  - Saat `resumed`: hitung ulang elapsed time dari timestamp + `DateTime.now()` saat itu, restart UI ticker dengan nilai yang sudah benar (bukan lanjut dari counter lama yang salah).
+- Karena berbasis timestamp, **tidak perlu** background execution mode/foreground service khusus (beda dengan Strava yang butuh itu untuk GPS tracking) — jauh lebih ringan.
+- Kalau app di-kill saat masih di tahap A (lihat tabel di atas): **terima saja sebagai reset**, tidak perlu bikin persistence khusus untuk skenario ini — itu bukan gap, itu keputusan yang disengaja.
+
+### 6.2 Offline-First Sync (Tahap B) — TIDAK berubah dari desain awal
+
+- Setiap sesi yang di-submit (user sudah tekan Stop + isi halaman) **selalu generate `client_id` (UUID) di sisi mobile**, sebelum tahu apakah akan sukses terkirim atau tidak.
 - Sesi disimpan ke tabel Drift lokal (`pending_sessions`) **SEBELUM** mencoba kirim ke server — Cubit langsung emit state "submitted" ke UI berdasarkan penyimpanan lokal ini, TIDAK menunggu response server (supaya UI terasa instan, sesuai filosofi "offline-first" di PRD Section 5.3).
 - Sync worker (jalan di background — pakai `WorkManager`/`workmanager` package atau cukup listener `connectivity_plus` + retry saat app resume) mengirim ulang semua row `pending_sessions` yang belum `synced`, pakai `client_id` yang sama setiap retry — backend sudah didesain idempotent terhadap `client_id` ini, jadi **aman dikirim berkali-kali** kalau sebelumnya gagal di tengah jalan (mis. sukses di server tapi response timeout di mobile).
 - Setelah sync sukses, hapus/tandai row lokal sebagai `synced`, JANGAN dihapus langsung kalau khawatir butuh untuk debugging — cukup flag, bukan delete.
