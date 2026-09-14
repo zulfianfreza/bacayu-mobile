@@ -12,7 +12,12 @@ import '../../domain/usecases/lookup_book_by_isbn.dart';
 import '../widgets/book_result_card.dart';
 
 class BarcodeScannerPage extends StatefulWidget {
-  const BarcodeScannerPage({super.key});
+  const BarcodeScannerPage({super.key, this.closeOnAdd = false});
+
+  /// When true, a successful "Add to shelf" closes this page (popping `true`)
+  /// instead of resuming the camera for another scan — used by onboarding,
+  /// where scanning is a one-and-done step, not a cataloging session.
+  final bool closeOnAdd;
 
   @override
   State<BarcodeScannerPage> createState() => _BarcodeScannerPageState();
@@ -53,7 +58,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   }
 
   Future<void> _showResultSheet(Book book) async {
-    await showModalBottomSheet<void>(
+    final added = await showModalBottomSheet<bool>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -64,6 +69,12 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
     );
 
     if (!mounted) return;
+
+    if (added == true && widget.closeOnAdd) {
+      Navigator.of(context).pop(true);
+      return;
+    }
+
     setState(() => _isProcessing = false);
     await _controller.start();
   }
@@ -119,7 +130,7 @@ class _ScanResultSheet extends StatelessWidget {
     final l10n = context.l10n;
     final result = await getIt<AddToShelf>().call(bookId: book.id);
     if (!context.mounted) return;
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(result.isRight());
     result.fold(
       (failure) => ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(failure.localizedMessage(context))),

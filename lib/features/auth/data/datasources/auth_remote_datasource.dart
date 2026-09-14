@@ -42,4 +42,31 @@ class AuthRemoteDataSource {
     final response = await _dio.get<Map<String, dynamic>>('/users/me');
     return response.data!['data'] as Map<String, dynamic>;
   }
+
+  /// PATCH /users/me — a key is included only when its value should
+  /// change; an omitted key is left untouched server-side.
+  Future<Map<String, dynamic>> updateProfile({
+    List<String>? favoriteGenres,
+    int? yearlyGoalBooks,
+    int? dailyGoalMinutes,
+    String? timezone,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/users/me',
+      data: {
+        'favorite_genres': ?favoriteGenres,
+        'yearly_goal_books': ?yearlyGoalBooks,
+        'daily_goal_minutes': ?dailyGoalMinutes,
+        'timezone': ?timezone,
+      },
+    );
+    return response.data!['data'] as Map<String, dynamic>;
+  }
+
+  /// POST /users/me/complete-onboarding
+  Future<Map<String, dynamic>> completeOnboarding() async {
+    final response =
+        await _dio.post<Map<String, dynamic>>('/users/me/complete-onboarding');
+    return response.data!['data'] as Map<String, dynamic>;
+  }
 }

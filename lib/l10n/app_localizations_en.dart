@@ -134,4 +134,82 @@ class AppLocalizationsEn extends AppLocalizations {
   String pageProgress(int current, int total) {
     return 'Page $current of $total';
   }
+
+  @override
+  String get onboardingWelcomeHeadline =>
+      'Track your reading like Strava tracks your run';
+
+  @override
+  String get getStarted => 'Get started';
+
+  @override
+  String get iAlreadyHaveAnAccount => 'I already have an account';
+
+  @override
+  String get whatDoYouLoveReading => 'What do you love reading?';
+
+  @override
+  String get yearlyReadingGoal => 'Yearly reading goal';
+
+  @override
+  String booksPerYear(int count) {
+    return '$count books/year';
+  }
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
+  String get addFirstBookHeadline => 'Add your first book to your shelf';
+
+  @override
+  String get searchTitleOrAuthorHint => 'Search title or author';
+
+  @override
+  String get scanIsbn => 'Scan ISBN';
+
+  @override
+  String get addManually => 'Add manually';
+
+  @override
+  String get illDoThisLater => 'I\'ll do this later';
+
+  @override
+  String get bookTitle => 'Title';
+
+  @override
+  String get bookAuthors => 'Authors';
+
+  @override
+  String get bookTotalPages => 'Total pages';
+
+  @override
+  String get genreFiction => 'Fiction';
+
+  @override
+  String get genreNonFiction => 'Non-fiction';
+
+  @override
+  String get genreFantasy => 'Fantasy';
+
+  @override
+  String get genreRomance => 'Romance';
+
+  @override
+  String get genreSelfHelp => 'Self-help';
+
+  @override
+  String get genreComics => 'Comics';
+
+  @override
+  String get genreMystery => 'Mystery';
+
+  @override
+  String get genreBiography => 'Biography';
+
+  @override
+  String get genreSciFi => 'Sci-fi';
+
+  @override
+  String get genrePoetry => 'Poetry';
 }

@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../storage/secure_token_storage.dart';
 
 /// Route paths as constants — never hardcode a path string at a call site.
@@ -55,8 +56,7 @@ abstract class AppRouterModule {
         ),
         GoRoute(
           path: AppRoutes.onboarding,
-          builder: (context, state) =>
-              const _PlaceholderPage(title: 'Onboarding'),
+          builder: (context, state) => const OnboardingPage(),
         ),
         GoRoute(
           path: AppRoutes.home,
@@ -67,8 +67,7 @@ abstract class AppRouterModule {
   }
 }
 
-/// Stand-in until the real feature page exists (`home` lands with its own
-/// feature; `onboarding` is next after `auth`).
+/// Stand-in until `home` lands with its own feature.
 class _PlaceholderPage extends StatelessWidget {
   const _PlaceholderPage({required this.title});
 

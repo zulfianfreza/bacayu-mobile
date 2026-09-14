@@ -177,5 +177,80 @@
         "type": "int"
       }
     }
-  }
+  },
+  "onboardingWelcomeHeadline": "Track your reading like Strava tracks your run",
+  "@onboardingWelcomeHeadline": {
+    "description": "Onboarding screen 1 headline"
+  },
+  "getStarted": "Get started",
+  "@getStarted": {
+    "description": "Onboarding screen 1 primary button"
+  },
+  "iAlreadyHaveAnAccount": "I already have an account",
+  "@iAlreadyHaveAnAccount": {
+    "description": "Onboarding screen 1 secondary link to login"
+  },
+  "whatDoYouLoveReading": "What do you love reading?",
+  "@whatDoYouLoveReading": {
+    "description": "Onboarding screen 2 heading"
+  },
+  "yearlyReadingGoal": "Yearly reading goal",
+  "@yearlyReadingGoal": {
+    "description": "Onboarding screen 2 goal stepper label"
+  },
+  "booksPerYear": "{count} books/year",
+  "@booksPerYear": {
+    "description": "Onboarding screen 2 goal stepper value",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "continueLabel": "Continue",
+  "@continueLabel": {
+    "description": "Onboarding screen 2 primary button"
+  },
+  "addFirstBookHeadline": "Add your first book to your shelf",
+  "@addFirstBookHeadline": {
+    "description": "Onboarding screen 3 heading"
+  },
+  "searchTitleOrAuthorHint": "Search title or author",
+  "@searchTitleOrAuthorHint": {
+    "description": "Onboarding screen 3 search field placeholder"
+  },
+  "scanIsbn": "Scan ISBN",
+  "@scanIsbn": {
+    "description": "Onboarding screen 3 quick-action button"
+  },
+  "addManually": "Add manually",
+  "@addManually": {
+    "description": "Quick-action button / manual add sheet heading"
+  },
+  "illDoThisLater": "I'll do this later",
+  "@illDoThisLater": {
+    "description": "Onboarding screen 3 skip link"
+  },
+  "bookTitle": "Title",
+  "@bookTitle": {
+    "description": "Manual add book form: title field"
+  },
+  "bookAuthors": "Authors",
+  "@bookAuthors": {
+    "description": "Manual add book form: authors field (comma-separated)"
+  },
+  "bookTotalPages": "Total pages",
+  "@bookTotalPages": {
+    "description": "Manual add book form: total pages field"
+  },
+  "genreFiction": "Fiction",
+  "genreNonFiction": "Non-fiction",
+  "genreFantasy": "Fantasy",
+  "genreRomance": "Romance",
+  "genreSelfHelp": "Self-help",
+  "genreComics": "Comics",
+  "genreMystery": "Mystery",
+  "genreBiography": "Biography",
+  "genreSciFi": "Sci-fi",
+  "genrePoetry": "Poetry"
 }

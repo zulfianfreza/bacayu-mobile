@@ -25,11 +25,15 @@ import 'package:mobile/features/auth/data/repositories/auth_repository_impl.dart
     as _i950;
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart'
     as _i202;
+import 'package:mobile/features/auth/domain/usecases/complete_onboarding.dart'
+    as _i310;
 import 'package:mobile/features/auth/domain/usecases/get_current_user.dart'
     as _i1052;
 import 'package:mobile/features/auth/domain/usecases/login.dart' as _i189;
 import 'package:mobile/features/auth/domain/usecases/logout.dart' as _i542;
 import 'package:mobile/features/auth/domain/usecases/register.dart' as _i461;
+import 'package:mobile/features/auth/domain/usecases/update_profile.dart'
+    as _i362;
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart'
     as _i948;
 import 'package:mobile/features/books/data/datasources/book_remote_datasource.dart'
@@ -50,6 +54,8 @@ import 'package:mobile/features/books/domain/usecases/search_books.dart'
     as _i791;
 import 'package:mobile/features/books/presentation/bloc/book_search_bloc.dart'
     as _i380;
+import 'package:mobile/features/onboarding/presentation/cubit/onboarding_cubit.dart'
+    as _i423;
 import 'package:mobile/features/shelf/data/datasources/shelf_remote_datasource.dart'
     as _i192;
 import 'package:mobile/features/shelf/data/repositories/shelf_repository_impl.dart'
@@ -107,6 +113,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i839.SecureTokenStorage>(),
       ),
     );
+    gh.factory<_i310.CompleteOnboarding>(
+      () => _i310.CompleteOnboarding(gh<_i202.AuthRepository>()),
+    );
     gh.factory<_i1052.GetCurrentUser>(
       () => _i1052.GetCurrentUser(gh<_i202.AuthRepository>()),
     );
@@ -114,6 +123,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i542.Logout>(() => _i542.Logout(gh<_i202.AuthRepository>()));
     gh.factory<_i461.Register>(
       () => _i461.Register(gh<_i202.AuthRepository>()),
+    );
+    gh.factory<_i362.UpdateProfile>(
+      () => _i362.UpdateProfile(gh<_i202.AuthRepository>()),
+    );
+    gh.factory<_i423.OnboardingCubit>(
+      () => _i423.OnboardingCubit(
+        gh<_i362.UpdateProfile>(),
+        gh<_i310.CompleteOnboarding>(),
+      ),
     );
     gh.lazySingleton<_i223.BookRepository>(
       () => _i401.BookRepositoryImpl(gh<_i701.BookRemoteDataSource>()),

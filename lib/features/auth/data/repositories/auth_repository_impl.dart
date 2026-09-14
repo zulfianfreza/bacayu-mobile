@@ -68,6 +68,36 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, User>> updateProfile({
+    List<String>? favoriteGenres,
+    int? yearlyGoalBooks,
+    int? dailyGoalMinutes,
+    String? timezone,
+  }) async {
+    try {
+      final json = await _remote.updateProfile(
+        favoriteGenres: favoriteGenres,
+        yearlyGoalBooks: yearlyGoalBooks,
+        dailyGoalMinutes: dailyGoalMinutes,
+        timezone: timezone,
+      );
+      return Right(UserModel.fromJson(json));
+    } on DioException catch (e) {
+      return dioExceptionToEither(e);
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> completeOnboarding() async {
+    try {
+      final json = await _remote.completeOnboarding();
+      return Right(UserModel.fromJson(json));
+    } on DioException catch (e) {
+      return dioExceptionToEither(e);
+    }
+  }
+
+  @override
   Future<Either<Failure, Unit>> logout() async {
     // No server-side session to invalidate (stateless JWT, no logout
     // endpoint) — clearing the local token is the whole operation.

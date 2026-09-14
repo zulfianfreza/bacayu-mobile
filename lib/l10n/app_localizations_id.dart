@@ -134,4 +134,82 @@ class AppLocalizationsId extends AppLocalizations {
   String pageProgress(int current, int total) {
     return 'Halaman $current dari $total';
   }
+
+  @override
+  String get onboardingWelcomeHeadline =>
+      'Lacak bacaanmu, kayak Strava ngelacak larimu';
+
+  @override
+  String get getStarted => 'Mulai';
+
+  @override
+  String get iAlreadyHaveAnAccount => 'Saya sudah punya akun';
+
+  @override
+  String get whatDoYouLoveReading => 'Kamu suka baca apa?';
+
+  @override
+  String get yearlyReadingGoal => 'Target baca setahun';
+
+  @override
+  String booksPerYear(int count) {
+    return '$count buku/tahun';
+  }
+
+  @override
+  String get continueLabel => 'Lanjut';
+
+  @override
+  String get addFirstBookHeadline => 'Tambah buku pertamamu ke rak';
+
+  @override
+  String get searchTitleOrAuthorHint => 'Cari judul atau penulis';
+
+  @override
+  String get scanIsbn => 'Scan ISBN';
+
+  @override
+  String get addManually => 'Tambah manual';
+
+  @override
+  String get illDoThisLater => 'Nanti aja';
+
+  @override
+  String get bookTitle => 'Judul';
+
+  @override
+  String get bookAuthors => 'Penulis';
+
+  @override
+  String get bookTotalPages => 'Jumlah halaman';
+
+  @override
+  String get genreFiction => 'Fiksi';
+
+  @override
+  String get genreNonFiction => 'Non-fiksi';
+
+  @override
+  String get genreFantasy => 'Fantasi';
+
+  @override
+  String get genreRomance => 'Romansa';
+
+  @override
+  String get genreSelfHelp => 'Pengembangan diri';
+
+  @override
+  String get genreComics => 'Komik';
+
+  @override
+  String get genreMystery => 'Misteri';
+
+  @override
+  String get genreBiography => 'Biografi';
+
+  @override
+  String get genreSciFi => 'Fiksi ilmiah';
+
+  @override
+  String get genrePoetry => 'Puisi';
 }

@@ -337,6 +337,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Page {current} of {total}'**
   String pageProgress(int current, int total);
+
+  /// Onboarding screen 1 headline
+  ///
+  /// In en, this message translates to:
+  /// **'Track your reading like Strava tracks your run'**
+  String get onboardingWelcomeHeadline;
+
+  /// Onboarding screen 1 primary button
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get getStarted;
+
+  /// Onboarding screen 1 secondary link to login
+  ///
+  /// In en, this message translates to:
+  /// **'I already have an account'**
+  String get iAlreadyHaveAnAccount;
+
+  /// Onboarding screen 2 heading
+  ///
+  /// In en, this message translates to:
+  /// **'What do you love reading?'**
+  String get whatDoYouLoveReading;
+
+  /// Onboarding screen 2 goal stepper label
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly reading goal'**
+  String get yearlyReadingGoal;
+
+  /// Onboarding screen 2 goal stepper value
+  ///
+  /// In en, this message translates to:
+  /// **'{count} books/year'**
+  String booksPerYear(int count);
+
+  /// Onboarding screen 2 primary button
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
+  /// Onboarding screen 3 heading
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first book to your shelf'**
+  String get addFirstBookHeadline;
+
+  /// Onboarding screen 3 search field placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'Search title or author'**
+  String get searchTitleOrAuthorHint;
+
+  /// Onboarding screen 3 quick-action button
+  ///
+  /// In en, this message translates to:
+  /// **'Scan ISBN'**
+  String get scanIsbn;
+
+  /// Quick-action button / manual add sheet heading
+  ///
+  /// In en, this message translates to:
+  /// **'Add manually'**
+  String get addManually;
+
+  /// Onboarding screen 3 skip link
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ll do this later'**
+  String get illDoThisLater;
+
+  /// Manual add book form: title field
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get bookTitle;
+
+  /// Manual add book form: authors field (comma-separated)
+  ///
+  /// In en, this message translates to:
+  /// **'Authors'**
+  String get bookAuthors;
+
+  /// Manual add book form: total pages field
+  ///
+  /// In en, this message translates to:
+  /// **'Total pages'**
+  String get bookTotalPages;
+
+  /// No description provided for @genreFiction.
+  ///
+  /// In en, this message translates to:
+  /// **'Fiction'**
+  String get genreFiction;
+
+  /// No description provided for @genreNonFiction.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-fiction'**
+  String get genreNonFiction;
+
+  /// No description provided for @genreFantasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Fantasy'**
+  String get genreFantasy;
+
+  /// No description provided for @genreRomance.
+  ///
+  /// In en, this message translates to:
+  /// **'Romance'**
+  String get genreRomance;
+
+  /// No description provided for @genreSelfHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Self-help'**
+  String get genreSelfHelp;
+
+  /// No description provided for @genreComics.
+  ///
+  /// In en, this message translates to:
+  /// **'Comics'**
+  String get genreComics;
+
+  /// No description provided for @genreMystery.
+  ///
+  /// In en, this message translates to:
+  /// **'Mystery'**
+  String get genreMystery;
+
+  /// No description provided for @genreBiography.
+  ///
+  /// In en, this message translates to:
+  /// **'Biography'**
+  String get genreBiography;
+
+  /// No description provided for @genreSciFi.
+  ///
+  /// In en, this message translates to:
+  /// **'Sci-fi'**
+  String get genreSciFi;
+
+  /// No description provided for @genrePoetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Poetry'**
+  String get genrePoetry;
 }
 
 class _AppLocalizationsDelegate
