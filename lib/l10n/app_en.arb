@@ -503,5 +503,92 @@
   "alreadyLiked": "Already liked.",
   "@alreadyLiked": {
     "description": "Backend error ALREADY_LIKED, localized"
+  },
+  "profileStatsBooks": "Books",
+  "@profileStatsBooks": {
+    "description": "Profile page stats row — books finished column label"
+  },
+  "profileStatsStreak": "Streak",
+  "@profileStatsStreak": {
+    "description": "Profile page stats row — current streak column label"
+  },
+  "profileStatsBadges": "Badges",
+  "@profileStatsBadges": {
+    "description": "Profile page stats row — badges unlocked column label"
+  },
+  "profileFollowersCount": "{count} Followers",
+  "@profileFollowersCount": {
+    "description": "Profile page followers count, tap navigates to FollowersPage",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileFollowingCount": "{count} Following",
+  "@profileFollowingCount": {
+    "description": "Profile page following count, tap navigates to FollowingPage",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readingGoals": "Reading goals",
+  "@readingGoals": {
+    "description": "Profile settings list item — navigates to ReadingGoalsPage"
+  },
+  "dailyReadingGoal": "Daily reading goal",
+  "@dailyReadingGoal": {
+    "description": "Reading goals page — daily minutes stepper label"
+  },
+  "minutesPerDay": "{count} min/day",
+  "@minutesPerDay": {
+    "description": "Reading goals page — daily minutes stepper value",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "goalsUpdated": "Goals updated.",
+  "@goalsUpdated": {
+    "description": "Confirmation after saving reading goals"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Profile settings list item — opens the language picker"
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "Language picker option"
+  },
+  "languageIndonesian": "Bahasa Indonesia",
+  "@languageIndonesian": {
+    "description": "Language picker option"
+  },
+  "privacy": "Privacy",
+  "@privacy": {
+    "description": "Profile settings list item — opens the default activity privacy picker"
+  },
+  "helpAndSupport": "Help and support",
+  "@helpAndSupport": {
+    "description": "Profile settings list item — navigates to HelpSupportPage"
+  },
+  "helpAndSupportBody": "Need help? Email us at support@bacayu.app and we'll get back to you.",
+  "@helpAndSupportBody": {
+    "description": "Help and support page body text"
+  },
+  "logOut": "Log out",
+  "@logOut": {
+    "description": "Profile settings list item — clears the session"
+  },
+  "logOutConfirmTitle": "Log out?",
+  "@logOutConfirmTitle": {
+    "description": "Log out confirmation dialog title"
+  },
+  "logOutConfirmBody": "You'll need to log in again to continue.",
+  "@logOutConfirmBody": {
+    "description": "Log out confirmation dialog body"
   }
 }

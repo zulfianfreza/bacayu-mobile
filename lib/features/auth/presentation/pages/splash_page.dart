@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +8,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/storage/secure_token_storage.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../notifications/data/services/push_notification_service.dart';
 import '../../domain/usecases/get_current_user.dart';
 
 /// Checks for an auth token, then (if present) fetches the current user to
@@ -45,6 +48,10 @@ class _SplashPageState extends State<SplashPage> {
         context.go(AppRoutes.login);
       },
       (user) async {
+        // A found session means this device should be (re-)registered —
+        // token/platform can drift (reinstall, FCM token rotation) between
+        // app opens.
+        unawaited(getIt<PushNotificationService>().registerAfterLogin());
         context.go(user.hasOnboarded ? AppRoutes.home : AppRoutes.onboarding);
       },
     );

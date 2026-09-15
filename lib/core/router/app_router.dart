@@ -7,13 +7,12 @@ import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/shelf/presentation/pages/shelf_page.dart';
 import '../../features/social/presentation/pages/followers_page.dart';
 import '../../features/social/presentation/pages/following_page.dart';
 import '../../features/social/presentation/pages/leaderboard_page.dart';
 import '../../features/stats/presentation/pages/stats_page.dart';
-import '../../l10n/app_localizations.dart';
-import '../localization/build_context_extension.dart';
 import '../navigation/app_shell.dart';
 import '../storage/secure_token_storage.dart';
 
@@ -30,11 +29,12 @@ class AppRoutes {
   static const stats = '/stats';
   static const profile = '/profile';
 
-  /// Temporary — these have no real navigation entry point yet (planned:
-  /// the not-yet-built "Profile" tab). Exists purely for manual testing,
-  /// same pattern as `feed`'s debug route before `home` gave it a real one.
-  static const followersDebug = '/debug/followers';
-  static const followingDebug = '/debug/following';
+  static const followers = '/followers';
+  static const following = '/following';
+
+  /// Temporary — still no real navigation entry point (leaderboard wasn't
+  /// in `profile`'s scope). Exists purely for manual testing, same pattern
+  /// followers/following used before `profile` gave them a real one.
   static const leaderboardDebug = '/debug/leaderboard';
 }
 
@@ -42,10 +42,19 @@ class AppRoutes {
 const _publicRoutes = {AppRoutes.login, AppRoutes.register};
 
 @module
+abstract class NavigatorKeyModule {
+  /// Lets code outside the widget tree (push notification handlers) reach a
+  /// [BuildContext] — see `notifications`' `AppNotificationNavigator`.
+  @lazySingleton
+  GlobalKey<NavigatorState> get navigatorKey => GlobalKey<NavigatorState>();
+}
+
+@module
 abstract class AppRouterModule {
   @lazySingleton
-  GoRouter goRouter(SecureTokenStorage tokenStorage) {
+  GoRouter goRouter(SecureTokenStorage tokenStorage, GlobalKey<NavigatorState> navigatorKey) {
     return GoRouter(
+      navigatorKey: navigatorKey,
       initialLocation: AppRoutes.splash,
       redirect: (context, state) async {
         final location = state.matchedLocation;
@@ -78,11 +87,11 @@ abstract class AppRouterModule {
           builder: (context, state) => const OnboardingPage(),
         ),
         GoRoute(
-          path: AppRoutes.followersDebug,
+          path: AppRoutes.followers,
           builder: (context, state) => const FollowersPage(),
         ),
         GoRoute(
-          path: AppRoutes.followingDebug,
+          path: AppRoutes.following,
           builder: (context, state) => const FollowingPage(),
         ),
         GoRoute(
@@ -121,32 +130,13 @@ abstract class AppRouterModule {
               routes: [
                 GoRoute(
                   path: AppRoutes.profile,
-                  builder: (context, state) => _PlaceholderTabPage(
-                    titleBuilder: (l10n) => l10n.tabProfile,
-                  ),
+                  builder: (context, state) => const ProfilePage(),
                 ),
               ],
             ),
           ],
         ),
       ],
-    );
-  }
-}
-
-/// Stand-in for `profile` — not scoped yet (same gap `onboarding` was in
-/// before `books`/`shelf` landed).
-class _PlaceholderTabPage extends StatelessWidget {
-  const _PlaceholderTabPage({required this.titleBuilder});
-
-  final String Function(AppLocalizations l10n) titleBuilder;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(title: Text(titleBuilder(l10n))),
-      body: Center(child: Text(l10n.comingSoon)),
     );
   }
 }

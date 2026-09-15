@@ -9,6 +9,7 @@ import 'package:mobile/features/auth/domain/usecases/logout.dart';
 import 'package:mobile/features/auth/domain/usecases/register.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_state.dart';
+import 'package:mobile/features/notifications/data/services/push_notification_service.dart';
 import 'package:mocktail/mocktail.dart';
 
 // bloc_test's dependency chain (test -> analyzer/matcher) conflicts with
@@ -18,8 +19,11 @@ import 'package:mocktail/mocktail.dart';
 
 class _MockAuthRepository extends Mock implements AuthRepository {}
 
+class _MockPushNotificationService extends Mock implements PushNotificationService {}
+
 void main() {
   late _MockAuthRepository repository;
+  late _MockPushNotificationService pushNotificationService;
   late AuthCubit cubit;
 
   final user = User(
@@ -42,11 +46,15 @@ void main() {
 
   setUp(() {
     repository = _MockAuthRepository();
+    pushNotificationService = _MockPushNotificationService();
+    when(() => pushNotificationService.registerAfterLogin())
+        .thenAnswer((_) async {});
     cubit = AuthCubit(
       Login(repository),
       Register(repository),
       GetCurrentUser(repository),
       Logout(repository),
+      pushNotificationService,
     );
   });
 

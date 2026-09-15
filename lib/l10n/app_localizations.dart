@@ -841,6 +841,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already liked.'**
   String get alreadyLiked;
+
+  /// Profile page stats row — books finished column label
+  ///
+  /// In en, this message translates to:
+  /// **'Books'**
+  String get profileStatsBooks;
+
+  /// Profile page stats row — current streak column label
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get profileStatsStreak;
+
+  /// Profile page stats row — badges unlocked column label
+  ///
+  /// In en, this message translates to:
+  /// **'Badges'**
+  String get profileStatsBadges;
+
+  /// Profile page followers count, tap navigates to FollowersPage
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Followers'**
+  String profileFollowersCount(int count);
+
+  /// Profile page following count, tap navigates to FollowingPage
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Following'**
+  String profileFollowingCount(int count);
+
+  /// Profile settings list item — navigates to ReadingGoalsPage
+  ///
+  /// In en, this message translates to:
+  /// **'Reading goals'**
+  String get readingGoals;
+
+  /// Reading goals page — daily minutes stepper label
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reading goal'**
+  String get dailyReadingGoal;
+
+  /// Reading goals page — daily minutes stepper value
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min/day'**
+  String minutesPerDay(int count);
+
+  /// Confirmation after saving reading goals
+  ///
+  /// In en, this message translates to:
+  /// **'Goals updated.'**
+  String get goalsUpdated;
+
+  /// Profile settings list item — opens the language picker
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// Language picker option
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// Language picker option
+  ///
+  /// In en, this message translates to:
+  /// **'Bahasa Indonesia'**
+  String get languageIndonesian;
+
+  /// Profile settings list item — opens the default activity privacy picker
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get privacy;
+
+  /// Profile settings list item — navigates to HelpSupportPage
+  ///
+  /// In en, this message translates to:
+  /// **'Help and support'**
+  String get helpAndSupport;
+
+  /// Help and support page body text
+  ///
+  /// In en, this message translates to:
+  /// **'Need help? Email us at support@bacayu.app and we\'ll get back to you.'**
+  String get helpAndSupportBody;
+
+  /// Profile settings list item — clears the session
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get logOut;
+
+  /// Log out confirmation dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get logOutConfirmTitle;
+
+  /// Log out confirmation dialog body
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll need to log in again to continue.'**
+  String get logOutConfirmBody;
 }
 
 class _AppLocalizationsDelegate

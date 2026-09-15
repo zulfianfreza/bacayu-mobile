@@ -24,6 +24,7 @@ abstract class AuthRepository {
     int? yearlyGoalBooks,
     int? dailyGoalMinutes,
     String? timezone,
+    String? privacyDefault,
   });
 
   /// Marks onboarding done (`onboarding_completed_at`) — see

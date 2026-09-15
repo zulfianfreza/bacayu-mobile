@@ -73,6 +73,7 @@ class AuthRepositoryImpl implements AuthRepository {
     int? yearlyGoalBooks,
     int? dailyGoalMinutes,
     String? timezone,
+    String? privacyDefault,
   }) async {
     try {
       final json = await _remote.updateProfile(
@@ -80,6 +81,7 @@ class AuthRepositoryImpl implements AuthRepository {
         yearlyGoalBooks: yearlyGoalBooks,
         dailyGoalMinutes: dailyGoalMinutes,
         timezone: timezone,
+        privacyDefault: privacyDefault,
       );
       return Right(UserModel.fromJson(json));
     } on DioException catch (e) {

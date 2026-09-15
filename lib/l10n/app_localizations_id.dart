@@ -398,4 +398,65 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get alreadyLiked => 'Sudah di-like.';
+
+  @override
+  String get profileStatsBooks => 'Buku';
+
+  @override
+  String get profileStatsStreak => 'Streak';
+
+  @override
+  String get profileStatsBadges => 'Lencana';
+
+  @override
+  String profileFollowersCount(int count) {
+    return '$count Pengikut';
+  }
+
+  @override
+  String profileFollowingCount(int count) {
+    return '$count Mengikuti';
+  }
+
+  @override
+  String get readingGoals => 'Target membaca';
+
+  @override
+  String get dailyReadingGoal => 'Target membaca harian';
+
+  @override
+  String minutesPerDay(int count) {
+    return '$count menit/hari';
+  }
+
+  @override
+  String get goalsUpdated => 'Target diperbarui.';
+
+  @override
+  String get language => 'Bahasa';
+
+  @override
+  String get languageEnglish => 'Inggris';
+
+  @override
+  String get languageIndonesian => 'Bahasa Indonesia';
+
+  @override
+  String get privacy => 'Privasi';
+
+  @override
+  String get helpAndSupport => 'Bantuan';
+
+  @override
+  String get helpAndSupportBody =>
+      'Butuh bantuan? Email kami di support@bacayu.app, kami akan balas secepatnya.';
+
+  @override
+  String get logOut => 'Keluar';
+
+  @override
+  String get logOutConfirmTitle => 'Keluar?';
+
+  @override
+  String get logOutConfirmBody => 'Kamu harus login lagi buat lanjut.';
 }

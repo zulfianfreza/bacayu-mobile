@@ -12,6 +12,8 @@
 
 import 'package:connectivity_plus/connectivity_plus.dart' as _i895;
 import 'package:dio/dio.dart' as _i361;
+import 'package:firebase_messaging/firebase_messaging.dart' as _i892;
+import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:go_router/go_router.dart' as _i583;
 import 'package:injectable/injectable.dart' as _i526;
@@ -76,8 +78,24 @@ import 'package:mobile/features/feed/presentation/cubit/feed_cubit.dart'
     as _i498;
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart'
     as _i1054;
+import 'package:mobile/features/notifications/data/datasources/notification_remote_datasource.dart'
+    as _i593;
+import 'package:mobile/features/notifications/data/repositories/notification_repository_impl.dart'
+    as _i312;
+import 'package:mobile/features/notifications/data/services/firebase_messaging_gateway.dart'
+    as _i618;
+import 'package:mobile/features/notifications/data/services/notification_navigator.dart'
+    as _i567;
+import 'package:mobile/features/notifications/data/services/push_notification_service.dart'
+    as _i558;
+import 'package:mobile/features/notifications/domain/repositories/notification_repository.dart'
+    as _i224;
+import 'package:mobile/features/notifications/domain/usecases/register_device.dart'
+    as _i856;
 import 'package:mobile/features/onboarding/presentation/cubit/onboarding_cubit.dart'
     as _i423;
+import 'package:mobile/features/profile/presentation/cubit/profile_cubit.dart'
+    as _i704;
 import 'package:mobile/features/sessions/data/datasources/session_local_datasource.dart'
     as _i677;
 import 'package:mobile/features/sessions/data/datasources/session_remote_datasource.dart'
@@ -117,6 +135,8 @@ import 'package:mobile/features/social/domain/usecases/add_comment.dart'
     as _i241;
 import 'package:mobile/features/social/domain/usecases/follow_user.dart'
     as _i242;
+import 'package:mobile/features/social/domain/usecases/get_follow_counts.dart'
+    as _i815;
 import 'package:mobile/features/social/domain/usecases/get_leaderboard.dart'
     as _i643;
 import 'package:mobile/features/social/domain/usecases/like_activity.dart'
@@ -159,26 +179,45 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final sharedPreferencesModule = _$SharedPreferencesModule();
+    final navigatorKeyModule = _$NavigatorKeyModule();
+    final firebaseMessagingModule = _$FirebaseMessagingModule();
     final connectivityModule = _$ConnectivityModule();
-    final dioClientModule = _$DioClientModule();
     final appRouterModule = _$AppRouterModule();
+    final dioClientModule = _$DioClientModule();
     await gh.factoryAsync<_i460.SharedPreferences>(
       () => sharedPreferencesModule.sharedPreferences,
       preResolve: true,
+    );
+    gh.lazySingleton<_i409.GlobalKey<_i409.NavigatorState>>(
+      () => navigatorKeyModule.navigatorKey,
     );
     gh.lazySingleton<_i141.AppDatabase>(() => _i141.AppDatabase());
     gh.lazySingleton<_i839.SecureTokenStorage>(
       () => _i839.SecureTokenStorage(),
     );
+    gh.lazySingleton<_i892.FirebaseMessaging>(
+      () => firebaseMessagingModule.firebaseMessaging,
+    );
     gh.lazySingleton<_i895.Connectivity>(() => connectivityModule.connectivity);
+    gh.lazySingleton<_i618.FirebaseMessagingGateway>(
+      () => _i618.FirebaseMessagingGatewayImpl(gh<_i892.FirebaseMessaging>()),
+    );
+    gh.lazySingleton<_i583.GoRouter>(
+      () => appRouterModule.goRouter(
+        gh<_i839.SecureTokenStorage>(),
+        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
+      ),
+    );
     gh.lazySingleton<_i390.LocaleCubit>(
       () => _i390.LocaleCubit(gh<_i460.SharedPreferences>()),
     );
     gh.lazySingleton<_i361.Dio>(
       () => dioClientModule.dio(gh<_i839.SecureTokenStorage>()),
     );
-    gh.lazySingleton<_i583.GoRouter>(
-      () => appRouterModule.goRouter(gh<_i839.SecureTokenStorage>()),
+    gh.lazySingleton<_i567.NotificationNavigator>(
+      () => _i567.AppNotificationNavigator(
+        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
+      ),
     );
     gh.factory<_i677.SessionLocalDataSource>(
       () => _i677.SessionLocalDataSource(gh<_i141.AppDatabase>()),
@@ -194,6 +233,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i932.FeedRemoteDataSource>(
       () => _i932.FeedRemoteDataSource(gh<_i361.Dio>()),
+    );
+    gh.factory<_i593.NotificationRemoteDataSource>(
+      () => _i593.NotificationRemoteDataSource(gh<_i361.Dio>()),
     );
     gh.factory<_i871.SessionRemoteDataSource>(
       () => _i871.SessionRemoteDataSource(gh<_i361.Dio>()),
@@ -248,6 +290,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i242.FollowUser>(
       () => _i242.FollowUser(gh<_i784.SocialRepository>()),
     );
+    gh.factory<_i815.GetFollowCounts>(
+      () => _i815.GetFollowCounts(gh<_i784.SocialRepository>()),
+    );
     gh.factory<_i643.GetLeaderboard>(
       () => _i643.GetLeaderboard(gh<_i784.SocialRepository>()),
     );
@@ -275,6 +320,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i674.FeedRepository>(
       () => _i487.FeedRepositoryImpl(gh<_i932.FeedRemoteDataSource>()),
     );
+    gh.lazySingleton<_i224.NotificationRepository>(
+      () => _i312.NotificationRepositoryImpl(
+        gh<_i593.NotificationRemoteDataSource>(),
+      ),
+    );
     gh.factory<_i485.GetHeatmap>(
       () => _i485.GetHeatmap(gh<_i385.StatsRepository>()),
     );
@@ -287,6 +337,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i871.SessionRemoteDataSource>(),
         gh<_i895.Connectivity>(),
       ),
+    );
+    gh.factory<_i856.RegisterDevice>(
+      () => _i856.RegisterDevice(gh<_i224.NotificationRepository>()),
     );
     gh.lazySingleton<_i223.BookRepository>(
       () => _i401.BookRepositoryImpl(gh<_i701.BookRemoteDataSource>()),
@@ -320,14 +373,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i677.SessionLocalDataSource>(),
       ),
     );
-    gh.factory<_i948.AuthCubit>(
-      () => _i948.AuthCubit(
-        gh<_i189.Login>(),
-        gh<_i461.Register>(),
-        gh<_i1052.GetCurrentUser>(),
-        gh<_i542.Logout>(),
-      ),
-    );
     gh.factory<_i380.BookSearchBloc>(
       () => _i380.BookSearchBloc(
         gh<_i791.SearchBooks>(),
@@ -339,6 +384,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i481.LeaderboardCubit>(
       () => _i481.LeaderboardCubit(gh<_i643.GetLeaderboard>()),
+    );
+    gh.factory<_i704.ProfileCubit>(
+      () => _i704.ProfileCubit(
+        gh<_i1052.GetCurrentUser>(),
+        gh<_i884.GetStatsSummary>(),
+        gh<_i437.GetAllBadges>(),
+        gh<_i815.GetFollowCounts>(),
+      ),
     );
     gh.factory<_i945.BadgeCubit>(
       () => _i945.BadgeCubit(gh<_i437.GetAllBadges>()),
@@ -360,9 +413,25 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i621.SubmitSession>(
       () => _i621.SubmitSession(gh<_i769.SessionRepository>()),
     );
+    gh.lazySingleton<_i558.PushNotificationService>(
+      () => _i558.PushNotificationService(
+        gh<_i618.FirebaseMessagingGateway>(),
+        gh<_i856.RegisterDevice>(),
+        gh<_i567.NotificationNavigator>(),
+      ),
+    );
     gh.factory<_i498.FeedCubit>(() => _i498.FeedCubit(gh<_i108.GetFeed>()));
     gh.factory<_i928.SessionTimerCubit>(
       () => _i928.SessionTimerCubit(gh<_i621.SubmitSession>()),
+    );
+    gh.factory<_i948.AuthCubit>(
+      () => _i948.AuthCubit(
+        gh<_i189.Login>(),
+        gh<_i461.Register>(),
+        gh<_i1052.GetCurrentUser>(),
+        gh<_i542.Logout>(),
+        gh<_i558.PushNotificationService>(),
+      ),
     );
     gh.factory<_i640.AddToShelf>(
       () => _i640.AddToShelf(gh<_i180.ShelfRepository>()),
@@ -393,8 +462,12 @@ extension GetItInjectableX on _i174.GetIt {
 
 class _$SharedPreferencesModule extends _i390.SharedPreferencesModule {}
 
+class _$NavigatorKeyModule extends _i683.NavigatorKeyModule {}
+
+class _$FirebaseMessagingModule extends _i618.FirebaseMessagingModule {}
+
 class _$ConnectivityModule extends _i104.ConnectivityModule {}
 
-class _$DioClientModule extends _i873.DioClientModule {}
-
 class _$AppRouterModule extends _i683.AppRouterModule {}
+
+class _$DioClientModule extends _i873.DioClientModule {}

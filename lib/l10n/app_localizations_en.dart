@@ -398,4 +398,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alreadyLiked => 'Already liked.';
+
+  @override
+  String get profileStatsBooks => 'Books';
+
+  @override
+  String get profileStatsStreak => 'Streak';
+
+  @override
+  String get profileStatsBadges => 'Badges';
+
+  @override
+  String profileFollowersCount(int count) {
+    return '$count Followers';
+  }
+
+  @override
+  String profileFollowingCount(int count) {
+    return '$count Following';
+  }
+
+  @override
+  String get readingGoals => 'Reading goals';
+
+  @override
+  String get dailyReadingGoal => 'Daily reading goal';
+
+  @override
+  String minutesPerDay(int count) {
+    return '$count min/day';
+  }
+
+  @override
+  String get goalsUpdated => 'Goals updated.';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageIndonesian => 'Bahasa Indonesia';
+
+  @override
+  String get privacy => 'Privacy';
+
+  @override
+  String get helpAndSupport => 'Help and support';
+
+  @override
+  String get helpAndSupportBody =>
+      'Need help? Email us at support@bacayu.app and we\'ll get back to you.';
+
+  @override
+  String get logOut => 'Log out';
+
+  @override
+  String get logOutConfirmTitle => 'Log out?';
+
+  @override
+  String get logOutConfirmBody => 'You\'ll need to log in again to continue.';
 }

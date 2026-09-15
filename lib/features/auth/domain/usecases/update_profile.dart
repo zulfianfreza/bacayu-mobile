@@ -16,12 +16,14 @@ class UpdateProfile {
     int? yearlyGoalBooks,
     int? dailyGoalMinutes,
     String? timezone,
+    String? privacyDefault,
   }) {
     return _repository.updateProfile(
       favoriteGenres: favoriteGenres,
       yearlyGoalBooks: yearlyGoalBooks,
       dailyGoalMinutes: dailyGoalMinutes,
       timezone: timezone,
+      privacyDefault: privacyDefault,
     );
   }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "621055862156",
+    "project_id": "bacayu-35640",
+    "storage_bucket": "bacayu-35640.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:621055862156:android:1319800708c311f9ac62a9",
+        "android_client_info": {
+          "package_name": "com.example.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXarsNsPYMvBYeJQxDP0etFYlTMSAJ_Ss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

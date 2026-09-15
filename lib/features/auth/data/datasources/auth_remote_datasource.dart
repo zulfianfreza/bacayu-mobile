@@ -50,6 +50,7 @@ class AuthRemoteDataSource {
     int? yearlyGoalBooks,
     int? dailyGoalMinutes,
     String? timezone,
+    String? privacyDefault,
   }) async {
     final response = await _dio.patch<Map<String, dynamic>>(
       '/users/me',
@@ -58,6 +59,7 @@ class AuthRemoteDataSource {
         'yearly_goal_books': ?yearlyGoalBooks,
         'daily_goal_minutes': ?dailyGoalMinutes,
         'timezone': ?timezone,
+        'privacy_default': ?privacyDefault,
       },
     );
     return response.data!['data'] as Map<String, dynamic>;

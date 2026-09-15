@@ -12,6 +12,11 @@ abstract class SocialRepository {
   Future<Either<Failure, List<FollowedUser>>> listFollowers();
   Future<Either<Failure, List<FollowedUser>>> listFollowing();
 
+  /// Reads the list endpoint's `meta.total` with `limit=1` — never fetches
+  /// the full list just to count it.
+  Future<Either<Failure, int>> getFollowersCount();
+  Future<Either<Failure, int>> getFollowingCount();
+
   Future<Either<Failure, Unit>> likeActivity(String activityId);
   Future<Either<Failure, Unit>> unlikeActivity(String activityId);
 

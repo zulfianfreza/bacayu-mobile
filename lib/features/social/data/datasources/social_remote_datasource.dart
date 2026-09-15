@@ -30,6 +30,29 @@ class SocialRemoteDataSource {
     return data['items'] as List<dynamic>;
   }
 
+  /// GET /social/followers?limit=1 — `meta.total` is the true DB count
+  /// regardless of `limit`, so this reads it without paging through items.
+  Future<int> getFollowersCount() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/social/followers',
+      queryParameters: {'limit': 1},
+    );
+    final data = response.data!['data'] as Map<String, dynamic>;
+    final meta = data['meta'] as Map<String, dynamic>;
+    return meta['total'] as int;
+  }
+
+  /// GET /social/following?limit=1 — see [getFollowersCount].
+  Future<int> getFollowingCount() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/social/following',
+      queryParameters: {'limit': 1},
+    );
+    final data = response.data!['data'] as Map<String, dynamic>;
+    final meta = data['meta'] as Map<String, dynamic>;
+    return meta['total'] as int;
+  }
+
   Future<void> likeActivity(String activityId) {
     return _dio.post<void>('/feed/$activityId/like');
   }

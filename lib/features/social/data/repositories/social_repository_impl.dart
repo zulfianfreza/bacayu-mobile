@@ -70,6 +70,24 @@ class SocialRepositoryImpl implements SocialRepository {
   }
 
   @override
+  Future<Either<Failure, int>> getFollowersCount() async {
+    try {
+      return Right(await _remote.getFollowersCount());
+    } on DioException catch (e) {
+      return dioExceptionToEither(e);
+    }
+  }
+
+  @override
+  Future<Either<Failure, int>> getFollowingCount() async {
+    try {
+      return Right(await _remote.getFollowingCount());
+    } on DioException catch (e) {
+      return dioExceptionToEither(e);
+    }
+  }
+
+  @override
   Future<Either<Failure, Unit>> likeActivity(String activityId) async {
     try {
       await _remote.likeActivity(activityId);
