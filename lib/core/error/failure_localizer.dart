@@ -16,6 +16,8 @@ Map<String, String> _knownServerCodes(AppLocalizations l10n) => {
       'INVALID_CREDENTIALS': l10n.invalidCredentials,
       'BOOK_NOT_FOUND': l10n.bookNotFound,
       'ALREADY_IN_SHELF': l10n.alreadyInShelf,
+      'CANNOT_FOLLOW_SELF': l10n.cannotFollowSelf,
+      'ALREADY_LIKED': l10n.alreadyLiked,
     };
 
 extension FailureLocalizer on Failure {

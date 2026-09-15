@@ -50,6 +50,9 @@ Activity _activity() => Activity(
         badgeIcon: '🎉',
         badgeDescription: 'd',
       ),
+      likeCount: 0,
+      commentCount: 0,
+      isLiked: false,
     );
 
 void main() {

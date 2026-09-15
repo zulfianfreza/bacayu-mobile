@@ -8,6 +8,9 @@ import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/shelf/presentation/pages/shelf_page.dart';
+import '../../features/social/presentation/pages/followers_page.dart';
+import '../../features/social/presentation/pages/following_page.dart';
+import '../../features/social/presentation/pages/leaderboard_page.dart';
 import '../../features/stats/presentation/pages/stats_page.dart';
 import '../../l10n/app_localizations.dart';
 import '../localization/build_context_extension.dart';
@@ -26,6 +29,13 @@ class AppRoutes {
   static const shelf = '/shelf';
   static const stats = '/stats';
   static const profile = '/profile';
+
+  /// Temporary — these have no real navigation entry point yet (planned:
+  /// the not-yet-built "Profile" tab). Exists purely for manual testing,
+  /// same pattern as `feed`'s debug route before `home` gave it a real one.
+  static const followersDebug = '/debug/followers';
+  static const followingDebug = '/debug/following';
+  static const leaderboardDebug = '/debug/leaderboard';
 }
 
 /// Routes reachable without an auth token.
@@ -66,6 +76,18 @@ abstract class AppRouterModule {
         GoRoute(
           path: AppRoutes.onboarding,
           builder: (context, state) => const OnboardingPage(),
+        ),
+        GoRoute(
+          path: AppRoutes.followersDebug,
+          builder: (context, state) => const FollowersPage(),
+        ),
+        GoRoute(
+          path: AppRoutes.followingDebug,
+          builder: (context, state) => const FollowingPage(),
+        ),
+        GoRoute(
+          path: AppRoutes.leaderboardDebug,
+          builder: (context, state) => const LeaderboardPage(),
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) =>

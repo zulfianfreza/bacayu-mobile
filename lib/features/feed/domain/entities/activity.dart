@@ -52,12 +52,22 @@ class Activity extends Equatable {
     required this.id,
     required this.occurredAt,
     required this.payload,
+    required this.likeCount,
+    required this.commentCount,
+    required this.isLiked,
   });
 
   final String id;
   final DateTime occurredAt;
   final ActivityPayload payload;
 
+  /// Read fresh per request (not baked into the denormalized snapshot like
+  /// [payload]) — see `ActivityResponse`'s docstring on the backend.
+  final int likeCount;
+  final int commentCount;
+  final bool isLiked;
+
   @override
-  List<Object?> get props => [id, occurredAt, payload];
+  List<Object?> get props =>
+      [id, occurredAt, payload, likeCount, commentCount, isLiked];
 }

@@ -733,6 +733,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick a book from your shelf and start your first timer.'**
   String get startFirstSessionBody;
+
+  /// Followers page app bar title
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get followersTitle;
+
+  /// Following page app bar title
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get followingTitle;
+
+  /// Leaderboard page app bar title
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get leaderboardTitle;
+
+  /// Follow button label (not yet following)
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get follow;
+
+  /// Follow button label when already following (tap to unfollow)
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get followingButton;
+
+  /// Followers page empty state
+  ///
+  /// In en, this message translates to:
+  /// **'No followers yet'**
+  String get noFollowers;
+
+  /// Following page empty state
+  ///
+  /// In en, this message translates to:
+  /// **'Not following anyone yet'**
+  String get noFollowing;
+
+  /// Divider label above the current user's own row on the leaderboard, when outside the top N
+  ///
+  /// In en, this message translates to:
+  /// **'Your position'**
+  String get yourPosition;
+
+  /// Comments bottom sheet text field placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment...'**
+  String get addCommentHint;
+
+  /// Comments bottom sheet send button
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postComment;
+
+  /// Comments bottom sheet empty state
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet'**
+  String get noComments;
+
+  /// Overflow menu option on your own activity card
+  ///
+  /// In en, this message translates to:
+  /// **'Change visibility'**
+  String get changeVisibility;
+
+  /// Activity visibility option
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get visibilityPrivate;
+
+  /// Activity visibility option
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get visibilityFollowers;
+
+  /// Activity visibility option
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get visibilityPublic;
+
+  /// Confirmation after changing an activity's visibility
+  ///
+  /// In en, this message translates to:
+  /// **'Visibility updated.'**
+  String get visibilityUpdated;
+
+  /// Backend error CANNOT_FOLLOW_SELF, localized
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t follow yourself.'**
+  String get cannotFollowSelf;
+
+  /// Backend error ALREADY_LIKED, localized
+  ///
+  /// In en, this message translates to:
+  /// **'Already liked.'**
+  String get alreadyLiked;
 }
 
 class _AppLocalizationsDelegate

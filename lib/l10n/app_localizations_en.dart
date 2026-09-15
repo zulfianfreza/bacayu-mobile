@@ -344,4 +344,58 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get startFirstSessionBody =>
       'Pick a book from your shelf and start your first timer.';
+
+  @override
+  String get followersTitle => 'Followers';
+
+  @override
+  String get followingTitle => 'Following';
+
+  @override
+  String get leaderboardTitle => 'Leaderboard';
+
+  @override
+  String get follow => 'Follow';
+
+  @override
+  String get followingButton => 'Following';
+
+  @override
+  String get noFollowers => 'No followers yet';
+
+  @override
+  String get noFollowing => 'Not following anyone yet';
+
+  @override
+  String get yourPosition => 'Your position';
+
+  @override
+  String get addCommentHint => 'Add a comment...';
+
+  @override
+  String get postComment => 'Post';
+
+  @override
+  String get noComments => 'No comments yet';
+
+  @override
+  String get changeVisibility => 'Change visibility';
+
+  @override
+  String get visibilityPrivate => 'Private';
+
+  @override
+  String get visibilityFollowers => 'Followers';
+
+  @override
+  String get visibilityPublic => 'Public';
+
+  @override
+  String get visibilityUpdated => 'Visibility updated.';
+
+  @override
+  String get cannotFollowSelf => 'You can\'t follow yourself.';
+
+  @override
+  String get alreadyLiked => 'Already liked.';
 }

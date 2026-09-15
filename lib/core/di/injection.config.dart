@@ -107,6 +107,36 @@ import 'package:mobile/features/shelf/domain/usecases/update_shelf_status.dart'
     as _i88;
 import 'package:mobile/features/shelf/presentation/cubit/shelf_cubit.dart'
     as _i1011;
+import 'package:mobile/features/social/data/datasources/social_remote_datasource.dart'
+    as _i27;
+import 'package:mobile/features/social/data/repositories/social_repository_impl.dart'
+    as _i912;
+import 'package:mobile/features/social/domain/repositories/social_repository.dart'
+    as _i784;
+import 'package:mobile/features/social/domain/usecases/add_comment.dart'
+    as _i241;
+import 'package:mobile/features/social/domain/usecases/follow_user.dart'
+    as _i242;
+import 'package:mobile/features/social/domain/usecases/get_leaderboard.dart'
+    as _i643;
+import 'package:mobile/features/social/domain/usecases/like_activity.dart'
+    as _i426;
+import 'package:mobile/features/social/domain/usecases/list_comments.dart'
+    as _i375;
+import 'package:mobile/features/social/domain/usecases/list_followers.dart'
+    as _i334;
+import 'package:mobile/features/social/domain/usecases/list_following.dart'
+    as _i427;
+import 'package:mobile/features/social/domain/usecases/unfollow_user.dart'
+    as _i488;
+import 'package:mobile/features/social/domain/usecases/unlike_activity.dart'
+    as _i502;
+import 'package:mobile/features/social/domain/usecases/update_activity_visibility.dart'
+    as _i298;
+import 'package:mobile/features/social/presentation/cubit/follow_cubit.dart'
+    as _i442;
+import 'package:mobile/features/social/presentation/cubit/leaderboard_cubit.dart'
+    as _i481;
 import 'package:mobile/features/stats/data/datasources/stats_remote_datasource.dart'
     as _i711;
 import 'package:mobile/features/stats/data/repositories/stats_repository_impl.dart'
@@ -171,6 +201,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i192.ShelfRemoteDataSource>(
       () => _i192.ShelfRemoteDataSource(gh<_i361.Dio>()),
     );
+    gh.factory<_i27.SocialRemoteDataSource>(
+      () => _i27.SocialRemoteDataSource(gh<_i361.Dio>()),
+    );
     gh.factory<_i711.StatsRemoteDataSource>(
       () => _i711.StatsRemoteDataSource(gh<_i361.Dio>()),
     );
@@ -203,8 +236,41 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i310.CompleteOnboarding>(),
       ),
     );
+    gh.lazySingleton<_i784.SocialRepository>(
+      () => _i912.SocialRepositoryImpl(gh<_i27.SocialRemoteDataSource>()),
+    );
     gh.lazySingleton<_i787.BadgeRepository>(
       () => _i584.BadgeRepositoryImpl(gh<_i257.BadgeRemoteDataSource>()),
+    );
+    gh.factory<_i241.AddComment>(
+      () => _i241.AddComment(gh<_i784.SocialRepository>()),
+    );
+    gh.factory<_i242.FollowUser>(
+      () => _i242.FollowUser(gh<_i784.SocialRepository>()),
+    );
+    gh.factory<_i643.GetLeaderboard>(
+      () => _i643.GetLeaderboard(gh<_i784.SocialRepository>()),
+    );
+    gh.factory<_i426.LikeActivity>(
+      () => _i426.LikeActivity(gh<_i784.SocialRepository>()),
+    );
+    gh.factory<_i375.ListComments>(
+      () => _i375.ListComments(gh<_i784.SocialRepository>()),
+    );
+    gh.factory<_i334.ListFollowers>(
+      () => _i334.ListFollowers(gh<_i784.SocialRepository>()),
+    );
+    gh.factory<_i427.ListFollowing>(
+      () => _i427.ListFollowing(gh<_i784.SocialRepository>()),
+    );
+    gh.factory<_i488.UnfollowUser>(
+      () => _i488.UnfollowUser(gh<_i784.SocialRepository>()),
+    );
+    gh.factory<_i502.UnlikeActivity>(
+      () => _i502.UnlikeActivity(gh<_i784.SocialRepository>()),
+    );
+    gh.factory<_i298.UpdateActivityVisibility>(
+      () => _i298.UpdateActivityVisibility(gh<_i784.SocialRepository>()),
     );
     gh.lazySingleton<_i674.FeedRepository>(
       () => _i487.FeedRepositoryImpl(gh<_i932.FeedRemoteDataSource>()),
@@ -240,6 +306,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i791.SearchBooks>(
       () => _i791.SearchBooks(gh<_i223.BookRepository>()),
     );
+    gh.factory<_i442.FollowCubit>(
+      () => _i442.FollowCubit(
+        gh<_i334.ListFollowers>(),
+        gh<_i427.ListFollowing>(),
+        gh<_i242.FollowUser>(),
+        gh<_i488.UnfollowUser>(),
+      ),
+    );
     gh.lazySingleton<_i769.SessionRepository>(
       () => _i431.SessionRepositoryImpl(
         gh<_i871.SessionRemoteDataSource>(),
@@ -262,6 +336,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i437.GetAllBadges>(
       () => _i437.GetAllBadges(gh<_i787.BadgeRepository>()),
+    );
+    gh.factory<_i481.LeaderboardCubit>(
+      () => _i481.LeaderboardCubit(gh<_i643.GetLeaderboard>()),
     );
     gh.factory<_i945.BadgeCubit>(
       () => _i945.BadgeCubit(gh<_i437.GetAllBadges>()),

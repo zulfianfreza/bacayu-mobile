@@ -262,8 +262,8 @@ class _RecentActivitySection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: switch (activity.payload) {
-              SessionActivityPayload payload => SessionActivityCard(payload: payload),
-              BadgeActivityPayload payload => BadgeActivityCard(payload: payload),
+              SessionActivityPayload() => SessionActivityCard(activity: activity),
+              BadgeActivityPayload() => BadgeActivityCard(activity: activity),
             },
           ),
       ],

@@ -344,4 +344,58 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get startFirstSessionBody =>
       'Pilih buku dari rakmu dan mulai timer pertamamu.';
+
+  @override
+  String get followersTitle => 'Pengikut';
+
+  @override
+  String get followingTitle => 'Mengikuti';
+
+  @override
+  String get leaderboardTitle => 'Papan peringkat';
+
+  @override
+  String get follow => 'Ikuti';
+
+  @override
+  String get followingButton => 'Mengikuti';
+
+  @override
+  String get noFollowers => 'Belum ada pengikut';
+
+  @override
+  String get noFollowing => 'Belum mengikuti siapa pun';
+
+  @override
+  String get yourPosition => 'Posisimu';
+
+  @override
+  String get addCommentHint => 'Tulis komentar...';
+
+  @override
+  String get postComment => 'Kirim';
+
+  @override
+  String get noComments => 'Belum ada komentar';
+
+  @override
+  String get changeVisibility => 'Ubah visibility';
+
+  @override
+  String get visibilityPrivate => 'Privat';
+
+  @override
+  String get visibilityFollowers => 'Pengikut';
+
+  @override
+  String get visibilityPublic => 'Publik';
+
+  @override
+  String get visibilityUpdated => 'Visibility diperbarui.';
+
+  @override
+  String get cannotFollowSelf => 'Kamu gak bisa follow diri sendiri.';
+
+  @override
+  String get alreadyLiked => 'Sudah di-like.';
 }

@@ -13,6 +13,9 @@ class ActivityModel extends Activity {
     required super.id,
     required super.occurredAt,
     required super.payload,
+    required super.likeCount,
+    required super.commentCount,
+    required super.isLiked,
   });
 
   factory ActivityModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +26,9 @@ class ActivityModel extends Activity {
       id: json['id'] as String,
       occurredAt: DateTime.parse(json['occurred_at'] as String),
       payload: _payloadFromJson(activityType, payloadJson),
+      likeCount: (json['like_count'] as num?)?.toInt() ?? 0,
+      commentCount: (json['comment_count'] as num?)?.toInt() ?? 0,
+      isLiked: json['is_liked'] as bool? ?? false,
     );
   }
 

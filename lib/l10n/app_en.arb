@@ -431,5 +431,77 @@
   "startFirstSessionBody": "Pick a book from your shelf and start your first timer.",
   "@startFirstSessionBody": {
     "description": "Home page empty-state supporting text"
+  },
+  "followersTitle": "Followers",
+  "@followersTitle": {
+    "description": "Followers page app bar title"
+  },
+  "followingTitle": "Following",
+  "@followingTitle": {
+    "description": "Following page app bar title"
+  },
+  "leaderboardTitle": "Leaderboard",
+  "@leaderboardTitle": {
+    "description": "Leaderboard page app bar title"
+  },
+  "follow": "Follow",
+  "@follow": {
+    "description": "Follow button label (not yet following)"
+  },
+  "followingButton": "Following",
+  "@followingButton": {
+    "description": "Follow button label when already following (tap to unfollow)"
+  },
+  "noFollowers": "No followers yet",
+  "@noFollowers": {
+    "description": "Followers page empty state"
+  },
+  "noFollowing": "Not following anyone yet",
+  "@noFollowing": {
+    "description": "Following page empty state"
+  },
+  "yourPosition": "Your position",
+  "@yourPosition": {
+    "description": "Divider label above the current user's own row on the leaderboard, when outside the top N"
+  },
+  "addCommentHint": "Add a comment...",
+  "@addCommentHint": {
+    "description": "Comments bottom sheet text field placeholder"
+  },
+  "postComment": "Post",
+  "@postComment": {
+    "description": "Comments bottom sheet send button"
+  },
+  "noComments": "No comments yet",
+  "@noComments": {
+    "description": "Comments bottom sheet empty state"
+  },
+  "changeVisibility": "Change visibility",
+  "@changeVisibility": {
+    "description": "Overflow menu option on your own activity card"
+  },
+  "visibilityPrivate": "Private",
+  "@visibilityPrivate": {
+    "description": "Activity visibility option"
+  },
+  "visibilityFollowers": "Followers",
+  "@visibilityFollowers": {
+    "description": "Activity visibility option"
+  },
+  "visibilityPublic": "Public",
+  "@visibilityPublic": {
+    "description": "Activity visibility option"
+  },
+  "visibilityUpdated": "Visibility updated.",
+  "@visibilityUpdated": {
+    "description": "Confirmation after changing an activity's visibility"
+  },
+  "cannotFollowSelf": "You can't follow yourself.",
+  "@cannotFollowSelf": {
+    "description": "Backend error CANNOT_FOLLOW_SELF, localized"
+  },
+  "alreadyLiked": "Already liked.",
+  "@alreadyLiked": {
+    "description": "Backend error ALREADY_LIKED, localized"
   }
 }

@@ -20,6 +20,9 @@ Activity _activity(String id, DateTime occurredAt) => Activity(
         badgeIcon: '🎉',
         badgeDescription: 'Finish your first session',
       ),
+      likeCount: 0,
+      commentCount: 0,
+      isLiked: false,
     );
 
 List<Activity> _page(int count, DateTime start) => [
