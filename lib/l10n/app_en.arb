@@ -154,6 +154,10 @@
   "@statusDnf": {
     "description": "Shelf status: dnf (did not finish) — used as both filter tab and status chip label"
   },
+  "changeStatus": "Change status",
+  "@changeStatus": {
+    "description": "Title of the bottom sheet opened by tapping a shelf book's status chip"
+  },
   "emptyShelfHeadline": "Your shelf is empty",
   "@emptyShelfHeadline": {
     "description": "Shelf empty state headline"

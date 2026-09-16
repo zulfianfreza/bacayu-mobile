@@ -314,6 +314,12 @@ abstract class AppLocalizations {
   /// **'DNF'**
   String get statusDnf;
 
+  /// Title of the bottom sheet opened by tapping a shelf book's status chip
+  ///
+  /// In en, this message translates to:
+  /// **'Change status'**
+  String get changeStatus;
+
   /// Shelf empty state headline
   ///
   /// In en, this message translates to:

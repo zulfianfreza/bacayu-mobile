@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/user_book.dart';
+import '../cubit/shelf_cubit.dart';
+import 'status_picker_bottom_sheet.dart';
 
 class ShelfBookCard extends StatelessWidget {
   const ShelfBookCard({super.key, required this.userBook, this.onTap});
 
   final UserBook userBook;
   final VoidCallback? onTap;
+
+  Future<void> _openStatusPicker(BuildContext context) async {
+    final cubit = context.read<ShelfCubit>();
+    final newStatus = await StatusPickerBottomSheet.show(
+      context,
+      currentStatus: userBook.status,
+    );
+    if (newStatus != null) {
+      cubit.updateStatus(userBookId: userBook.id, status: newStatus);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +75,10 @@ class ShelfBookCard extends StatelessWidget {
                       ),
                     ],
                     const SizedBox(height: 8),
-                    _StatusChip(status: userBook.status),
+                    _StatusChip(
+                      status: userBook.status,
+                      onTap: () => _openStatusPicker(context),
+                    ),
                     if (userBook.status == ShelfStatus.reading &&
                         book.totalPages != null &&
                         book.totalPages! > 0) ...[
@@ -98,9 +115,10 @@ class ShelfBookCard extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status});
+  const _StatusChip({required this.status, this.onTap});
 
   final ShelfStatus status;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -128,15 +146,21 @@ class _StatusChip extends StatelessWidget {
         ),
     };
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Text(
-        label,
-        style: AppTypography.caption.copyWith(color: foreground),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+          ),
+          child: Text(
+            label,
+            style: AppTypography.caption.copyWith(color: foreground),
+          ),
+        ),
       ),
     );
   }

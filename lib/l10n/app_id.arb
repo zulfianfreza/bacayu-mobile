@@ -36,6 +36,7 @@
   "statusReading": "Sedang dibaca",
   "statusFinished": "Selesai",
   "statusDnf": "DNF",
+  "changeStatus": "Ubah status",
   "emptyShelfHeadline": "Rak kamu masih kosong",
   "emptyShelfBody": "Tambah buku pertamamu buat mulai nge-track",
   "addABook": "Tambah buku",

@@ -122,6 +122,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get statusDnf => 'DNF';
 
   @override
+  String get changeStatus => 'Ubah status';
+
+  @override
   String get emptyShelfHeadline => 'Rak kamu masih kosong';
 
   @override

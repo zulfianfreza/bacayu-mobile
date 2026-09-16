@@ -15,7 +15,7 @@ abstract class DioClientModule {
   Dio dio(SecureTokenStorage tokenStorage) {
     final dio = Dio(
       BaseOptions(
-        baseUrl: 'http://localhost:8080/api/v1',
+        baseUrl: const String.fromEnvironment('API_BASE_URL'),
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
       ),

@@ -122,6 +122,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusDnf => 'DNF';
 
   @override
+  String get changeStatus => 'Change status';
+
+  @override
   String get emptyShelfHeadline => 'Your shelf is empty';
 
   @override
