@@ -8,6 +8,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../domain/entities/activity.dart';
+import 'activity_author_header.dart';
 import 'activity_card_footer.dart';
 
 /// Same visual language as `ShelfBookCard`. The cover/title/stats block
@@ -19,10 +20,15 @@ class SessionActivityCard extends StatelessWidget {
     super.key,
     required this.activity,
     this.isOwnActivity = true,
+    this.author,
   });
 
   final Activity activity;
   final bool isOwnActivity;
+
+  /// Who posted it. Omitted by callers that have nobody to name, in which
+  /// case the card starts straight at the book.
+  final ActivityAuthorHeader? author;
 
   void _openDetail(BuildContext context) {
     context.push(
@@ -42,6 +48,7 @@ class SessionActivityCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (author != null) ...[author!, const SizedBox(height: 12)],
             InkWell(
               onTap: () => _openDetail(context),
               borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -84,7 +91,9 @@ class SessionActivityCard extends StatelessWidget {
                           style: AppTypography.caption,
                         ),
                         Text(
-                          l10n.speedPpmValue(payload.speedPpm.toStringAsFixed(1)),
+                          l10n.speedPpmValue(
+                            payload.speedPpm.toStringAsFixed(1),
+                          ),
                           style: AppTypography.caption,
                         ),
                       ],
@@ -93,7 +102,10 @@ class SessionActivityCard extends StatelessWidget {
                 ],
               ),
             ),
-            ActivityCardFooter(activity: activity, isOwnActivity: isOwnActivity),
+            ActivityCardFooter(
+              activity: activity,
+              isOwnActivity: isOwnActivity,
+            ),
           ],
         ),
       ),

@@ -281,6 +281,37 @@
   "@bookPickerSubtitle": {
     "description": "Supporting line under the book picker heading"
   },
+  "timeJustNow": "Just now",
+  "@timeJustNow": {
+    "description": "Relative timestamp on an activity posted less than a minute ago"
+  },
+  "timeMinutesAgo": "{count}m ago",
+  "@timeMinutesAgo": {
+    "description": "Relative timestamp on an activity, in minutes",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursAgo": "{count}h ago",
+  "@timeHoursAgo": {
+    "description": "Relative timestamp on an activity, in hours",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeDaysAgo": "{count}d ago",
+  "@timeDaysAgo": {
+    "description": "Relative timestamp on an activity, in days",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "pausesSoFar": "{count} pauses so far",
   "@pausesSoFar": {
     "description": "Caption under the running/paused session timer",

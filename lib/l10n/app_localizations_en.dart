@@ -237,6 +237,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pick the book you\'re reading now to start a session.';
 
   @override
+  String get timeJustNow => 'Just now';
+
+  @override
+  String timeMinutesAgo(int count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String timeHoursAgo(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String timeDaysAgo(int count) {
+    return '${count}d ago';
+  }
+
+  @override
   String pausesSoFar(int count) {
     return '$count pauses so far';
   }

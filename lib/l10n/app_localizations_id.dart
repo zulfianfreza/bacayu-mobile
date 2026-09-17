@@ -237,6 +237,24 @@ class AppLocalizationsId extends AppLocalizations {
       'Pilih buku yang sedang kamu baca untuk memulai sesi.';
 
   @override
+  String get timeJustNow => 'Baru saja';
+
+  @override
+  String timeMinutesAgo(int count) {
+    return '$count mnt lalu';
+  }
+
+  @override
+  String timeHoursAgo(int count) {
+    return '$count jam lalu';
+  }
+
+  @override
+  String timeDaysAgo(int count) {
+    return '$count hari lalu';
+  }
+
+  @override
   String pausesSoFar(int count) {
     return '$count kali jeda';
   }

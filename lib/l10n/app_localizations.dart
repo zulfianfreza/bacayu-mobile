@@ -530,6 +530,30 @@ abstract class AppLocalizations {
   /// **'Pick the book you\'re reading now to start a session.'**
   String get bookPickerSubtitle;
 
+  /// Relative timestamp on an activity posted less than a minute ago
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get timeJustNow;
+
+  /// Relative timestamp on an activity, in minutes
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String timeMinutesAgo(int count);
+
+  /// Relative timestamp on an activity, in hours
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String timeHoursAgo(int count);
+
+  /// Relative timestamp on an activity, in days
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String timeDaysAgo(int count);
+
   /// Caption under the running/paused session timer
   ///
   /// In en, this message translates to:

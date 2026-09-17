@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/activity.dart';
+import 'activity_author_header.dart';
 import 'activity_card_footer.dart';
 
 /// Sunshine-tinted, more celebratory than [SessionActivityCard] — PRD
@@ -19,10 +20,14 @@ class BadgeActivityCard extends StatelessWidget {
     super.key,
     required this.activity,
     this.isOwnActivity = true,
+    this.author,
   });
 
   final Activity activity;
   final bool isOwnActivity;
+
+  /// Who unlocked it. Omitted by callers that have nobody to name.
+  final ActivityAuthorHeader? author;
 
   void _openDetail(BuildContext context) {
     context.push(
@@ -45,6 +50,7 @@ class BadgeActivityCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (author != null) ...[author!, const SizedBox(height: 12)],
           InkWell(
             onTap: () => _openDetail(context),
             borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -58,7 +64,10 @@ class BadgeActivityCard extends StatelessWidget {
                     color: AppColors.sunshine500,
                   ),
                   alignment: Alignment.center,
-                  child: Text(payload.badgeIcon, style: const TextStyle(fontSize: 24)),
+                  child: Text(
+                    payload.badgeIcon,
+                    style: const TextStyle(fontSize: 24),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -67,7 +76,9 @@ class BadgeActivityCard extends StatelessWidget {
                     children: [
                       Text(
                         l10n.newBadge,
-                        style: AppTypography.caption.copyWith(color: AppColors.sunshine700),
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.sunshine700,
+                        ),
                       ),
                       Text(payload.badgeName, style: AppTypography.subheading),
                       const SizedBox(height: 2),

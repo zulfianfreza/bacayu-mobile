@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
@@ -11,14 +12,13 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../feed/domain/entities/activity.dart';
 import '../../../feed/presentation/pages/feed_page.dart';
+import '../../../feed/presentation/widgets/activity_author_header.dart';
 import '../../../feed/presentation/widgets/badge_activity_card.dart';
 import '../../../feed/presentation/widgets/session_activity_card.dart';
 import '../../../sessions/presentation/widgets/book_picker_bottom_sheet.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../../shelf/presentation/widgets/shelf_book_card.dart';
 import '../../../stats/domain/entities/daily_stat.dart';
-import '../../../stats/presentation/widgets/heatmap_calendar.dart'
-    show heatmapColorFor;
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 
@@ -84,7 +84,11 @@ class _HomeView extends StatelessWidget {
                         _ContinueReadingSection(books: state.continueReading),
                         const SizedBox(height: 24),
                       ],
-                      _RecentActivitySection(activities: state.recentActivity),
+                      _RecentActivitySection(
+                        activities: state.recentActivity,
+                        userName: state.userName,
+                        avatarUrl: state.avatarUrl,
+                      ),
                     ],
                   ],
                 ),
@@ -170,6 +174,9 @@ class _StreakHeroCard extends StatelessWidget {
   }
 }
 
+/// Diameter of one day in the week strip.
+const _dayCircleSize = 24.0;
+
 class _HeatmapStrip extends StatelessWidget {
   const _HeatmapStrip({required this.last7Days});
 
@@ -178,27 +185,30 @@ class _HeatmapStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final maxMinutes = last7Days.fold(
-      0,
-      (max, stat) => stat.totalMinutes > max ? stat.totalMinutes : max,
+    // Abbreviated, not a single letter: in Indonesian three weekdays start
+    // with S (Senin, Selasa, Sabtu), so an initial cannot tell them apart.
+    // `E` is the locale's own short name, so English gets Mon/Tue/… for free.
+    final dayName = DateFormat.E(
+      Localizations.localeOf(context).toLanguageTag(),
     );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             for (final stat in last7Days)
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: heatmapColorFor(
-                    minutes: stat.totalMinutes,
-                    maxMinutes: maxMinutes,
-                  ),
-                  borderRadius: BorderRadius.circular(6),
+              Expanded(
+                child: Column(
+                  children: [
+                    _DayCircle(read: stat.totalMinutes > 0),
+                    const SizedBox(height: 6),
+                    Text(
+                      dayName.format(stat.date),
+                      style: AppTypography.caption,
+                      maxLines: 1,
+                    ),
+                  ],
                 ),
               ),
           ],
@@ -214,6 +224,33 @@ class _HeatmapStrip extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// One day of the last week: a circle that turns green with a check once
+/// something was read that day.
+///
+/// Binary on purpose. How *much* was read is the full heatmap's job, one tap
+/// away below — a week strip only has to answer "did I read?".
+class _DayCircle extends StatelessWidget {
+  const _DayCircle({required this.read});
+
+  final bool read;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: _dayCircleSize,
+      height: _dayCircleSize,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: read ? AppColors.lagoon100 : AppColors.line,
+      ),
+      child: read
+          ? const Icon(Icons.check, size: 16, color: AppColors.lagoon700)
+          : null,
     );
   }
 }
@@ -253,9 +290,15 @@ class _ContinueReadingSection extends StatelessWidget {
 }
 
 class _RecentActivitySection extends StatelessWidget {
-  const _RecentActivitySection({required this.activities});
+  const _RecentActivitySection({
+    required this.activities,
+    required this.userName,
+    required this.avatarUrl,
+  });
 
   final List<Activity> activities;
+  final String userName;
+  final String avatarUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -280,16 +323,31 @@ class _RecentActivitySection extends StatelessWidget {
         for (final activity in activities)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
+            // Activities are posts: each card introduces its author and its
+            // own timestamp, so one header per activity — never shared.
             child: switch (activity.payload) {
               SessionActivityPayload() => SessionActivityCard(
                 activity: activity,
+                author: _authorOf(activity),
               ),
-              BadgeActivityPayload() => BadgeActivityCard(activity: activity),
+              BadgeActivityPayload() => BadgeActivityCard(
+                activity: activity,
+                author: _authorOf(activity),
+              ),
             },
           ),
       ],
     );
   }
+
+  /// Activities are posts, so every card is introduced by its author. The feed
+  /// endpoint only returns the requester's own activities for now, which makes
+  /// that author the signed-in user.
+  ActivityAuthorHeader _authorOf(Activity activity) => ActivityAuthorHeader(
+    name: userName,
+    avatarUrl: avatarUrl,
+    occurredAt: activity.occurredAt,
+  );
 }
 
 class _EmptyStateCta extends StatelessWidget {
