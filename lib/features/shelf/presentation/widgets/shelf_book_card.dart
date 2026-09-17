@@ -16,9 +16,32 @@ import 'status_picker_bottom_sheet.dart';
 /// navigate to [BookDetailPage] (and vice versa); nested `InkWell`s make
 /// that ambiguous (only one of the two ever wins the gesture arena).
 class ShelfBookCard extends StatelessWidget {
-  const ShelfBookCard({super.key, required this.userBook});
+  const ShelfBookCard({super.key, required this.userBook}) : compact = false;
+
+  /// For a horizontal carousel, which hands the card a fixed height instead
+  /// of the intrinsic one a vertical list gives it.
+  ///
+  /// It drops the status chip: the row that uses this is "Continue reading",
+  /// where every book is reading by definition, so the chip said the same
+  /// word on every card and cost the height the layout did not have.
+  const ShelfBookCard.compact({super.key, required this.userBook})
+      : compact = true;
+
+  /// The height the compact variant needs at the default text size.
+  static const compactHeight = 132.0;
+
+  /// [compactHeight] scaled with the user's font size.
+  ///
+  /// The compact variant grows with its text, so a plain fixed box would
+  /// overflow again the moment someone sets a larger type size — always size
+  /// the carousel through this, never with the raw constant.
+  static double compactHeightFor(BuildContext context) =>
+      MediaQuery.textScalerOf(context).scale(compactHeight);
 
   final UserBook userBook;
+
+  /// Whether this card is laid out for a fixed-height carousel slot.
+  final bool compact;
 
   void _openBookDetail(BuildContext context) {
     Navigator.of(context).push(
@@ -47,6 +70,9 @@ class ShelfBookCard extends StatelessWidget {
         book.totalPages! > 0;
 
     return Card(
+      // The carousel supplies its own gaps, and the default margin would knock
+      // the row out of line with the section title above it.
+      margin: compact ? EdgeInsets.zero : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -102,16 +128,17 @@ class ShelfBookCard extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(72, 0, 12, showProgress ? 4 : 12),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: _StatusChip(
-                status: userBook.status,
-                onTap: () => _openStatusPicker(context),
+          if (!compact)
+            Padding(
+              padding: EdgeInsets.fromLTRB(72, 0, 12, showProgress ? 4 : 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: _StatusChip(
+                  status: userBook.status,
+                  onTap: () => _openStatusPicker(context),
+                ),
               ),
             ),
-          ),
           if (showProgress)
             InkWell(
               onTap: () => _openBookDetail(context),

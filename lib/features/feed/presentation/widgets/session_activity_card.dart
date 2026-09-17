@@ -71,8 +71,6 @@ class SessionActivityCard extends StatelessWidget {
                         Text(
                           payload.bookTitle,
                           style: AppTypography.subheading,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Text(

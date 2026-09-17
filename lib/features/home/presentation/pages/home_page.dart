@@ -218,14 +218,17 @@ class _ContinueReadingSection extends StatelessWidget {
         Text(l10n.continueReading, style: AppTypography.heading),
         const SizedBox(height: 12),
         SizedBox(
-          height: 108,
+          // Asked of the card rather than hardcoded: the compact variant is
+          // what fits in a carousel slot, and it is the thing that knows how
+          // tall that is at the user's current text size.
+          height: ShelfBookCard.compactHeightFor(context),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: books.length,
             separatorBuilder: (context, index) => const SizedBox(width: 12),
             itemBuilder: (context, index) => SizedBox(
               width: 280,
-              child: ShelfBookCard(userBook: books[index]),
+              child: ShelfBookCard.compact(userBook: books[index]),
             ),
           ),
         ),

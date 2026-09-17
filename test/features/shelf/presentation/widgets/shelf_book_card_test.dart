@@ -92,6 +92,35 @@ void main() {
     );
   }
 
+  /// Mirrors how the home screen's "Continue reading" row sizes itself.
+  Widget wrapCompact(UserBook userBook, {double textScale = 1.0}) {
+    return BlocProvider<ShelfCubit>(
+      create: (_) => ShelfCubit(
+        ListShelf(shelfRepository),
+        UpdateShelfStatus(shelfRepository),
+      ),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: Builder(
+            builder: (outer) => MediaQuery(
+              data: MediaQuery.of(outer)
+                  .copyWith(textScaler: TextScaler.linear(textScale)),
+              child: Builder(
+                builder: (context) => SizedBox(
+                  width: 280,
+                  height: ShelfBookCard.compactHeightFor(context),
+                  child: ShelfBookCard.compact(userBook: userBook),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   testWidgets(
       'tapping the cover/title area navigates to BookDetailPage with the '
       "book's id", (tester) async {
@@ -131,5 +160,24 @@ void main() {
 
     expect(find.byType(StatusPickerBottomSheet), findsOneWidget);
     expect(find.byType(BookDetailPage), findsNothing);
+  });
+
+  testWidgets(
+      'compact variant fits the height it declares for a carousel slot, and '
+      'drops the redundant status chip', (tester) async {
+    await tester.pumpWidget(wrapCompact(_userBook()));
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Reading'), findsNothing);
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    expect(find.text('Atomic Habits'), findsOneWidget);
+  });
+
+  testWidgets(
+      'compact variant still fits when the user has larger type set',
+      (tester) async {
+    await tester.pumpWidget(wrapCompact(_userBook(), textScale: 1.5));
+
+    expect(tester.takeException(), isNull);
   });
 }

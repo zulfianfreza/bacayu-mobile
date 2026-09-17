@@ -11,4 +11,5 @@
 - Uses `go_router` (including `StatefulShellRoute`) for navigation and `get_it` + `injectable` for dependency injection. Confidence: 0.65
 - When the backend contract is missing something a mobile feature genuinely needs, stops and asks rather than assuming or fabricating data. Confidence: 0.7
 - Writes and works in Indonesian (Bahasa Indonesia) and expects Indonesian-language responses. Confidence: 0.65
-- Dislikes ellipsized/truncated user-facing text (e.g. book titles on a share card): expects the full string to be shown by adapting the type (auto-fitting/shrinking the font) rather than clipping it with `…`. Confidence: 0.7
+- Dislikes ellipsized/truncated user-facing text (repeatedly raised for book titles on a share card and in `SessionActivityCard`): expects the full string to be shown, either by letting the container grow or by adapting the type (auto-fit/shrink) rather than clipping with `maxLines` + `TextOverflow.ellipsis`. Confidence: 0.8
+- Pragmatic about implementation approach when reporting UI defects: reports the symptom (e.g. a layout overflow) and explicitly leaves the fix up to the agent, allowing either adapting the existing widget or introducing a distinct variant ("disesuaikan atau mau dibedakan juga tidak masalah"). Confidence: 0.55
