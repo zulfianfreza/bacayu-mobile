@@ -76,6 +76,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidCredentials => 'Invalid email or password.';
 
   @override
+  String get sessionExpired => 'Session expired. Please sign in again.';
+
+  @override
   String get searchBooksHint => 'Search by title, author, or ISBN';
 
   @override

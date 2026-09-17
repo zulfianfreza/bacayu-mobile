@@ -88,6 +88,10 @@
   "@invalidCredentials": {
     "description": "Backend error INVALID_CREDENTIALS, localized"
   },
+  "sessionExpired": "Session expired. Please sign in again.",
+  "@sessionExpired": {
+    "description": "Shown once on LoginPage after an auto-logout triggered by a 401 (SessionExpiredFailure) — also SessionExpiredFailure's generic localized message"
+  },
   "searchBooksHint": "Search by title, author, or ISBN",
   "@searchBooksHint": {
     "description": "Book search field placeholder"

@@ -27,6 +27,7 @@ extension FailureLocalizer on Failure {
     return switch (this) {
       NetworkFailure() => l10n.noInternetConnection,
       CacheFailure() => l10n.somethingWentWrong,
+      SessionExpiredFailure() => l10n.sessionExpired,
       ValidationFailure(:final details) => details.values.isNotEmpty
           ? details.values.first
           : l10n.somethingWentWrong,

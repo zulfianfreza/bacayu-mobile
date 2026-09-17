@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/error_listener.dart';
 import '../../domain/usecases/like_activity.dart';
 import '../../domain/usecases/unlike_activity.dart';
 
@@ -57,9 +57,7 @@ class _LikeButtonState extends State<LikeButton> {
           _likeCount = previousCount;
           _isPending = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(failure.localizedMessage(context))),
-        );
+        context.showFailureSnackBar(failure);
       },
       (_) => setState(() => _isPending = false),
     );

@@ -230,6 +230,12 @@ abstract class AppLocalizations {
   /// **'Invalid email or password.'**
   String get invalidCredentials;
 
+  /// Shown once on LoginPage after an auto-logout triggered by a 401 (SessionExpiredFailure) — also SessionExpiredFailure's generic localized message
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired. Please sign in again.'**
+  String get sessionExpired;
+
   /// Book search field placeholder
   ///
   /// In en, this message translates to:

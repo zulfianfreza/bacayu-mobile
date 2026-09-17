@@ -22,6 +22,7 @@
   "alreadyHaveAccount": "Sudah punya akun? Masuk",
   "emailAlreadyExists": "Email ini sudah terdaftar.",
   "invalidCredentials": "Email atau kata sandi salah.",
+  "sessionExpired": "Sesi berakhir, silakan login lagi.",
   "searchBooksHint": "Cari judul, penulis, atau ISBN",
   "scanBarcode": "Scan barcode",
   "scanIsbnGuide": "Arahkan barcode ke dalam bingkai",

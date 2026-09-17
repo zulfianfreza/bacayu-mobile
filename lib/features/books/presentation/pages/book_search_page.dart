@@ -5,6 +5,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/error_listener.dart';
 import '../../../shelf/domain/usecases/add_to_shelf.dart';
 import '../../domain/entities/book.dart';
 import '../bloc/book_search_bloc.dart';
@@ -46,9 +47,7 @@ class _BookSearchViewState extends State<_BookSearchView> {
     final result = await getIt<AddToShelf>().call(bookId: book.id);
     if (!context.mounted) return;
     result.fold(
-      (failure) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(failure.localizedMessage(context))),
-      ),
+      (failure) => context.showFailureSnackBar(failure),
       (_) => ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.bookAddedToShelf)),
       ),
@@ -86,9 +85,7 @@ class _BookSearchViewState extends State<_BookSearchView> {
           if (state is BookImported) {
             _addToShelf(context, state.book);
           } else if (state is BookImportError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.failure.localizedMessage(context))),
-            );
+            context.showFailureSnackBar(state.failure);
           }
         },
         builder: (context, state) {

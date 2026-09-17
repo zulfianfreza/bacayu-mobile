@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
@@ -17,6 +18,7 @@ import '../../features/social/presentation/pages/leaderboard_page.dart';
 import '../../features/stats/presentation/pages/stats_page.dart';
 import '../navigation/app_shell.dart';
 import '../storage/secure_token_storage.dart';
+import 'go_router_refresh_stream.dart';
 
 /// Route paths as constants — never hardcode a path string at a call site.
 class AppRoutes {
@@ -65,10 +67,21 @@ abstract class NavigatorKeyModule {
 @module
 abstract class AppRouterModule {
   @lazySingleton
-  GoRouter goRouter(SecureTokenStorage tokenStorage, GlobalKey<NavigatorState> navigatorKey) {
+  GoRouter goRouter(
+    SecureTokenStorage tokenStorage,
+    GlobalKey<NavigatorState> navigatorKey,
+    AuthCubit authCubit,
+  ) {
     return GoRouter(
       navigatorKey: navigatorKey,
       initialLocation: AppRoutes.splash,
+      // Re-runs `redirect` the instant `authCubit` emits — this is what
+      // makes an auto-logout (AuthCubit.forceLogout, triggered by a 401 far
+      // away in some Dio call) land on /login without any page having to
+      // call context.go('/login') itself. `redirect` below still only
+      // checks the token in storage, not the cubit's state directly — this
+      // stream is purely a "please re-check now" signal.
+      refreshListenable: GoRouterRefreshStream(authCubit.stream),
       redirect: (context, state) async {
         final location = state.matchedLocation;
 

@@ -76,6 +76,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get invalidCredentials => 'Email atau kata sandi salah.';
 
   @override
+  String get sessionExpired => 'Sesi berakhir, silakan login lagi.';
+
+  @override
   String get searchBooksHint => 'Cari judul, penulis, atau ISBN';
 
   @override

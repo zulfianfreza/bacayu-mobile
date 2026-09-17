@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/widgets/error_listener.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
 import '../widgets/onboarding_add_first_book_step.dart';
@@ -36,9 +36,7 @@ class _OnboardingView extends StatelessWidget {
             if (state is OnboardingFinished) {
               context.go(AppRoutes.home);
             } else if (state is OnboardingError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.failure.localizedMessage(context))),
-              );
+              context.showFailureSnackBar(state.failure);
             }
           },
           builder: (context, state) {

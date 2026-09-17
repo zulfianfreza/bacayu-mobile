@@ -27,8 +27,20 @@ class AuthAuthenticated extends AuthState {
   List<Object?> get props => [user];
 }
 
+/// Distinguishes a user-initiated logout from an auto-logout triggered by a
+/// 401 (see `SessionExpiredHandler`/`AuthCubit.forceLogout`) — `LoginPage`
+/// uses this to show a "session expired" message only for the latter.
+enum UnauthenticatedReason { manualLogout, sessionExpired }
+
 class AuthUnauthenticated extends AuthState {
-  const AuthUnauthenticated();
+  const AuthUnauthenticated({
+    this.reason = UnauthenticatedReason.manualLogout,
+  });
+
+  final UnauthenticatedReason reason;
+
+  @override
+  List<Object?> get props => [reason];
 }
 
 class AuthError extends AuthState {

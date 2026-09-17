@@ -43,7 +43,21 @@ void main() {
       expect(either, const Left<Failure, String>(NetworkFailure()));
     });
 
-    test('401 maps to ServerFailure with backend code/message', () {
+    test('401 (invalid/expired token) maps to SessionExpiredFailure, not a '
+        'generic ServerFailure', () {
+      final exception = _errorResponse(
+        statusCode: 401,
+        message: 'invalid or expired token',
+        data: {'code': 'UNAUTHORIZED', 'details': null},
+      );
+
+      final either = dioExceptionToEither<String>(exception);
+
+      expect(either, const Left<Failure, String>(SessionExpiredFailure()));
+    });
+
+    test('401 with INVALID_CREDENTIALS (a login attempt, not a dead '
+        'session) still maps to a plain ServerFailure', () {
       final exception = _errorResponse(
         statusCode: 401,
         message: 'invalid email or password',

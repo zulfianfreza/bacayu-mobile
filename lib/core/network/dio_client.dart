@@ -4,8 +4,10 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
+import '../di/injection.dart';
 import '../error/failure.dart';
 import '../storage/secure_token_storage.dart';
+import 'session_expired_handler.dart';
 
 /// Creates the single [Dio] instance the whole app shares. Base URL comes
 /// from `--dart-define=API_BASE_URL=...`, never hardcoded.
@@ -23,10 +25,54 @@ abstract class DioClientModule {
 
     dio.interceptors.addAll([
       AuthInterceptor(tokenStorage),
+      // `SessionExpiredHandler` resolves to `AuthCubit`, which (through its
+      // usecases) depends back on this very `Dio` instance — resolving it
+      // here eagerly (as a constructor param) would recurse infinitely.
+      // Deferring the `getIt` lookup into the closure, invoked only once an
+      // actual 401 happens (long after Dio is fully built and cached),
+      // breaks that cycle. This is also the only reason `core/network`
+      // reaches for `getIt` instead of a plain constructor dependency —
+      // still zero direct imports from `features/auth`.
+      SessionExpiryInterceptor(() => getIt<SessionExpiredHandler>()),
       RequestLoggingInterceptor(),
     ]);
 
     return dio;
+  }
+}
+
+/// Detects a 401 (invalid/expired token) exactly once per session and
+/// triggers [SessionExpiredHandler.onSessionExpired] — never navigates
+/// itself (that's go_router's `refreshListenable` + redirect job, driven by
+/// `AuthCubit`'s state; see `app_router.dart`).
+class SessionExpiryInterceptor extends Interceptor {
+  SessionExpiryInterceptor(this._handlerProvider);
+
+  final SessionExpiredHandler Function() _handlerProvider;
+
+  /// Several requests can 401 in the same burst (all in flight when the
+  /// token died) — this guards [SessionExpiredHandler.onSessionExpired]
+  /// from firing once per failed request instead of once for the whole
+  /// burst. Reset on the next successful response, so a later session's
+  /// own 401 (after a fresh login) is handled again, not silently ignored.
+  bool _handlingSessionExpiry = false;
+
+  @override
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    _handlingSessionExpiry = false;
+    handler.next(response);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (err.response?.statusCode == 401 && !_handlingSessionExpiry) {
+      _handlingSessionExpiry = true;
+      _handlerProvider().onSessionExpired();
+    }
+    handler.next(err);
   }
 }
 
@@ -117,6 +163,18 @@ Failure mapDioExceptionToFailure(DioException exception) {
       'unexpected error';
   final data = envelope?['data'];
   final code = data is Map ? data['code'] as String? : null;
+
+  if (response.statusCode == 401) {
+    // `INVALID_CREDENTIALS` is a *login attempt* rejecting a wrong
+    // password — no session ever existed to expire, and treating it as one
+    // would show a confusing "session expired" message on the login form
+    // itself instead of "invalid email or password". Every other 401 is an
+    // already-authenticated request whose token died — that's the real
+    // auto-logout case.
+    if (code != 'INVALID_CREDENTIALS') {
+      return const SessionExpiredFailure();
+    }
+  }
 
   if (response.statusCode == 422) {
     final details = <String, String>{};

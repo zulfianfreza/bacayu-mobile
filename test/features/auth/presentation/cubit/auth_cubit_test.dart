@@ -186,4 +186,86 @@ void main() {
       await expectation;
     });
   });
+
+  group('AuthCubit.forceLogout', () {
+    setUp(() {
+      when(() => repository.logout()).thenAnswer((_) async => const Right(unit));
+    });
+
+    test('clears the token and emits Unauthenticated(sessionExpired)',
+        () async {
+      // Start from an authenticated state — otherwise the idempotency guard
+      // below would trivially always no-op.
+      when(() => repository.login(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          )).thenAnswer((_) async => Right(user));
+      await cubit.login(email: 'reader@bacayu.app', password: 'password1');
+      expect(cubit.state, AuthAuthenticated(user));
+
+      await cubit.forceLogout();
+
+      expect(
+        cubit.state,
+        const AuthUnauthenticated(reason: UnauthenticatedReason.sessionExpired),
+      );
+      verify(() => repository.logout()).called(1);
+    });
+
+    test(
+        'is idempotent — calling it again while already Unauthenticated '
+        'does nothing (no repeated token clear/emit)', () async {
+      when(() => repository.login(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          )).thenAnswer((_) async => Right(user));
+      await cubit.login(email: 'reader@bacayu.app', password: 'password1');
+
+      // Simulates a burst of parallel 401s each calling forceLogout — only
+      // the first should actually do anything.
+      await cubit.forceLogout();
+      await cubit.forceLogout();
+      await cubit.forceLogout();
+
+      expect(
+        cubit.state,
+        const AuthUnauthenticated(reason: UnauthenticatedReason.sessionExpired),
+      );
+      verify(() => repository.logout()).called(1);
+    });
+
+    test(
+        'the idempotency guard is specifically "already Unauthenticated", '
+        'not "never logged in" — from AuthInitial it still runs normally',
+        () async {
+      expect(cubit.state, const AuthInitial());
+
+      await cubit.forceLogout();
+
+      expect(
+        cubit.state,
+        const AuthUnauthenticated(reason: UnauthenticatedReason.sessionExpired),
+      );
+      verify(() => repository.logout()).called(1);
+    });
+
+    test('onSessionExpired() (the SessionExpiredHandler interface method) '
+        'triggers the same forceLogout flow', () async {
+      when(() => repository.login(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          )).thenAnswer((_) async => Right(user));
+      await cubit.login(email: 'reader@bacayu.app', password: 'password1');
+
+      final expectation = expectLater(
+        cubit.stream,
+        emits(const AuthUnauthenticated(
+          reason: UnauthenticatedReason.sessionExpired,
+        )),
+      );
+
+      cubit.onSessionExpired();
+      await expectation;
+    });
+  });
 }

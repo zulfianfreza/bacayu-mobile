@@ -17,8 +17,12 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<AuthCubit>(),
+    // .value, NOT create: — AuthCubit is a singleton (app_router.dart's
+    // redirect and the 401 interceptor both depend on this exact instance
+    // staying alive); `create:` would have BlocProvider close it forever
+    // the moment this page is popped.
+    return BlocProvider.value(
+      value: getIt<AuthCubit>(),
       child: const _LoginView(),
     );
   }
@@ -35,6 +39,27 @@ class _LoginViewState extends State<_LoginView> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // `AuthCubit` is a singleton — if we landed here via an auto-logout
+    // (see `SessionExpiredHandler`/`forceLogout`), that state transition
+    // already happened before this page (and its BlocConsumer listener
+    // below) even existed, so a plain `listener:` would never see it. Check
+    // the CURRENT state once, post-frame so a Scaffold/ScaffoldMessenger
+    // exists to show it in.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final state = context.read<AuthCubit>().state;
+      if (state is AuthUnauthenticated &&
+          state.reason == UnauthenticatedReason.sessionExpired) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.sessionExpired)),
+        );
+      }
+    });
+  }
 
   @override
   void dispose() {

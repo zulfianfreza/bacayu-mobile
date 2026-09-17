@@ -15,8 +15,11 @@ class RegisterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<AuthCubit>(),
+    // .value, NOT create: — see the same note on LoginPage. AuthCubit is a
+    // singleton; `create:` would close it (and its stream) when this page
+    // is popped.
+    return BlocProvider.value(
+      value: getIt<AuthCubit>(),
       child: const _RegisterView(),
     );
   }

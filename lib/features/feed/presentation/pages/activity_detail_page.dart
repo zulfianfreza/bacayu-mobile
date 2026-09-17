@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
+import '../../../../core/widgets/error_listener.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/get_current_user.dart';
 import '../../../books/presentation/pages/book_detail_page.dart';
@@ -107,9 +108,7 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
     if (!mounted) return;
 
     result.fold(
-      (failure) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(failure.localizedMessage(context))),
-      ),
+      (failure) => context.showFailureSnackBar(failure),
       (comment) {
         final user = _currentUser;
         final display = user == null

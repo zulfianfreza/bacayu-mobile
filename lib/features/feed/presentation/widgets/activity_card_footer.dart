@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/error_listener.dart';
 import '../../../social/domain/entities/activity_visibility.dart';
 import '../../../social/domain/usecases/update_activity_visibility.dart';
 import '../../../social/presentation/widgets/comments_bottom_sheet.dart';
@@ -54,9 +54,7 @@ class ActivityCardFooter extends StatelessWidget {
     );
     if (!context.mounted) return;
     result.fold(
-      (failure) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(failure.localizedMessage(context))),
-      ),
+      (failure) => context.showFailureSnackBar(failure),
       (_) => ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.visibilityUpdated)),
       ),

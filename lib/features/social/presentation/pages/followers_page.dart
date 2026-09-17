@@ -5,6 +5,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/error_listener.dart';
 import '../cubit/follow_cubit.dart';
 import '../cubit/follow_state.dart';
 import '../widgets/user_list_tile.dart';
@@ -33,9 +34,7 @@ class _FollowListView extends StatelessWidget {
       body: BlocConsumer<FollowCubit, FollowState>(
         listener: (context, state) {
           if (state is FollowActionError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.failure.localizedMessage(context))),
-            );
+            context.showFailureSnackBar(state.failure);
           }
         },
         builder: (context, state) {

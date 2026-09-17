@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/error_listener.dart';
 import '../../domain/entities/book_input.dart';
 import '../../domain/usecases/add_manual_book.dart';
 
@@ -58,9 +58,7 @@ class _AddManualBookSheetState extends State<AddManualBookSheet> {
     setState(() => _isSubmitting = false);
 
     result.fold(
-      (failure) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(failure.localizedMessage(context))),
-      ),
+      (failure) => context.showFailureSnackBar(failure),
       (book) => Navigator.of(context).pop(book),
     );
   }

@@ -15,12 +15,13 @@ import 'package:dio/dio.dart' as _i361;
 import 'package:firebase_messaging/firebase_messaging.dart' as _i892;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
-import 'package:go_router/go_router.dart' as _i583;
+import 'package:go_router/go_router.dart' as _i584;
 import 'package:google_sign_in/google_sign_in.dart' as _i116;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:mobile/core/auth/google_sign_in_module.dart' as _i63;
 import 'package:mobile/core/localization/locale_cubit.dart' as _i390;
 import 'package:mobile/core/network/dio_client.dart' as _i873;
+import 'package:mobile/core/network/session_expired_handler.dart' as _i387;
 import 'package:mobile/core/router/app_router.dart' as _i683;
 import 'package:mobile/core/storage/app_database.dart' as _i141;
 import 'package:mobile/core/storage/secure_token_storage.dart' as _i839;
@@ -46,7 +47,7 @@ import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart'
 import 'package:mobile/features/badges/data/datasources/badge_remote_datasource.dart'
     as _i257;
 import 'package:mobile/features/badges/data/repositories/badge_repository_impl.dart'
-    as _i584;
+    as _i583;
 import 'package:mobile/features/badges/domain/repositories/badge_repository.dart'
     as _i787;
 import 'package:mobile/features/badges/domain/usecases/get_all_badges.dart'
@@ -187,8 +188,9 @@ extension GetItInjectableX on _i174.GetIt {
     final navigatorKeyModule = _$NavigatorKeyModule();
     final firebaseMessagingModule = _$FirebaseMessagingModule();
     final connectivityModule = _$ConnectivityModule();
-    final appRouterModule = _$AppRouterModule();
     final dioClientModule = _$DioClientModule();
+    final sessionExpiredHandlerModule = _$SessionExpiredHandlerModule();
+    final appRouterModule = _$AppRouterModule();
     await gh.factoryAsync<_i460.SharedPreferences>(
       () => sharedPreferencesModule.sharedPreferences,
       preResolve: true,
@@ -209,12 +211,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i895.Connectivity>(() => connectivityModule.connectivity);
     gh.lazySingleton<_i618.FirebaseMessagingGateway>(
       () => _i618.FirebaseMessagingGatewayImpl(gh<_i892.FirebaseMessaging>()),
-    );
-    gh.lazySingleton<_i583.GoRouter>(
-      () => appRouterModule.goRouter(
-        gh<_i839.SecureTokenStorage>(),
-        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
-      ),
     );
     gh.lazySingleton<_i390.LocaleCubit>(
       () => _i390.LocaleCubit(gh<_i460.SharedPreferences>()),
@@ -264,7 +260,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i912.SocialRepositoryImpl(gh<_i27.SocialRemoteDataSource>()),
     );
     gh.lazySingleton<_i787.BadgeRepository>(
-      () => _i584.BadgeRepositoryImpl(gh<_i257.BadgeRemoteDataSource>()),
+      () => _i583.BadgeRepositoryImpl(gh<_i257.BadgeRemoteDataSource>()),
     );
     gh.factory<_i241.AddComment>(
       () => _i241.AddComment(gh<_i784.SocialRepository>()),
@@ -436,7 +432,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i928.SessionTimerCubit>(
       () => _i928.SessionTimerCubit(gh<_i621.SubmitSession>()),
     );
-    gh.factory<_i948.AuthCubit>(
+    gh.lazySingleton<_i948.AuthCubit>(
       () => _i948.AuthCubit(
         gh<_i189.Login>(),
         gh<_i60.LoginWithGoogle>(),
@@ -455,12 +451,24 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i88.UpdateShelfStatus>(
       () => _i88.UpdateShelfStatus(gh<_i180.ShelfRepository>()),
     );
+    gh.lazySingleton<_i387.SessionExpiredHandler>(
+      () => sessionExpiredHandlerModule.sessionExpiredHandler(
+        gh<_i948.AuthCubit>(),
+      ),
+    );
     gh.factory<_i1054.HomeCubit>(
       () => _i1054.HomeCubit(
         gh<_i1052.GetCurrentUser>(),
         gh<_i485.GetHeatmap>(),
         gh<_i156.ListShelf>(),
         gh<_i108.GetFeed>(),
+      ),
+    );
+    gh.lazySingleton<_i584.GoRouter>(
+      () => appRouterModule.goRouter(
+        gh<_i839.SecureTokenStorage>(),
+        gh<_i409.GlobalKey<_i409.NavigatorState>>(),
+        gh<_i948.AuthCubit>(),
       ),
     );
     gh.factory<_i1011.ShelfCubit>(
@@ -483,6 +491,8 @@ class _$FirebaseMessagingModule extends _i618.FirebaseMessagingModule {}
 
 class _$ConnectivityModule extends _i104.ConnectivityModule {}
 
-class _$AppRouterModule extends _i683.AppRouterModule {}
-
 class _$DioClientModule extends _i873.DioClientModule {}
+
+class _$SessionExpiredHandlerModule extends _i948.SessionExpiredHandlerModule {}
+
+class _$AppRouterModule extends _i683.AppRouterModule {}

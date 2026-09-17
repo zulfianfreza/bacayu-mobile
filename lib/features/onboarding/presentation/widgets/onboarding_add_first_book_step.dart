@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
-import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/error_listener.dart';
 import '../../../books/domain/entities/book.dart';
 import '../../../books/presentation/bloc/book_search_bloc.dart';
 import '../../../books/presentation/bloc/book_search_event.dart';
@@ -61,9 +61,7 @@ class _AddFirstBookViewState extends State<_AddFirstBookView> {
     final result = await getIt<AddToShelf>().call(bookId: book.id);
     if (!context.mounted) return;
     result.fold(
-      (failure) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(failure.localizedMessage(context))),
-      ),
+      (failure) => context.showFailureSnackBar(failure),
       (_) => widget.onDone(),
     );
   }
@@ -135,11 +133,7 @@ class _AddFirstBookViewState extends State<_AddFirstBookView> {
                 if (state is BookImported) {
                   _addToShelf(context, state.book);
                 } else if (state is BookImportError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.failure.localizedMessage(context)),
-                    ),
-                  );
+                  context.showFailureSnackBar(state.failure);
                 }
               },
               builder: (context, state) {

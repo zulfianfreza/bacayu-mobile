@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
+import '../../../../core/widgets/error_listener.dart';
 import '../../../badges/presentation/widgets/badge_unlocked_modal.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../cubit/session_timer_cubit.dart';
@@ -69,9 +69,7 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
         child: BlocConsumer<SessionTimerCubit, SessionTimerState>(
           listener: (context, state) {
             if (state is SessionTimerError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.failure.localizedMessage(context))),
-              );
+              context.showFailureSnackBar(state.failure);
             } else if (state is SessionTimerSubmitted && state.badgesUnlocked.isNotEmpty) {
               _showNewBadges(context, state);
             }

@@ -7,6 +7,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/error_listener.dart';
 import '../../../books/presentation/pages/book_search_page.dart';
 import '../../domain/entities/user_book.dart';
 import '../cubit/shelf_cubit.dart';
@@ -52,9 +53,7 @@ class _ShelfView extends StatelessWidget {
       body: BlocConsumer<ShelfCubit, ShelfState>(
         listener: (context, state) {
           if (state is ShelfUpdateError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.failure.localizedMessage(context))),
-            );
+            context.showFailureSnackBar(state.failure);
           }
         },
         builder: (context, state) {
