@@ -1,5 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart' show PlatformException;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/error/failure.dart';
@@ -12,10 +14,11 @@ import '../models/user_model.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._remote, this._tokenStorage);
+  AuthRepositoryImpl(this._remote, this._tokenStorage, this._googleSignIn);
 
   final AuthRemoteDataSource _remote;
   final SecureTokenStorage _tokenStorage;
+  final GoogleSignIn _googleSignIn;
 
   @override
   Future<Either<Failure, User>> register({
@@ -43,6 +46,41 @@ class AuthRepositoryImpl implements AuthRepository {
       return await _loginAndPersistToken(email: email, password: password);
     } on DioException catch (e) {
       return dioExceptionToEither(e);
+    }
+  }
+
+  @override
+  Future<Either<Failure, User?>> loginWithGoogle() async {
+    try {
+      final account = await _googleSignIn.signIn();
+      if (account == null) {
+        // User dismissed the native sign-in sheet — not a Failure.
+        return const Right(null);
+      }
+      final googleAuth = await account.authentication;
+      final idToken = googleAuth.idToken;
+      if (idToken == null) {
+        return const Left(
+          ServerFailure(
+            code: 'GOOGLE_SIGN_IN_FAILED',
+            message: 'Google sign-in did not return an ID token.',
+          ),
+        );
+      }
+      final json = await _remote.loginWithGoogle(idToken: idToken);
+      final token = json['access_token'] as String;
+      final user = UserModel.fromJson(json['user'] as Map<String, dynamic>);
+      await _tokenStorage.saveToken(token);
+      return Right(user);
+    } on DioException catch (e) {
+      return dioExceptionToEither(e);
+    } on PlatformException catch (e) {
+      return Left(
+        ServerFailure(
+          code: 'GOOGLE_SIGN_IN_FAILED',
+          message: e.message ?? 'Google sign-in failed.',
+        ),
+      );
     }
   }
 

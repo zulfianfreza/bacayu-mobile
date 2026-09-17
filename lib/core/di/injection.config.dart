@@ -16,7 +16,9 @@ import 'package:firebase_messaging/firebase_messaging.dart' as _i892;
 import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:go_router/go_router.dart' as _i583;
+import 'package:google_sign_in/google_sign_in.dart' as _i116;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:mobile/core/auth/google_sign_in_module.dart' as _i63;
 import 'package:mobile/core/localization/locale_cubit.dart' as _i390;
 import 'package:mobile/core/network/dio_client.dart' as _i873;
 import 'package:mobile/core/router/app_router.dart' as _i683;
@@ -33,6 +35,8 @@ import 'package:mobile/features/auth/domain/usecases/complete_onboarding.dart'
 import 'package:mobile/features/auth/domain/usecases/get_current_user.dart'
     as _i1052;
 import 'package:mobile/features/auth/domain/usecases/login.dart' as _i189;
+import 'package:mobile/features/auth/domain/usecases/login_with_google.dart'
+    as _i60;
 import 'package:mobile/features/auth/domain/usecases/logout.dart' as _i542;
 import 'package:mobile/features/auth/domain/usecases/register.dart' as _i461;
 import 'package:mobile/features/auth/domain/usecases/update_profile.dart'
@@ -179,6 +183,7 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final sharedPreferencesModule = _$SharedPreferencesModule();
+    final googleSignInModule = _$GoogleSignInModule();
     final navigatorKeyModule = _$NavigatorKeyModule();
     final firebaseMessagingModule = _$FirebaseMessagingModule();
     final connectivityModule = _$ConnectivityModule();
@@ -187,6 +192,9 @@ extension GetItInjectableX on _i174.GetIt {
     await gh.factoryAsync<_i460.SharedPreferences>(
       () => sharedPreferencesModule.sharedPreferences,
       preResolve: true,
+    );
+    gh.lazySingleton<_i116.GoogleSignIn>(
+      () => googleSignInModule.googleSignIn(),
     );
     gh.lazySingleton<_i409.GlobalKey<_i409.NavigatorState>>(
       () => navigatorKeyModule.navigatorKey,
@@ -249,34 +257,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i711.StatsRemoteDataSource>(
       () => _i711.StatsRemoteDataSource(gh<_i361.Dio>()),
     );
-    gh.lazySingleton<_i202.AuthRepository>(
-      () => _i950.AuthRepositoryImpl(
-        gh<_i1044.AuthRemoteDataSource>(),
-        gh<_i839.SecureTokenStorage>(),
-      ),
-    );
     gh.lazySingleton<_i385.StatsRepository>(
       () => _i554.StatsRepositoryImpl(gh<_i711.StatsRemoteDataSource>()),
-    );
-    gh.factory<_i310.CompleteOnboarding>(
-      () => _i310.CompleteOnboarding(gh<_i202.AuthRepository>()),
-    );
-    gh.factory<_i1052.GetCurrentUser>(
-      () => _i1052.GetCurrentUser(gh<_i202.AuthRepository>()),
-    );
-    gh.factory<_i189.Login>(() => _i189.Login(gh<_i202.AuthRepository>()));
-    gh.factory<_i542.Logout>(() => _i542.Logout(gh<_i202.AuthRepository>()));
-    gh.factory<_i461.Register>(
-      () => _i461.Register(gh<_i202.AuthRepository>()),
-    );
-    gh.factory<_i362.UpdateProfile>(
-      () => _i362.UpdateProfile(gh<_i202.AuthRepository>()),
-    );
-    gh.factory<_i423.OnboardingCubit>(
-      () => _i423.OnboardingCubit(
-        gh<_i362.UpdateProfile>(),
-        gh<_i310.CompleteOnboarding>(),
-      ),
     );
     gh.lazySingleton<_i784.SocialRepository>(
       () => _i912.SocialRepositoryImpl(gh<_i27.SocialRemoteDataSource>()),
@@ -338,6 +320,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i895.Connectivity>(),
       ),
     );
+    gh.lazySingleton<_i202.AuthRepository>(
+      () => _i950.AuthRepositoryImpl(
+        gh<_i1044.AuthRemoteDataSource>(),
+        gh<_i839.SecureTokenStorage>(),
+        gh<_i116.GoogleSignIn>(),
+      ),
+    );
     gh.factory<_i856.RegisterDevice>(
       () => _i856.RegisterDevice(gh<_i224.NotificationRepository>()),
     );
@@ -381,6 +370,29 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i437.GetAllBadges>(
       () => _i437.GetAllBadges(gh<_i787.BadgeRepository>()),
+    );
+    gh.factory<_i310.CompleteOnboarding>(
+      () => _i310.CompleteOnboarding(gh<_i202.AuthRepository>()),
+    );
+    gh.factory<_i1052.GetCurrentUser>(
+      () => _i1052.GetCurrentUser(gh<_i202.AuthRepository>()),
+    );
+    gh.factory<_i189.Login>(() => _i189.Login(gh<_i202.AuthRepository>()));
+    gh.factory<_i60.LoginWithGoogle>(
+      () => _i60.LoginWithGoogle(gh<_i202.AuthRepository>()),
+    );
+    gh.factory<_i542.Logout>(() => _i542.Logout(gh<_i202.AuthRepository>()));
+    gh.factory<_i461.Register>(
+      () => _i461.Register(gh<_i202.AuthRepository>()),
+    );
+    gh.factory<_i362.UpdateProfile>(
+      () => _i362.UpdateProfile(gh<_i202.AuthRepository>()),
+    );
+    gh.factory<_i423.OnboardingCubit>(
+      () => _i423.OnboardingCubit(
+        gh<_i362.UpdateProfile>(),
+        gh<_i310.CompleteOnboarding>(),
+      ),
     );
     gh.factory<_i481.LeaderboardCubit>(
       () => _i481.LeaderboardCubit(gh<_i643.GetLeaderboard>()),
@@ -427,6 +439,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i948.AuthCubit>(
       () => _i948.AuthCubit(
         gh<_i189.Login>(),
+        gh<_i60.LoginWithGoogle>(),
         gh<_i461.Register>(),
         gh<_i1052.GetCurrentUser>(),
         gh<_i542.Logout>(),
@@ -461,6 +474,8 @@ extension GetItInjectableX on _i174.GetIt {
 }
 
 class _$SharedPreferencesModule extends _i390.SharedPreferencesModule {}
+
+class _$GoogleSignInModule extends _i63.GoogleSignInModule {}
 
 class _$NavigatorKeyModule extends _i683.NavigatorKeyModule {}
 

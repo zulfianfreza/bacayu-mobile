@@ -6,6 +6,8 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -119,6 +121,33 @@ class _LoginViewState extends State<_LoginView> {
                             )
                           : Text(l10n.login),
                     ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        const Expanded(child: Divider(color: AppColors.line)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(l10n.orDivider, style: AppTypography.caption),
+                        ),
+                        const Expanded(child: Divider(color: AppColors.line)),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    OutlinedButton.icon(
+                      onPressed: isLoading
+                          ? null
+                          : () => context.read<AuthCubit>().loginWithGoogle(),
+                      icon: const _GoogleIcon(),
+                      label: Text(l10n.continueWithGoogle),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.ink,
+                        side: const BorderSide(color: AppColors.line),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.pill),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: () => context.go(AppRoutes.register),
@@ -129,6 +158,32 @@ class _LoginViewState extends State<_LoginView> {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// Lightweight Google "G" mark — no bundled brand asset in this repo, so
+/// this approximates it with the brand blue rather than pulling in a
+/// dedicated icon package for a single glyph.
+class _GoogleIcon extends StatelessWidget {
+  const _GoogleIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 18,
+      height: 18,
+      child: Center(
+        child: Text(
+          'G',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF4285F4),
+            height: 1,
+          ),
         ),
       ),
     );

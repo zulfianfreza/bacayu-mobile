@@ -6,6 +6,7 @@ import 'package:injectable/injectable.dart';
 import '../../../notifications/data/services/push_notification_service.dart';
 import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/login.dart';
+import '../../domain/usecases/login_with_google.dart';
 import '../../domain/usecases/logout.dart';
 import '../../domain/usecases/register.dart';
 import 'auth_state.dart';
@@ -14,6 +15,7 @@ import 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit(
     this._login,
+    this._loginWithGoogle,
     this._register,
     this._getCurrentUser,
     this._logout,
@@ -21,6 +23,7 @@ class AuthCubit extends Cubit<AuthState> {
   ) : super(const AuthInitial());
 
   final Login _login;
+  final LoginWithGoogle _loginWithGoogle;
   final Register _register;
   final GetCurrentUser _getCurrentUser;
   final Logout _logout;
@@ -32,6 +35,26 @@ class AuthCubit extends Cubit<AuthState> {
     result.fold(
       (failure) => emit(AuthError(failure)),
       (user) {
+        emit(AuthAuthenticated(user));
+        unawaited(_pushNotificationService.registerAfterLogin());
+      },
+    );
+  }
+
+  /// Same redirect logic as [login] — Google Sign-In doubles as
+  /// register-or-login (backend find-or-create), so there's no separate
+  /// "register with Google" path. A `null` result means the user cancelled
+  /// the native sign-in sheet: not an error, just go back to idle.
+  Future<void> loginWithGoogle() async {
+    emit(const AuthLoading());
+    final result = await _loginWithGoogle();
+    result.fold(
+      (failure) => emit(AuthError(failure)),
+      (user) {
+        if (user == null) {
+          emit(const AuthInitial());
+          return;
+        }
         emit(AuthAuthenticated(user));
         unawaited(_pushNotificationService.registerAfterLogin());
       },

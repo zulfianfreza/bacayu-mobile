@@ -5,6 +5,7 @@ import 'package:mobile/features/auth/domain/entities/user.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/domain/usecases/get_current_user.dart';
 import 'package:mobile/features/auth/domain/usecases/login.dart';
+import 'package:mobile/features/auth/domain/usecases/login_with_google.dart';
 import 'package:mobile/features/auth/domain/usecases/logout.dart';
 import 'package:mobile/features/auth/domain/usecases/register.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
@@ -51,6 +52,7 @@ void main() {
         .thenAnswer((_) async {});
     cubit = AuthCubit(
       Login(repository),
+      LoginWithGoogle(repository),
       Register(repository),
       GetCurrentUser(repository),
       Logout(repository),
@@ -125,6 +127,62 @@ void main() {
       );
 
       await cubit.login(email: 'reader@bacayu.app', password: 'password1');
+      await expectation;
+    });
+  });
+
+  group('AuthCubit.loginWithGoogle', () {
+    test('emits [loading, authenticated] on success', () async {
+      when(() => repository.loginWithGoogle())
+          .thenAnswer((_) async => Right(user));
+
+      final expectation = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          const AuthLoading(),
+          AuthAuthenticated(user),
+        ]),
+      );
+
+      await cubit.loginWithGoogle();
+      await expectation;
+
+      verify(() => pushNotificationService.registerAfterLogin()).called(1);
+    });
+
+    test(
+        'emits [loading, initial] when the user cancels the native sign-in '
+        'sheet — not treated as an error', () async {
+      when(() => repository.loginWithGoogle())
+          .thenAnswer((_) async => const Right(null));
+
+      final expectation = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          const AuthLoading(),
+          const AuthInitial(),
+        ]),
+      );
+
+      await cubit.loginWithGoogle();
+      await expectation;
+
+      verifyNever(() => pushNotificationService.registerAfterLogin());
+    });
+
+    test('emits [loading, error(NetworkFailure)] when offline', () async {
+      when(() => repository.loginWithGoogle())
+          .thenAnswer((_) async => const Left(NetworkFailure()));
+
+      final expectation = expectLater(
+        cubit.stream,
+        emitsInOrder([
+          const AuthLoading(),
+          const AuthError(NetworkFailure()),
+        ]),
+      );
+
+      await cubit.loginWithGoogle();
       await expectation;
     });
   });

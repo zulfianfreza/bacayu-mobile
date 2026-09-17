@@ -188,6 +188,18 @@ abstract class AppLocalizations {
   /// **'Welcome back'**
   String get welcomeBack;
 
+  /// Google Sign-In button label — handles both register and login (backend find-or-create), so there's only ever this one button, never separate 'sign up with Google' / 'log in with Google' labels
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get continueWithGoogle;
+
+  /// Divider label between the email/password form and the Google Sign-In button on the login page
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get orDivider;
+
   /// Register page headline
   ///
   /// In en, this message translates to:

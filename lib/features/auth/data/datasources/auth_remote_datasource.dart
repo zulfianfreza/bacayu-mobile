@@ -37,6 +37,17 @@ class AuthRemoteDataSource {
     return response.data!['data'] as Map<String, dynamic>;
   }
 
+  /// POST /auth/google — backend does find-or-create on the verified
+  /// Google account, returns `{access_token, user}` same shape as
+  /// `/auth/login` regardless of whether the user was just created.
+  Future<Map<String, dynamic>> loginWithGoogle({required String idToken}) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/auth/google',
+      data: {'id_token': idToken},
+    );
+    return response.data!['data'] as Map<String, dynamic>;
+  }
+
   /// GET /users/me — returns the current user.
   Future<Map<String, dynamic>> getMe() async {
     final response = await _dio.get<Map<String, dynamic>>('/users/me');

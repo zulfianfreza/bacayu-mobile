@@ -55,6 +55,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get welcomeBack => 'Selamat datang kembali';
 
   @override
+  String get continueWithGoogle => 'Lanjutkan dengan Google';
+
+  @override
+  String get orDivider => 'atau';
+
+  @override
   String get createYourAccount => 'Buat akunmu';
 
   @override
