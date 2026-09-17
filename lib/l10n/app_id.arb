@@ -71,6 +71,7 @@
   "genrePoetry": "Puisi",
   "whatAreYouReading": "Lagi baca buku apa?",
   "noReadingBooks": "Belum ada buku yang lagi dibaca. Tambah dulu ke rakmu.",
+  "bookPickerSubtitle": "Pilih buku yang sedang kamu baca untuk memulai sesi.",
   "pausesSoFar": "{count} kali jeda",
   "sessionSummary": "Ringkasan sesi",
   "totalDuration": "Total durasi",

@@ -233,6 +233,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Belum ada buku yang lagi dibaca. Tambah dulu ke rakmu.';
 
   @override
+  String get bookPickerSubtitle =>
+      'Pilih buku yang sedang kamu baca untuk memulai sesi.';
+
+  @override
   String pausesSoFar(int count) {
     return '$count kali jeda';
   }

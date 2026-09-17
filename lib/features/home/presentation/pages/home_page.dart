@@ -17,7 +17,8 @@ import '../../../sessions/presentation/widgets/book_picker_bottom_sheet.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../../shelf/presentation/widgets/shelf_book_card.dart';
 import '../../../stats/domain/entities/daily_stat.dart';
-import '../../../stats/presentation/widgets/heatmap_calendar.dart' show heatmapColorFor;
+import '../../../stats/presentation/widgets/heatmap_calendar.dart'
+    show heatmapColorFor;
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 
@@ -54,37 +55,40 @@ class _HomeView extends StatelessWidget {
         child: BlocBuilder<HomeCubit, HomeState>(
           builder: (context, state) {
             return switch (state) {
-              HomeInitial() || HomeLoading() =>
-                const Center(child: CircularProgressIndicator()),
+              HomeInitial() ||
+              HomeLoading() => const Center(child: CircularProgressIndicator()),
               HomeError(:final failure) => Center(
-                  child: Text(
-                    failure.localizedMessage(context),
-                    style: AppTypography.body,
-                  ),
+                child: Text(
+                  failure.localizedMessage(context),
+                  style: AppTypography.body,
                 ),
+              ),
               HomeLoaded() => RefreshIndicator(
-                  onRefresh: () => context.read<HomeCubit>().load(),
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      _Header(userName: state.userName, avatarUrl: state.avatarUrl),
-                      const SizedBox(height: 20),
-                      _StreakHeroCard(currentStreak: state.currentStreak),
-                      const SizedBox(height: 20),
-                      _HeatmapStrip(last7Days: state.last7Days),
-                      const SizedBox(height: 24),
-                      if (state.isEmptyState)
-                        _EmptyStateCta(onTap: () => _openBookPicker(context))
-                      else ...[
-                        if (state.continueReading.isNotEmpty) ...[
-                          _ContinueReadingSection(books: state.continueReading),
-                          const SizedBox(height: 24),
-                        ],
-                        _RecentActivitySection(activities: state.recentActivity),
+                onRefresh: () => context.read<HomeCubit>().load(),
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _Header(
+                      userName: state.userName,
+                      avatarUrl: state.avatarUrl,
+                    ),
+                    const SizedBox(height: 20),
+                    _StreakHeroCard(currentStreak: state.currentStreak),
+                    const SizedBox(height: 20),
+                    _HeatmapStrip(last7Days: state.last7Days),
+                    const SizedBox(height: 24),
+                    if (state.isEmptyState)
+                      _EmptyStateCta(onTap: () => _openBookPicker(context))
+                    else ...[
+                      if (state.continueReading.isNotEmpty) ...[
+                        _ContinueReadingSection(books: state.continueReading),
+                        const SizedBox(height: 24),
                       ],
+                      _RecentActivitySection(activities: state.recentActivity),
                     ],
-                  ),
+                  ],
                 ),
+              ),
             };
           },
         ),
@@ -118,7 +122,9 @@ class _Header extends StatelessWidget {
           child: avatarUrl.isEmpty
               ? Text(
                   userName.isEmpty ? '?' : userName[0].toUpperCase(),
-                  style: AppTypography.subheading.copyWith(color: AppColors.tangerine700),
+                  style: AppTypography.subheading.copyWith(
+                    color: AppColors.tangerine700,
+                  ),
                 )
               : null,
         ),
@@ -145,7 +151,11 @@ class _StreakHeroCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.local_fire_department, color: AppColors.tangerine500, size: 36),
+          const Icon(
+            Icons.local_fire_department,
+            color: AppColors.tangerine500,
+            size: 36,
+          ),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,7 +194,10 @@ class _HeatmapStrip extends StatelessWidget {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: heatmapColorFor(minutes: stat.totalMinutes, maxMinutes: maxMinutes),
+                  color: heatmapColorFor(
+                    minutes: stat.totalMinutes,
+                    maxMinutes: maxMinutes,
+                  ),
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
@@ -195,7 +208,9 @@ class _HeatmapStrip extends StatelessWidget {
           onTap: () => context.go(AppRoutes.stats),
           child: Text(
             l10n.viewFullHeatmap,
-            style: AppTypography.caption.copyWith(color: AppColors.tangerine700),
+            style: AppTypography.caption.copyWith(
+              color: AppColors.tangerine700,
+            ),
           ),
         ),
       ],
@@ -254,9 +269,10 @@ class _RecentActivitySection extends StatelessWidget {
           children: [
             Text(l10n.recentActivity, style: AppTypography.heading),
             TextButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const FeedPage()),
-              ),
+              style: TextButton.styleFrom(padding: EdgeInsets.zero),
+              onPressed: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const FeedPage())),
               child: Text(l10n.viewAllActivity),
             ),
           ],
@@ -265,7 +281,9 @@ class _RecentActivitySection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: switch (activity.payload) {
-              SessionActivityPayload() => SessionActivityCard(activity: activity),
+              SessionActivityPayload() => SessionActivityCard(
+                activity: activity,
+              ),
               BadgeActivityPayload() => BadgeActivityCard(activity: activity),
             },
           ),
@@ -293,7 +311,11 @@ class _EmptyStateCta extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Icon(Icons.menu_book_outlined, size: 40, color: AppColors.tangerine300),
+          const Icon(
+            Icons.menu_book_outlined,
+            size: 40,
+            color: AppColors.tangerine300,
+          ),
           const SizedBox(height: 16),
           Text(
             l10n.startFirstSessionCta,

@@ -524,6 +524,12 @@ abstract class AppLocalizations {
   /// **'No books in progress. Add one to your shelf first.'**
   String get noReadingBooks;
 
+  /// Supporting line under the book picker heading
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the book you\'re reading now to start a session.'**
+  String get bookPickerSubtitle;
+
   /// Caption under the running/paused session timer
   ///
   /// In en, this message translates to:

@@ -277,6 +277,10 @@
   "@noReadingBooks": {
     "description": "Book picker empty state — no shelf entries with status Reading"
   },
+  "bookPickerSubtitle": "Pick the book you're reading now to start a session.",
+  "@bookPickerSubtitle": {
+    "description": "Supporting line under the book picker heading"
+  },
   "pausesSoFar": "{count} pauses so far",
   "@pausesSoFar": {
     "description": "Caption under the running/paused session timer",

@@ -50,17 +50,14 @@ class _LikeButtonState extends State<LikeButton> {
 
     if (!mounted) return;
 
-    result.fold(
-      (failure) {
-        setState(() {
-          _isLiked = previousIsLiked;
-          _likeCount = previousCount;
-          _isPending = false;
-        });
-        context.showFailureSnackBar(failure);
-      },
-      (_) => setState(() => _isPending = false),
-    );
+    result.fold((failure) {
+      setState(() {
+        _isLiked = previousIsLiked;
+        _likeCount = previousCount;
+        _isPending = false;
+      });
+      context.showFailureSnackBar(failure);
+    }, (_) => setState(() => _isPending = false));
   }
 
   @override
@@ -73,9 +70,12 @@ class _LikeButtonState extends State<LikeButton> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              _isLiked ? Icons.favorite : Icons.favorite_border,
-              size: 18,
+            Image.asset(
+              _isLiked
+                  ? 'assets/icons/like-solid.png'
+                  : 'assets/icons/like-stroke.png',
+              width: 24,
+              height: 24,
               color: _isLiked ? AppColors.berry : AppColors.inkSoft,
             ),
             const SizedBox(width: 4),

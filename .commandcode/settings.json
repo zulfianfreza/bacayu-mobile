@@ -16,7 +16,14 @@
       "Shell(kill:*)",
       "Shell(ls:*)",
       "Shell(lsof:*)",
-      "Shell(rm:*)"
+      "Shell(rm:*)",
+      "Shell(ps:*)",
+      "Shell(cd /Users/julian/Code/Projects/bacayu/mobile && ls -la assets/icons/ 2>&1; echo \"--- my leftover test procs ---\"; ps aux | grep -E \"flutter_tester|flutter_tools.snapshot test\" | grep -v grep | head -5; echo \"--- user app still alive? ---\"; ps -p 80724 -o pid,etime,command | tail -2)",
+      "Shell(python3 -c import PIL; print('pillow', PIL.__version__) 2 >& 1)",
+      "Shell(which:*)",
+      "Shell(sips:*)",
+      "Shell(cd /Users/julian/Code/Projects/bacayu/mobile && flutter test test/core/navigation/gen_nav_icons_test.dart 2>&1 | tail -4 && ls -la assets/icons/ && cd \"$COMMANDCODE_SCRATCHPAD\" && for f in nav_home nav_shelf nav_stats nav_profile nav_session; do cp \"/Users/julian/Code/Projects/bacayu/mobile/assets/icons/$f.png\" \"/tmp/$f.png\" 2>/dev/null; done; echo done)",
+      "Shell(sed:*)"
     ],
     "deny": [],
     "defaultMode": "default"

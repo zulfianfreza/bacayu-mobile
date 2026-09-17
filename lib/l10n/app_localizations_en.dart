@@ -233,6 +233,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'No books in progress. Add one to your shelf first.';
 
   @override
+  String get bookPickerSubtitle =>
+      'Pick the book you\'re reading now to start a session.';
+
+  @override
   String pausesSoFar(int count) {
     return '$count pauses so far';
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/sessions/presentation/pages/session_timer_page.dart';
@@ -9,29 +10,38 @@ import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
 
-const _barHeight = 64.0;
-const _fabDiameter = 60.0;
-const _fabOverlap = 24.0;
+const _barHeight = 60.0;
+
+/// Nav icons are assets rather than `IconData`, so the artwork can be swapped
+/// without touching this file. Replace the files in `assets/icons/` — they
+/// must be monochrome with a transparent background, because [_TintedIcon]
+/// recolors them per state.
+const _navHomeIcon = 'assets/icons/home-stroke.png';
+const _navShelfIcon = 'assets/icons/library-stroke.png';
+const _navStatsIcon = 'assets/icons/stats-stroke.png';
+const _navProfileIcon = 'assets/icons/user-stroke.png';
+const _navSessionIcon = 'assets/icons/record-alt-stroke.svg';
 
 /// Root shell for the 4 primary tabs (Home/Shelf/Stats/Profile) — hosts
 /// go_router's [StatefulNavigationShell] so each tab keeps its own
 /// navigation stack independently (switching tabs never resets a tab's
-/// in-progress state). The "Start Session" FAB is a plain action button,
-/// NOT a 5th branch — it opens `BookPickerBottomSheet` directly.
-///
-/// Both the bottom bar and the FAB are laid out by hand in a [Stack]
-/// (never `Scaffold.bottomNavigationBar`/`floatingActionButtonLocation`)
-/// so the FAB overlaps the bar exactly per the mockup, not Material's
-/// default notch.
+/// in-progress state). The "Start Session" button sits in the middle of the
+/// bar as a 5th, non-branch slot — it opens `BookPickerBottomSheet` directly.
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
+  /// Lets tests find the session action now that its icon is an asset rather
+  /// than an [IconData].
+  @visibleForTesting
+  static const startSessionKey = Key('start-session-button');
+
   Future<void> _startSession(BuildContext context) async {
     final userBook = await showModalBottomSheet<UserBook>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
@@ -50,127 +60,85 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: _barHeight),
-              child: navigationShell,
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _AppBottomNavBar(
-              currentIndex: navigationShell.currentIndex,
-              onTap: (index) => navigationShell.goBranch(
-                index,
-                initialLocation: index == navigationShell.currentIndex,
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: _barHeight - _fabOverlap,
-            child: Center(
-              child: _StartSessionFab(onPressed: () => _startSession(context)),
-            ),
-          ),
-        ],
+      backgroundColor: AppColors.surface,
+      body: navigationShell,
+      bottomNavigationBar: _AppBottomNavBar(
+        currentIndex: navigationShell.currentIndex,
+        onTap: (index) => navigationShell.goBranch(
+          index,
+          initialLocation: index == navigationShell.currentIndex,
+        ),
+        onStartSession: () => _startSession(context),
       ),
     );
   }
 }
 
 class _AppBottomNavBar extends StatelessWidget {
-  const _AppBottomNavBar({required this.currentIndex, required this.onTap});
+  const _AppBottomNavBar({
+    required this.currentIndex,
+    required this.onTap,
+    required this.onStartSession,
+  });
 
   final int currentIndex;
   final ValueChanged<int> onTap;
+  final VoidCallback onStartSession;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final items = [
-      (Icons.home_outlined, Icons.home, l10n.tabHome),
-      (Icons.menu_book_outlined, Icons.menu_book, l10n.tabShelf),
-      (Icons.bar_chart_outlined, Icons.bar_chart, l10n.tabStats),
-      (Icons.person_outline, Icons.person, l10n.tabProfile),
+      (icon: _navHomeIcon, label: l10n.tabHome),
+      (icon: _navShelfIcon, label: l10n.tabShelf),
+      (icon: _navStatsIcon, label: l10n.tabStats),
+      (icon: _navProfileIcon, label: l10n.tabProfile),
     ];
 
+    // Every slot gets an equal share of the bar, the session button included —
+    // that is what keeps it on the same line as the tabs instead of floating
+    // above them.
+    final slots = <Widget>[];
+    for (var i = 0; i < items.length; i++) {
+      if (i == items.length ~/ 2) {
+        slots.add(
+          Expanded(child: _StartSessionButton(onPressed: onStartSession)),
+        );
+      }
+      slots.add(
+        Expanded(
+          child: _NavItem(
+            icon: items[i].icon,
+            label: items[i].label,
+            isActive: i == currentIndex,
+            onTap: () => onTap(i),
+          ),
+        ),
+      );
+    }
+
     return Container(
-      height: _barHeight,
-      decoration: const BoxDecoration(
+      // The bar carries type, so it grows with the user's font size the way
+      // its labels do — a hard 72 clips them the moment the text is scaled up.
+      decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.line)),
-      ),
-      child: Row(
-        children: [
-          for (var i = 0; i < items.length; i++) ...[
-            Expanded(
-              child: _NavItem(
-                outlineIcon: items[i].$1,
-                filledIcon: items[i].$2,
-                label: items[i].$3,
-                isActive: i == currentIndex,
-                onTap: () => onTap(i),
-              ),
-            ),
-            // Gap in the middle row for the FAB to float above.
-            if (i == 1) const SizedBox(width: _fabDiameter),
-          ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, -2),
+          ),
         ],
       ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.outlineIcon,
-    required this.filledIcon,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  final IconData outlineIcon;
-  final IconData filledIcon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Center(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          decoration: BoxDecoration(
-            color: isActive ? AppColors.tangerine100 : Colors.transparent,
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isActive ? filledIcon : outlineIcon,
-                size: 22,
-                color: isActive ? AppColors.tangerine700 : AppColors.inkSoft,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                style: AppTypography.caption.copyWith(
-                  color: isActive ? AppColors.tangerine700 : AppColors.inkSoft,
-                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                ),
-              ),
-            ],
+      // Stretch so each slot owns the full height of the bar: a 42px-tall tap
+      // target would be under the 44px minimum.
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 60,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: slots,
           ),
         ),
       ),
@@ -178,27 +146,106 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-class _StartSessionFab extends StatelessWidget {
-  const _StartSessionFab({required this.onPressed});
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  final String icon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    // The active tab is carried by colour alone — no pill behind it.
+    final color = isActive ? AppColors.tangerine : AppColors.inkSoft;
+
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            height: 3,
+            width: isActive ? 32 : 0,
+            decoration: BoxDecoration(
+              color: AppColors.tangerine,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(4),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          _TintedIcon(asset: icon, color: color, size: 24),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: AppTypography.caption.copyWith(
+              color: color,
+              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+              fontSize: 10,
+            ),
+          ),
+          const SizedBox(height: 6),
+        ],
+      ),
+    );
+  }
+}
+
+/// Draws a monochrome asset in [color].
+///
+/// `srcIn` keeps the asset's alpha and replaces its colour outright, which is
+/// what lets one file serve both the active and inactive state.
+class _TintedIcon extends StatelessWidget {
+  const _TintedIcon({
+    required this.asset,
+    required this.color,
+    required this.size,
+  });
+
+  final String asset;
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      asset,
+      width: size,
+      height: size,
+      color: color,
+      colorBlendMode: BlendMode.srcIn,
+    );
+  }
+}
+
+class _StartSessionButton extends StatelessWidget {
+  const _StartSessionButton({required this.onPressed});
 
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: context.l10n.startSession,
-      child: Material(
-        color: AppColors.tangerine500,
-        shape: const CircleBorder(),
-        elevation: 4,
-        shadowColor: AppColors.tangerine500,
-        child: InkWell(
-          customBorder: const CircleBorder(),
+    return Center(
+      child: Tooltip(
+        key: AppShell.startSessionKey,
+        message: context.l10n.startSession,
+        child: GestureDetector(
           onTap: onPressed,
-          child: const SizedBox(
-            width: _fabDiameter,
-            height: _fabDiameter,
-            child: Icon(Icons.play_arrow, color: Colors.white, size: 28),
+          behavior: HitTestBehavior.opaque,
+          child: SvgPicture.asset(
+            _navSessionIcon,
+            height: 40,
+            width: 40,
+            colorFilter: ColorFilter.mode(AppColors.tangerine, BlendMode.srcIn),
           ),
         ),
       ),

@@ -87,7 +87,16 @@ void main() {
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(body: ShelfBookCard(userBook: userBook)),
+        home: Scaffold(
+          // One grid column wide, stacked in a Column so the tile takes its
+          // natural height the way a shelf row gives it.
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(width: 173, child: ShelfBookCard(userBook: userBook)),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -147,6 +156,58 @@ void main() {
     expect(find.byType(BookDetailPage), findsOneWidget);
     final page = tester.widget<BookDetailPage>(find.byType(BookDetailPage));
     expect(page.bookId, 'book-1');
+  });
+
+  testWidgets(
+      'tapping the cover navigates to BookDetailPage with the book\'s id',
+      (tester) async {
+    await tester.pumpWidget(wrap(_userBook()));
+
+    // No cover URL in the fixture, so the placeholder is the cover.
+    await tester.tap(find.byIcon(Icons.menu_book));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byType(BookDetailPage), findsOneWidget);
+  });
+
+  testWidgets('a long title is laid out in full, never ellipsized',
+      (tester) async {
+    const long = 'The 100-Year-Old Man Who Climbed Out the Window';
+    await tester.pumpWidget(
+      wrap(
+        UserBook(
+          id: 'ub-1',
+          book: Book(
+            id: 'book-1',
+            source: 'google_books',
+            googleBooksId: 'g1',
+            isbn10: null,
+            isbn13: null,
+            title: long,
+            authors: const ['Jonas Jonasson'],
+            description: null,
+            coverUrl: null,
+            totalPages: 320,
+            language: 'en',
+            genres: const [],
+            publishedDate: '2012',
+          ),
+          status: ShelfStatus.reading,
+          format: null,
+          currentPage: 50,
+          startedAt: null,
+          finishedAt: null,
+          rating: null,
+          isReread: false,
+        ),
+      ),
+    );
+
+    final title = tester.widget<Text>(find.text(long));
+    expect(title.maxLines, isNull);
+    expect(title.overflow, isNot(TextOverflow.ellipsis));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets(

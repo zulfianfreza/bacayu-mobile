@@ -36,6 +36,8 @@ class _BookPickerBottomSheetState extends State<BookPickerBottomSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(l10n.whatAreYouReading, style: AppTypography.heading),
+            const SizedBox(height: 4),
+            Text(l10n.bookPickerSubtitle, style: AppTypography.caption),
             const SizedBox(height: 16),
             ConstrainedBox(
               constraints: BoxConstraints(
@@ -69,33 +71,8 @@ class _BookPickerBottomSheetState extends State<BookPickerBottomSheet> {
                             itemCount: books.length,
                             itemBuilder: (context, index) {
                               final userBook = books[index];
-                              return ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                leading: ClipRRect(
-                                  borderRadius:
-                                      BorderRadius.circular(AppRadius.sm),
-                                  child: SizedBox(
-                                    width: 40,
-                                    height: 56,
-                                    child: userBook.book.coverUrl == null
-                                        ? Container(color: AppColors.tangerine50)
-                                        : Image.network(
-                                            userBook.book.coverUrl!,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) =>
-                                                    Container(
-                                              color: AppColors.tangerine50,
-                                            ),
-                                          ),
-                                  ),
-                                ),
-                                title: Text(
-                                  userBook.book.title,
-                                  style: AppTypography.subheading,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              return _BookOption(
+                                userBook: userBook,
                                 onTap: () =>
                                     Navigator.of(context).pop(userBook),
                               );
@@ -109,5 +86,87 @@ class _BookPickerBottomSheetState extends State<BookPickerBottomSheet> {
         ),
       ),
     );
+  }
+}
+
+/// One pickable book: cover, title, author, and where the reader is up to.
+///
+/// A hand-rolled row rather than a [ListTile]: the tile's fixed two/three-line
+/// heights fight a title that is allowed to run to its full length.
+class _BookOption extends StatelessWidget {
+  const _BookOption({required this.userBook, required this.onTap});
+
+  final UserBook userBook;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final book = userBook.book;
+    final totalPages = book.totalPages;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              child: SizedBox(
+                width: 40,
+                height: 56,
+                child: book.coverUrl == null
+                    ? const _CoverPlaceholder()
+                    : Image.network(
+                        book.coverUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const _CoverPlaceholder(),
+                      ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(book.title, style: AppTypography.subheading),
+                  if (book.authors.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.byAuthor(book.authors.join(', ')),
+                      style: AppTypography.caption,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  // Only when there is a total to measure against — a bare
+                  // "page 50" would read as progress it cannot show.
+                  if (totalPages != null && totalPages > 0) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.pageProgress(userBook.currentPage, totalPages),
+                      style: AppTypography.caption,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CoverPlaceholder extends StatelessWidget {
+  const _CoverPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ColoredBox(color: AppColors.tangerine50);
   }
 }

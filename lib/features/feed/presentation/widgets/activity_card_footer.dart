@@ -55,9 +55,9 @@ class ActivityCardFooter extends StatelessWidget {
     if (!context.mounted) return;
     result.fold(
       (failure) => context.showFailureSnackBar(failure),
-      (_) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.visibilityUpdated)),
-      ),
+      (_) => ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.visibilityUpdated))),
     );
   }
 
@@ -80,7 +80,12 @@ class ActivityCardFooter extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.mode_comment_outlined, size: 18, color: AppColors.inkSoft),
+                Image.asset(
+                  'assets/icons/message-stroke.png',
+                  width: 24,
+                  height: 24,
+                  color: AppColors.inkSoft,
+                ),
                 const SizedBox(width: 4),
                 Text('${activity.commentCount}', style: AppTypography.caption),
               ],
@@ -90,7 +95,11 @@ class ActivityCardFooter extends StatelessWidget {
         const Spacer(),
         if (isOwnActivity)
           PopupMenuButton<ActivityVisibility>(
-            icon: const Icon(Icons.more_vert, size: 18, color: AppColors.inkSoft),
+            icon: const Icon(
+              Icons.more_vert,
+              size: 18,
+              color: AppColors.inkSoft,
+            ),
             tooltip: l10n.changeVisibility,
             onSelected: (visibility) => _changeVisibility(context, visibility),
             itemBuilder: (context) => [

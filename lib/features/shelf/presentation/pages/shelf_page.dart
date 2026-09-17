@@ -99,13 +99,44 @@ class _ShelfBody extends StatelessWidget {
       );
     }
 
+    // Two books per row, laid out as rows rather than through a `GridView`:
+    // titles are shown in full, so tiles differ in height, and a grid delegate
+    // would either clip them or force a tallest-tile-wins aspect ratio on
+    // every cover. A row at a time also keeps the list lazy.
+    const columns = 2;
+    const gap = 12.0;
+    final rowCount = (items.length / columns).ceil();
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: items.length,
-      itemBuilder: (context, index) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: ShelfBookCard(userBook: items[index]),
-      ),
+      itemCount: rowCount,
+      itemBuilder: (context, rowIndex) {
+        final start = rowIndex * columns;
+        final row = items.skip(start).take(columns).toList();
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: gap),
+          // IntrinsicHeight gives the stretch something to resolve against;
+          // a ListView hands each row an unbounded height otherwise. Both
+          // cards then share the taller one's height, so a one-line title and
+          // a four-line title still read as one grid.
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < columns; i++) ...[
+                  if (i > 0) const SizedBox(width: gap),
+                  Expanded(
+                    child: i < row.length
+                        ? ShelfBookCard(userBook: row[i])
+                        : const SizedBox.shrink(),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

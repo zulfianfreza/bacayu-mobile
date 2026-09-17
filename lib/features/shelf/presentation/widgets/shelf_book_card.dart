@@ -10,20 +10,26 @@ import '../../domain/entities/user_book.dart';
 import '../cubit/shelf_cubit.dart';
 import 'status_picker_bottom_sheet.dart';
 
-/// Cover/title/progress area and the status chip each own their own tap
-/// target — NEVER nest one inside the other's `InkWell`. A tap landing
-/// inside the chip must only open [StatusPickerBottomSheet], never also
-/// navigate to [BookDetailPage] (and vice versa); nested `InkWell`s make
-/// that ambiguous (only one of the two ever wins the gesture arena).
+/// One book on the shelf: cover on top, everything else under it.
+///
+/// The card and the status chip each own their own tap target — NEVER nest one
+/// inside the other's `InkWell`. A tap landing inside the chip must only open
+/// [StatusPickerBottomSheet], never also navigate to [BookDetailPage] (and
+/// vice versa); the chip is a sibling stacked over the card for exactly that
+/// reason, so the topmost hit always wins outright.
 class ShelfBookCard extends StatelessWidget {
   const ShelfBookCard({super.key, required this.userBook}) : compact = false;
 
-  /// For a horizontal carousel, which hands the card a fixed height instead
-  /// of the intrinsic one a vertical list gives it.
+  /// Cover ratio for the shelf tile, and the shape book covers actually come
+  /// in — the tile takes its width from the grid column.
+  static const coverAspectRatio = 2 / 3;
+
+  /// For the home "Continue reading" carousel, which hands the card a fixed
+  /// height instead of the intrinsic one a vertical list gives it.
   ///
-  /// It drops the status chip: the row that uses this is "Continue reading",
-  /// where every book is reading by definition, so the chip said the same
-  /// word on every card and cost the height the layout did not have.
+  /// It drops the status chip: every book in that row is reading by
+  /// definition, so the chip said the same word on every card and cost the
+  /// height the layout did not have.
   const ShelfBookCard.compact({super.key, required this.userBook})
       : compact = true;
 
@@ -64,116 +70,175 @@ class ShelfBookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return compact ? _buildCompact(context) : _buildGrid(context);
+  }
+
+  Widget _buildGrid(BuildContext context) {
+    final l10n = context.l10n;
     final book = userBook.book;
+    final totalPages = book.totalPages;
     final showProgress = userBook.status == ShelfStatus.reading &&
-        book.totalPages != null &&
-        book.totalPages! > 0;
+        totalPages != null &&
+        totalPages > 0;
 
     return Card(
-      // The carousel supplies its own gaps, and the default margin would knock
-      // the row out of line with the section title above it.
-      margin: compact ? EdgeInsets.zero : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      // The grid supplies its own gaps.
+      margin: EdgeInsets.zero,
+      // Clips the cover to the card's own radius, so it can bleed to the edge.
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
         children: [
           InkWell(
             onTap: () => _openBookDetail(context),
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(AppRadius.md),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    child: SizedBox(
-                      width: 48,
-                      height: 68,
-                      child: book.coverUrl == null
-                          ? const _CoverPlaceholder()
-                          : Image.network(
-                              book.coverUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const _CoverPlaceholder(),
-                            ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AspectRatio(
+                  aspectRatio: coverAspectRatio,
+                  child: book.coverUrl == null
+                      ? const _CoverPlaceholder()
+                      : Image.network(
+                          book.coverUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const _CoverPlaceholder(),
+                        ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Deliberately uncapped: a grid of half-titles is worse
+                      // than a grid of uneven tiles.
+                      Text(book.title, style: AppTypography.subheading),
+                      if (book.authors.isNotEmpty) ...[
+                        const SizedBox(height: 2),
                         Text(
-                          book.title,
-                          style: AppTypography.subheading,
-                          maxLines: 2,
+                          l10n.byAuthor(book.authors.join(', ')),
+                          style: AppTypography.caption,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (book.authors.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            context.l10n.byAuthor(book.authors.join(', ')),
-                            style: AppTypography.caption,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
                       ],
-                    ),
+                      if (showProgress) ...[
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(AppRadius.pill),
+                          child: LinearProgressIndicator(
+                            value: (userBook.currentPage / totalPages)
+                                .clamp(0, 1)
+                                .toDouble(),
+                            minHeight: 4,
+                            backgroundColor: AppColors.line,
+                            color: AppColors.lagoon500,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.pageProgress(userBook.currentPage, totalPages),
+                          style: AppTypography.caption,
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          if (!compact)
-            Padding(
-              padding: EdgeInsets.fromLTRB(72, 0, 12, showProgress ? 4 : 12),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: _StatusChip(
-                  status: userBook.status,
-                  onTap: () => _openStatusPicker(context),
+          // Sits on the cover rather than in the text column: it is a badge,
+          // and a tile this narrow has no vertical room to spare.
+          Positioned(
+            top: 8,
+            left: 8,
+            child: _StatusChip(
+              status: userBook.status,
+              onTap: () => _openStatusPicker(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompact(BuildContext context) {
+    final l10n = context.l10n;
+    final book = userBook.book;
+    final totalPages = book.totalPages;
+    final showProgress = userBook.status == ShelfStatus.reading &&
+        totalPages != null &&
+        totalPages > 0;
+
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _openBookDetail(context),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                child: SizedBox(
+                  width: 48,
+                  height: 68,
+                  child: book.coverUrl == null
+                      ? const _CoverPlaceholder()
+                      : Image.network(
+                          book.coverUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const _CoverPlaceholder(),
+                        ),
                 ),
               ),
-            ),
-          if (showProgress)
-            InkWell(
-              onTap: () => _openBookDetail(context),
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(AppRadius.md),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(72, 4, 12, 12),
+              const SizedBox(width: 12),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(AppRadius.pill),
-                      child: LinearProgressIndicator(
-                        value: (userBook.currentPage / book.totalPages!)
-                            .clamp(0, 1)
-                            .toDouble(),
-                        minHeight: 4,
-                        backgroundColor: AppColors.line,
-                        color: AppColors.lagoon500,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
                     Text(
-                      context.l10n.pageProgress(
-                        userBook.currentPage,
-                        book.totalPages!,
-                      ),
-                      style: AppTypography.caption,
+                      book.title,
+                      style: AppTypography.subheading,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    if (book.authors.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.byAuthor(book.authors.join(', ')),
+                        style: AppTypography.caption,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    if (showProgress) ...[
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                        child: LinearProgressIndicator(
+                          value: (userBook.currentPage / totalPages)
+                              .clamp(0, 1)
+                              .toDouble(),
+                          minHeight: 4,
+                          backgroundColor: AppColors.line,
+                          color: AppColors.lagoon500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.pageProgress(userBook.currentPage, totalPages),
+                        style: AppTypography.caption,
+                      ),
+                    ],
                   ],
                 ),
               ),
-            ),
-        ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -216,7 +281,7 @@ class _StatusChip extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
             color: background,
             borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -239,7 +304,11 @@ class _CoverPlaceholder extends StatelessWidget {
     return Container(
       color: AppColors.tangerine50,
       alignment: Alignment.center,
-      child: const Icon(Icons.menu_book, color: AppColors.tangerine300),
+      child: const Icon(
+        Icons.menu_book,
+        color: AppColors.tangerine300,
+        size: 32,
+      ),
     );
   }
 }
