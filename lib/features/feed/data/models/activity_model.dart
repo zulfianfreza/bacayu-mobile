@@ -39,6 +39,7 @@ class ActivityModel extends Activity {
     switch (activityType) {
       case _typeReadingSession:
         return SessionActivityPayload(
+          bookId: payloadJson['book_id'] as String?,
           bookTitle: payloadJson['book_title'] as String? ?? '',
           bookCoverUrl: payloadJson['book_cover_url'] as String?,
           pagesRead: (payloadJson['pages_read'] as num?)?.toInt() ?? 0,

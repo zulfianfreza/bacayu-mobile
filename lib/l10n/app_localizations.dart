@@ -698,6 +698,12 @@ abstract class AppLocalizations {
   /// **'No activity yet — start a reading session to see it here.'**
   String get feedEmpty;
 
+  /// ActivityDetailPage fallback when reached without the Activity in memory (e.g. a future deep link) — there's no fetch-by-id endpoint yet, only the feed list
+  ///
+  /// In en, this message translates to:
+  /// **'This activity isn\'t available.'**
+  String get activityNotAvailable;
+
   /// Reading speed shown on a session activity card
   ///
   /// In en, this message translates to:

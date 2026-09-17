@@ -323,6 +323,9 @@ class AppLocalizationsId extends AppLocalizations {
       'Belum ada aktivitas — mulai sesi baca buat lihat di sini.';
 
   @override
+  String get activityNotAvailable => 'Aktivitas ini tidak tersedia.';
+
+  @override
   String speedPpmValue(String speed) {
     return '$speed ppm';
   }

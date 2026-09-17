@@ -323,6 +323,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'No activity yet — start a reading session to see it here.';
 
   @override
+  String get activityNotAvailable => 'This activity isn\'t available.';
+
+  @override
   String speedPpmValue(String speed) {
     return '$speed ppm';
   }

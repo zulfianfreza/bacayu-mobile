@@ -5,6 +5,8 @@ import 'package:injectable/injectable.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
+import '../../features/feed/domain/entities/activity.dart';
+import '../../features/feed/presentation/pages/activity_detail_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -31,6 +33,17 @@ class AppRoutes {
 
   static const followers = '/followers';
   static const following = '/following';
+
+  /// `:activityId` isn't resolved from the URL alone yet — there's no
+  /// fetch-a-single-activity endpoint/usecase, only `GetFeed` (list +
+  /// cursor). Pushed today with the already-loaded `Activity` via `extra`
+  /// (see feed's activity cards); the path exists so a future deep link
+  /// (push notification, share) has somewhere to point once that gap is
+  /// closed.
+  static const feedActivityDetail = '/feed/:activityId';
+
+  static String feedActivityDetailPath(String activityId) =>
+      '/feed/$activityId';
 
   /// Temporary — still no real navigation entry point (leaderboard wasn't
   /// in `profile`'s scope). Exists purely for manual testing, same pattern
@@ -97,6 +110,19 @@ abstract class AppRouterModule {
         GoRoute(
           path: AppRoutes.leaderboardDebug,
           builder: (context, state) => const LeaderboardPage(),
+        ),
+        GoRoute(
+          path: AppRoutes.feedActivityDetail,
+          builder: (context, state) {
+            // `extra` is how the activity card hands over the Activity it
+            // already has in memory — see the docstring on
+            // `AppRoutes.feedActivityDetail`.
+            final activity = state.extra as Activity?;
+            return ActivityDetailPage(
+              activityId: state.pathParameters['activityId']!,
+              activity: activity,
+            );
+          },
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) =>

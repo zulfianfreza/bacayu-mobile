@@ -398,6 +398,10 @@
   "@feedEmpty": {
     "description": "Feed empty state"
   },
+  "activityNotAvailable": "This activity isn't available.",
+  "@activityNotAvailable": {
+    "description": "ActivityDetailPage fallback when reached without the Activity in memory (e.g. a future deep link) — there's no fetch-by-id endpoint yet, only the feed list"
+  },
   "speedPpmValue": "{speed} ppm",
   "@speedPpmValue": {
     "description": "Reading speed shown on a session activity card",

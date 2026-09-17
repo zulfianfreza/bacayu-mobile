@@ -5,15 +5,28 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../books/presentation/pages/book_detail_page.dart';
 import '../../domain/entities/user_book.dart';
 import '../cubit/shelf_cubit.dart';
 import 'status_picker_bottom_sheet.dart';
 
+/// Cover/title/progress area and the status chip each own their own tap
+/// target — NEVER nest one inside the other's `InkWell`. A tap landing
+/// inside the chip must only open [StatusPickerBottomSheet], never also
+/// navigate to [BookDetailPage] (and vice versa); nested `InkWell`s make
+/// that ambiguous (only one of the two ever wins the gesture arena).
 class ShelfBookCard extends StatelessWidget {
-  const ShelfBookCard({super.key, required this.userBook, this.onTap});
+  const ShelfBookCard({super.key, required this.userBook});
 
   final UserBook userBook;
-  final VoidCallback? onTap;
+
+  void _openBookDetail(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BookDetailPage(bookId: userBook.book.id),
+      ),
+    );
+  }
 
   Future<void> _openStatusPicker(BuildContext context) async {
     final cubit = context.read<ShelfCubit>();
@@ -29,86 +42,111 @@ class ShelfBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final book = userBook.book;
+    final showProgress = userBook.status == ShelfStatus.reading &&
+        book.totalPages != null &&
+        book.totalPages! > 0;
 
     return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-                child: SizedBox(
-                  width: 48,
-                  height: 68,
-                  child: book.coverUrl == null
-                      ? const _CoverPlaceholder()
-                      : Image.network(
-                          book.coverUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const _CoverPlaceholder(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () => _openBookDetail(context),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppRadius.md),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    child: SizedBox(
+                      width: 48,
+                      height: 68,
+                      child: book.coverUrl == null
+                          ? const _CoverPlaceholder()
+                          : Image.network(
+                              book.coverUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const _CoverPlaceholder(),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          book.title,
+                          style: AppTypography.subheading,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                ),
+                        if (book.authors.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            context.l10n.byAuthor(book.authors.join(', ')),
+                            style: AppTypography.caption,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(72, 0, 12, showProgress ? 4 : 12),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _StatusChip(
+                status: userBook.status,
+                onTap: () => _openStatusPicker(context),
+              ),
+            ),
+          ),
+          if (showProgress)
+            InkWell(
+              onTap: () => _openBookDetail(context),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(AppRadius.md),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(72, 4, 12, 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                      child: LinearProgressIndicator(
+                        value: (userBook.currentPage / book.totalPages!)
+                            .clamp(0, 1)
+                            .toDouble(),
+                        minHeight: 4,
+                        backgroundColor: AppColors.line,
+                        color: AppColors.lagoon500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
                     Text(
-                      book.title,
-                      style: AppTypography.subheading,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      context.l10n.pageProgress(
+                        userBook.currentPage,
+                        book.totalPages!,
+                      ),
+                      style: AppTypography.caption,
                     ),
-                    if (book.authors.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        context.l10n.byAuthor(book.authors.join(', ')),
-                        style: AppTypography.caption,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                    const SizedBox(height: 8),
-                    _StatusChip(
-                      status: userBook.status,
-                      onTap: () => _openStatusPicker(context),
-                    ),
-                    if (userBook.status == ShelfStatus.reading &&
-                        book.totalPages != null &&
-                        book.totalPages! > 0) ...[
-                      const SizedBox(height: 8),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
-                        child: LinearProgressIndicator(
-                          value: (userBook.currentPage / book.totalPages!)
-                              .clamp(0, 1)
-                              .toDouble(),
-                          minHeight: 4,
-                          backgroundColor: AppColors.line,
-                          color: AppColors.lagoon500,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        context.l10n.pageProgress(
-                          userBook.currentPage,
-                          book.totalPages!,
-                        ),
-                        style: AppTypography.caption,
-                      ),
-                    ],
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
+            ),
+        ],
       ),
     );
   }

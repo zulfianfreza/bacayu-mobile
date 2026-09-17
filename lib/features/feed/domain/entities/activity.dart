@@ -14,6 +14,7 @@ sealed class ActivityPayload extends Equatable {
 
 class SessionActivityPayload extends ActivityPayload {
   const SessionActivityPayload({
+    required this.bookId,
     required this.bookTitle,
     required this.bookCoverUrl,
     required this.pagesRead,
@@ -21,6 +22,13 @@ class SessionActivityPayload extends ActivityPayload {
     required this.activeDurationSeconds,
   });
 
+  /// NOT sent by the backend yet — `ActivityResponse`'s reading-session
+  /// payload only has the denormalized `book_title`/`book_cover_url`
+  /// snapshot fields, no internal book id (see backend CLAUDE.md Section
+  /// 6.8/`record_session_activity.go`). Parses to `null` until the backend
+  /// adds a `book_id` field; `ActivityDetailPage` only makes the cover/title
+  /// tappable (→ `books`' `BookDetailPage`) when this is non-null.
+  final String? bookId;
   final String bookTitle;
   final String? bookCoverUrl;
   final int pagesRead;
@@ -28,8 +36,14 @@ class SessionActivityPayload extends ActivityPayload {
   final int activeDurationSeconds;
 
   @override
-  List<Object?> get props =>
-      [bookTitle, bookCoverUrl, pagesRead, speedPpm, activeDurationSeconds];
+  List<Object?> get props => [
+        bookId,
+        bookTitle,
+        bookCoverUrl,
+        pagesRead,
+        speedPpm,
+        activeDurationSeconds,
+      ];
 }
 
 class BadgeActivityPayload extends ActivityPayload {
