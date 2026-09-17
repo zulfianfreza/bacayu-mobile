@@ -1,0 +1,14 @@
+# Taste
+- All user-facing strings must go through `context.l10n.xxx` (ARB-based `AppLocalizations`); never hardcode UI strings like labels, buttons, or error messages. Repeatedly and explicitly stated ("Semua label lewat context.l10n"). Confidence: 0.95
+- Follows feature-first Clean Architecture: each feature is split into `domain/` (entities, repositories, usecases), `data/` (models, datasources, repository impl), `presentation/` (cubits, pages, widgets). Confidence: 0.85
+- Handles errors functionally with `Either<Failure, T>` (dartz) and a sealed `Failure` type; exceptions are mapped to `Failure` at a single point and never allowed to escape to the UI. Confidence: 0.85
+- Keeps layer boundaries strict via interfaces (e.g. `core/network` must not import from `features/*`; presentation talks to core through abstractions). Confidence: 0.7
+- Strongly prefers reusing existing widgets and usecases across features over duplicating logic (cross-feature composition is acceptable and encouraged). Confidence: 0.75
+- Prefers optimistic UI updates with rollback on failure for toggles (e.g. like/follow buttons) rather than waiting on the network. Confidence: 0.65
+- After a mutation, updates local state (replace the single affected item) rather than refetching the whole list. Confidence: 0.6
+- Treats the project's `CLAUDE.md` as the source of truth and expects prompts/implementation to conform to it. Confidence: 0.7
+- Expects every feature to ship with tests (unit tests for cubits/usecases, widget tests for widgets) and requires `flutter analyze` clean and `flutter test` all passing before work is considered done. Confidence: 0.85
+- Uses `go_router` (including `StatefulShellRoute`) for navigation and `get_it` + `injectable` for dependency injection. Confidence: 0.65
+- When the backend contract is missing something a mobile feature genuinely needs, stops and asks rather than assuming or fabricating data. Confidence: 0.7
+- Writes and works in Indonesian (Bahasa Indonesia) and expects Indonesian-language responses. Confidence: 0.65
+- Dislikes ellipsized/truncated user-facing text (e.g. book titles on a share card): expects the full string to be shown by adapting the type (auto-fitting/shrinking the font) rather than clipping it with `…`. Confidence: 0.7

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
+import '../../../../core/sharing/models/session_share_data.dart';
+import '../../../../core/sharing/widgets/share_card_preview_sheet.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../auth/domain/usecases/get_current_user.dart';
 import '../../../badges/presentation/widgets/badge_unlocked_modal.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../cubit/session_timer_cubit.dart';
@@ -32,6 +36,23 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
   // popped the modal for so it never shows twice.
   final Set<String> _shownBadgeIds = {};
 
+  // The duration lives in the (transient) `SessionTimerStopped` state, but the
+  // page is still on screen after `submit()` moved the Cubit to
+  // `SessionTimerSubmitted` — kept here so the final duration stays readable
+  // (and shareable) once the session is saved.
+  int _activeDurationSeconds = 0;
+  int? _submittedStartPage;
+  int? _submittedEndPage;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = context.read<SessionTimerCubit>().state;
+    if (state is SessionTimerStopped) {
+      _activeDurationSeconds = state.activeDurationSeconds;
+    }
+  }
+
   @override
   void dispose() {
     _startPageController.dispose();
@@ -43,7 +64,53 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
     final startPage =
         int.tryParse(_startPageController.text) ?? widget.userBook.currentPage;
     final endPage = int.tryParse(_endPageController.text) ?? startPage;
+    _submittedStartPage = startPage;
+    _submittedEndPage = endPage;
     context.read<SessionTimerCubit>().submit(startPage: startPage, endPage: endPage);
+  }
+
+  int get _pagesRead {
+    final start = _submittedStartPage;
+    final end = _submittedEndPage;
+    if (start == null || end == null) return 0;
+    return end > start ? end - start : 0;
+  }
+
+  double _speedPpm(int pagesRead) {
+    if (_activeDurationSeconds <= 0) return 0;
+    return pagesRead / (_activeDurationSeconds / 60);
+  }
+
+  /// Re-fetched (not read off `AuthCubit`'s cached user) right before opening
+  /// the sheet: `current_streak` is updated by an ASYNC stats→auth path after
+  /// a session is recorded, so a stale cached user would show yesterday's
+  /// streak. A failed fetch just drops the badge — never blocks sharing.
+  Future<int?> _freshStreakDays() async {
+    final result = await getIt<GetCurrentUser>().call();
+    return result.fold((_) => null, (user) {
+      return user.currentStreak > 0 ? user.currentStreak : null;
+    });
+  }
+
+  Future<void> _shareSession(BuildContext context) async {
+    final pagesRead = _pagesRead;
+    final streakDays = await _freshStreakDays();
+
+    if (!context.mounted) return;
+
+    await ShareCardPreviewSheet.show(
+      context,
+      data: SessionShareData(
+        bookTitle: widget.userBook.book.title,
+        bookAuthors: widget.userBook.book.authors,
+        bookCoverUrl: widget.userBook.book.coverUrl,
+        pagesRead: pagesRead,
+        durationSeconds: _activeDurationSeconds,
+        speedPpm: _speedPpm(pagesRead),
+        sessionDate: DateTime.now(),
+        streakDays: streakDays,
+      ),
+    );
   }
 
   Future<void> _showNewBadges(BuildContext context, SessionTimerSubmitted state) async {
@@ -68,18 +135,15 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
       body: SafeArea(
         child: BlocConsumer<SessionTimerCubit, SessionTimerState>(
           listener: (context, state) {
-            if (state is SessionTimerError) {
+            if (state is SessionTimerStopped) {
+              _activeDurationSeconds = state.activeDurationSeconds;
+            } else if (state is SessionTimerError) {
               context.showFailureSnackBar(state.failure);
             } else if (state is SessionTimerSubmitted && state.badgesUnlocked.isNotEmpty) {
               _showNewBadges(context, state);
             }
           },
           builder: (context, state) {
-            final activeDurationSeconds = switch (state) {
-              SessionTimerStopped(:final activeDurationSeconds) =>
-                activeDurationSeconds,
-              _ => 0,
-            };
             final isSubmitting = state is SessionTimerSubmitting;
             final submitted = state is SessionTimerSubmitted ? state : null;
 
@@ -96,7 +160,7 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
                         const SizedBox(height: 4),
                         Text(
                           formatSessionDuration(
-                            Duration(seconds: activeDurationSeconds),
+                            Duration(seconds: _activeDurationSeconds),
                           ),
                           style: AppTypography.displaySm,
                         ),
@@ -142,6 +206,14 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
                         )
                       : Text(submitted != null ? l10n.sessionSaved : l10n.saveSession),
                 ),
+                if (submitted != null) ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => _shareSession(context),
+                    icon: const Icon(Icons.ios_share, size: 18),
+                    label: Text(l10n.share),
+                  ),
+                ],
               ],
             );
           },

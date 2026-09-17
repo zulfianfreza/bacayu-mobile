@@ -5,6 +5,8 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
+import '../../../../core/sharing/models/session_share_data.dart';
+import '../../../../core/sharing/widgets/share_card_preview_sheet.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -78,18 +80,51 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
   final _controller = TextEditingController();
   final List<ActivityComment> _newComments = [];
   User? _currentUser;
+  late final Future<User?> _currentUserFuture;
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    _loadCurrentUser();
+    _currentUserFuture = _loadCurrentUser();
   }
 
-  Future<void> _loadCurrentUser() async {
+  Future<User?> _loadCurrentUser() async {
     final result = await getIt<GetCurrentUser>().call();
+    if (!mounted) return null;
+    return result.fold((_) => null, (user) {
+      setState(() => _currentUser = user);
+      return user;
+    });
+  }
+
+  /// A past session's streak is already settled, so this reuses the user this
+  /// page loaded for the comment box instead of re-fetching — and awaits that
+  /// in-flight load rather than risking a `null` badge on a fast tap.
+  Future<void> _shareSession(Activity activity) async {
+    final payload = activity.payload;
+    if (payload is! SessionActivityPayload) return;
+
+    final user = await _currentUserFuture;
     if (!mounted) return;
-    result.fold((_) {}, (user) => setState(() => _currentUser = user));
+
+    final streak = user?.currentStreak;
+
+    await ShareCardPreviewSheet.show(
+      context,
+      data: SessionShareData(
+        bookTitle: payload.bookTitle,
+        // The denormalized feed payload has no author — the card drops that
+        // line rather than inventing one.
+        bookAuthors: const [],
+        bookCoverUrl: payload.bookCoverUrl,
+        pagesRead: payload.pagesRead,
+        durationSeconds: payload.activeDurationSeconds,
+        speedPpm: payload.speedPpm,
+        sessionDate: activity.occurredAt,
+        streakDays: streak != null && streak > 0 ? streak : null,
+      ),
+    );
   }
 
   @override
@@ -143,10 +178,23 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
             children: [
               _ActivityHeader(activity: activity),
               const SizedBox(height: 12),
-              LikeButton(
-                activityId: activity.id,
-                initialIsLiked: activity.isLiked,
-                initialLikeCount: activity.likeCount,
+              Row(
+                children: [
+                  LikeButton(
+                    activityId: activity.id,
+                    initialIsLiked: activity.isLiked,
+                    initialLikeCount: activity.likeCount,
+                  ),
+                  const Spacer(),
+                  // Badge unlocks have nothing to render as a reading card —
+                  // only session activities can be shared.
+                  if (activity.payload is SessionActivityPayload)
+                    OutlinedButton.icon(
+                      onPressed: () => _shareSession(activity),
+                      icon: const Icon(Icons.ios_share, size: 18),
+                      label: Text(l10n.share),
+                    ),
+                ],
               ),
               const Divider(height: 32, color: AppColors.line),
               FutureBuilder<Either<Failure, List<ActivityComment>>>(

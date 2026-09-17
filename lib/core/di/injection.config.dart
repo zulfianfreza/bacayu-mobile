@@ -23,6 +23,7 @@ import 'package:mobile/core/localization/locale_cubit.dart' as _i390;
 import 'package:mobile/core/network/dio_client.dart' as _i873;
 import 'package:mobile/core/network/session_expired_handler.dart' as _i387;
 import 'package:mobile/core/router/app_router.dart' as _i683;
+import 'package:mobile/core/sharing/services/share_card_service.dart' as _i239;
 import 'package:mobile/core/storage/app_database.dart' as _i141;
 import 'package:mobile/core/storage/secure_token_storage.dart' as _i839;
 import 'package:mobile/features/auth/data/datasources/auth_remote_datasource.dart'
@@ -195,6 +196,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => sharedPreferencesModule.sharedPreferences,
       preResolve: true,
     );
+    gh.factory<_i239.ShareCardService>(() => const _i239.ShareCardService());
     gh.lazySingleton<_i116.GoogleSignIn>(
       () => googleSignInModule.googleSignIn(),
     );

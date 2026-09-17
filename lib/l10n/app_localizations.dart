@@ -979,6 +979,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You\'ll need to log in again to continue.'**
   String get logOutConfirmBody;
+
+  /// Button that opens the native share sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// Button that saves the shareable card image to the gallery
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// Share preview sheet heading
+  ///
+  /// In en, this message translates to:
+  /// **'Share session'**
+  String get shareSession;
+
+  /// Confirmation snackbar after a shareable card is saved to the device gallery
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to gallery'**
+  String get savedToGallery;
+
+  /// Snackbar when handing the card to the native share sheet fails
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t share. Please try again.'**
+  String get shareFailed;
+
+  /// Snackbar when saving the shareable card to the gallery fails
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the image.'**
+  String get saveImageFailed;
+
+  /// Streak badge on a shareable session card
+  ///
+  /// In en, this message translates to:
+  /// **'🔥 {count} day streak'**
+  String streakDaysChip(int count);
+
+  /// Label above the session duration on a shareable session card
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get shareStatTime;
+
+  /// Label above the page count on a shareable session card
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get shareStatPages;
+
+  /// Label above the reading speed on a shareable session card
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get shareStatSpeed;
+
+  /// Explanation shown while previewing the transparent preset of the shareable card
+  ///
+  /// In en, this message translates to:
+  /// **'Transparent sticker. Place it over your own photo.'**
+  String get shareStickerHint;
 }
 
 class _AppLocalizationsDelegate

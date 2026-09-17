@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(flutter:*)",
+      "Shell(SHARE=$(find ~/.pub-cache/hosted -maxdepth 1 -type d -name \"pub.dev\" 2>/dev/null | head -1); echo \"cache: $SHARE\"; ls -d ~/.pub-cache/hosted/pub.dev/share_plus-13.3.0 ~/.pub-cache/hosted/pub.dev/gal-2.3.3 2>&1)",
+      "Shell(sed -n '95,135p;215,250p' ~/.pub-cache/hosted/pub.dev/share_plus-13.3.0/lib/share_plus.dart; echo \"=== ShareParams ===\"; find ~/.pub-cache/hosted/pub.dev/share_plus_platform_interface-7.2.0/lib -name \"*.dart\" | xargs grep -ln \"class ShareParams\")",
+      "Shell(ls -R ~/.pub-cache/hosted/pub.dev/gal-2.3.3/ios 2>/dev/null | head -20; echo \"=== ios impl ===\"; find ~/.pub-cache/hosted/pub.dev/gal-2.3.3 -name \"*.swift\" | head; echo; cat $(find ~/.pub-cache/hosted/pub.dev/gal-2.3.3 -name \"GalPlugin.swift\" | head -1) 2>/dev/null | head -80)",
+      "Shell(dart:*)",
+      "Shell(plutil:*)",
+      "Shell(xmllint:*)",
+      "Shell(FLUTTER_ROOT=/Users/julian/Tools/flutter;:*)",
+      "Shell(grep:*)",
+      "Shell(md5:*)",
+      "Shell(sleep:*)",
+      "Shell(xcrun:*)",
+      "Shell(kill:*)",
+      "Shell(ls:*)",
+      "Shell(lsof:*)",
+      "Shell(rm:*)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

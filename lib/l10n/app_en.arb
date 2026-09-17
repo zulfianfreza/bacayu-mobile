@@ -610,5 +610,54 @@
   "logOutConfirmBody": "You'll need to log in again to continue.",
   "@logOutConfirmBody": {
     "description": "Log out confirmation dialog body"
+  },
+  "share": "Share",
+  "@share": {
+    "description": "Button that opens the native share sheet"
+  },
+  "download": "Download",
+  "@download": {
+    "description": "Button that saves the shareable card image to the gallery"
+  },
+  "shareSession": "Share session",
+  "@shareSession": {
+    "description": "Share preview sheet heading"
+  },
+  "savedToGallery": "Saved to gallery",
+  "@savedToGallery": {
+    "description": "Confirmation snackbar after a shareable card is saved to the device gallery"
+  },
+  "shareFailed": "Couldn't share. Please try again.",
+  "@shareFailed": {
+    "description": "Snackbar when handing the card to the native share sheet fails"
+  },
+  "saveImageFailed": "Couldn't save the image.",
+  "@saveImageFailed": {
+    "description": "Snackbar when saving the shareable card to the gallery fails"
+  },
+  "streakDaysChip": "🔥 {count} day streak",
+  "@streakDaysChip": {
+    "description": "Streak badge on a shareable session card",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shareStatTime": "Time",
+  "@shareStatTime": {
+    "description": "Label above the session duration on a shareable session card"
+  },
+  "shareStatPages": "Pages",
+  "@shareStatPages": {
+    "description": "Label above the page count on a shareable session card"
+  },
+  "shareStatSpeed": "Speed",
+  "@shareStatSpeed": {
+    "description": "Label above the reading speed on a shareable session card"
+  },
+  "shareStickerHint": "Transparent sticker. Place it over your own photo.",
+  "@shareStickerHint": {
+    "description": "Explanation shown while previewing the transparent preset of the shareable card"
   }
 }

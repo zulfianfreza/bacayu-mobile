@@ -474,4 +474,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logOutConfirmBody => 'You\'ll need to log in again to continue.';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get download => 'Download';
+
+  @override
+  String get shareSession => 'Share session';
+
+  @override
+  String get savedToGallery => 'Saved to gallery';
+
+  @override
+  String get shareFailed => 'Couldn\'t share. Please try again.';
+
+  @override
+  String get saveImageFailed => 'Couldn\'t save the image.';
+
+  @override
+  String streakDaysChip(int count) {
+    return '🔥 $count day streak';
+  }
+
+  @override
+  String get shareStatTime => 'Time';
+
+  @override
+  String get shareStatPages => 'Pages';
+
+  @override
+  String get shareStatSpeed => 'Speed';
+
+  @override
+  String get shareStickerHint =>
+      'Transparent sticker. Place it over your own photo.';
 }

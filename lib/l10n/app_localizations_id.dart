@@ -474,4 +474,39 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get logOutConfirmBody => 'Kamu harus login lagi buat lanjut.';
+
+  @override
+  String get share => 'Bagikan';
+
+  @override
+  String get download => 'Unduh';
+
+  @override
+  String get shareSession => 'Bagikan sesi';
+
+  @override
+  String get savedToGallery => 'Tersimpan ke galeri';
+
+  @override
+  String get shareFailed => 'Gagal membagikan. Coba lagi ya.';
+
+  @override
+  String get saveImageFailed => 'Gagal menyimpan gambar.';
+
+  @override
+  String streakDaysChip(int count) {
+    return '🔥 $count hari beruntun';
+  }
+
+  @override
+  String get shareStatTime => 'Waktu';
+
+  @override
+  String get shareStatPages => 'Halaman';
+
+  @override
+  String get shareStatSpeed => 'Kecepatan';
+
+  @override
+  String get shareStickerHint => 'Sticker transparan. Tempel di atas fotomu.';
 }

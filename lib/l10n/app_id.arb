@@ -146,5 +146,16 @@
   "helpAndSupportBody": "Butuh bantuan? Email kami di support@bacayu.app, kami akan balas secepatnya.",
   "logOut": "Keluar",
   "logOutConfirmTitle": "Keluar?",
-  "logOutConfirmBody": "Kamu harus login lagi buat lanjut."
+  "logOutConfirmBody": "Kamu harus login lagi buat lanjut.",
+  "share": "Bagikan",
+  "download": "Unduh",
+  "shareSession": "Bagikan sesi",
+  "savedToGallery": "Tersimpan ke galeri",
+  "shareFailed": "Gagal membagikan. Coba lagi ya.",
+  "saveImageFailed": "Gagal menyimpan gambar.",
+  "streakDaysChip": "🔥 {count} hari beruntun",
+  "shareStatTime": "Waktu",
+  "shareStatPages": "Halaman",
+  "shareStatSpeed": "Kecepatan",
+  "shareStickerHint": "Sticker transparan. Tempel di atas fotomu."
 }
