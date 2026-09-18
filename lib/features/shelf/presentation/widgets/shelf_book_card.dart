@@ -31,7 +31,7 @@ class ShelfBookCard extends StatelessWidget {
   /// definition, so the chip said the same word on every card and cost the
   /// height the layout did not have.
   const ShelfBookCard.compact({super.key, required this.userBook})
-      : compact = true;
+    : compact = true;
 
   /// The height the compact variant needs at the default text size.
   static const compactHeight = 132.0;
@@ -77,7 +77,8 @@ class ShelfBookCard extends StatelessWidget {
     final l10n = context.l10n;
     final book = userBook.book;
     final totalPages = book.totalPages;
-    final showProgress = userBook.status == ShelfStatus.reading &&
+    final showProgress =
+        userBook.status == ShelfStatus.reading &&
         totalPages != null &&
         totalPages > 0;
 
@@ -165,7 +166,8 @@ class ShelfBookCard extends StatelessWidget {
     final l10n = context.l10n;
     final book = userBook.book;
     final totalPages = book.totalPages;
-    final showProgress = userBook.status == ShelfStatus.reading &&
+    final showProgress =
+        userBook.status == ShelfStatus.reading &&
         totalPages != null &&
         totalPages > 0;
 
@@ -223,7 +225,7 @@ class ShelfBookCard extends StatelessWidget {
                               .clamp(0, 1)
                               .toDouble(),
                           minHeight: 4,
-                          backgroundColor: AppColors.line,
+                          backgroundColor: AppColors.slate200,
                           color: AppColors.lagoon500,
                         ),
                       ),
@@ -255,25 +257,21 @@ class _StatusChip extends StatelessWidget {
     final l10n = context.l10n;
     final (label, background, foreground) = switch (status) {
       ShelfStatus.wantToRead => (
-          l10n.statusWantToRead,
-          AppColors.line,
-          AppColors.inkSoft,
-        ),
+        l10n.statusWantToRead,
+        AppColors.line,
+        AppColors.inkSoft,
+      ),
       ShelfStatus.reading => (
-          l10n.statusReading,
-          AppColors.lagoon100,
-          AppColors.lagoon700,
-        ),
+        l10n.statusReading,
+        AppColors.lagoon100,
+        AppColors.lagoon700,
+      ),
       ShelfStatus.finished => (
-          l10n.statusFinished,
-          AppColors.sunshine100,
-          AppColors.sunshine700,
-        ),
-      ShelfStatus.dnf => (
-          l10n.statusDnf,
-          AppColors.line,
-          AppColors.inkSoft,
-        ),
+        l10n.statusFinished,
+        AppColors.sunshine100,
+        AppColors.sunshine700,
+      ),
+      ShelfStatus.dnf => (l10n.statusDnf, AppColors.line, AppColors.inkSoft),
     };
 
     return ClipRRect(

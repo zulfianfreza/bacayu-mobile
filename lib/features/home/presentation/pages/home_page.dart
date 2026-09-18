@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -184,7 +182,6 @@ class _HeatmapStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     // Abbreviated, not a single letter: in Indonesian three weekdays start
     // with S (Senin, Selasa, Sabtu), so an initial cannot tell them apart.
     // `E` is the locale's own short name, so English gets Mon/Tue/… for free.
@@ -213,16 +210,6 @@ class _HeatmapStrip extends StatelessWidget {
               ),
           ],
         ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () => context.go(AppRoutes.stats),
-          child: Text(
-            l10n.viewFullHeatmap,
-            style: AppTypography.caption.copyWith(
-              color: AppColors.tangerine700,
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -246,10 +233,10 @@ class _DayCircle extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: read ? AppColors.lagoon100 : AppColors.line,
+        color: read ? AppColors.lagoon : AppColors.slate200,
       ),
       child: read
-          ? const Icon(Icons.check, size: 16, color: AppColors.lagoon700)
+          ? const Icon(Icons.check, size: 16, color: AppColors.surface)
           : null,
     );
   }

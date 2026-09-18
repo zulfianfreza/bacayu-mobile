@@ -67,7 +67,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.inkSoft,
+          foregroundColor: AppColors.slate900,
           textStyle: AppTypography.button,
           shape: const StadiumBorder(),
         ),

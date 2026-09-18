@@ -43,7 +43,10 @@ class _ProfileView extends StatelessWidget {
   }
 
   Future<void> _openPrivacyPicker(BuildContext context, User user) async {
-    final changed = await PrivacyBottomSheet.show(context, currentValue: user.privacyDefault);
+    final changed = await PrivacyBottomSheet.show(
+      context,
+      currentValue: user.privacyDefault,
+    );
     if (changed == true && context.mounted) {
       context.read<ProfileCubit>().load();
     }
@@ -83,66 +86,76 @@ class _ProfileView extends StatelessWidget {
         child: BlocBuilder<ProfileCubit, ProfileState>(
           builder: (context, state) {
             return switch (state) {
-              ProfileInitial() || ProfileLoading() =>
-                const Center(child: CircularProgressIndicator()),
+              ProfileInitial() || ProfileLoading() => const Center(
+                child: CircularProgressIndicator(),
+              ),
               ProfileError(:final failure) => Center(
-                  child: Text(failure.localizedMessage(context), style: AppTypography.body),
+                child: Text(
+                  failure.localizedMessage(context),
+                  style: AppTypography.body,
                 ),
+              ),
               ProfileLoaded() => RefreshIndicator(
-                  onRefresh: () => context.read<ProfileCubit>().load(),
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      _ProfileHeader(user: state.user),
-                      const SizedBox(height: 20),
-                      _StatsRow(
-                        booksFinished: state.booksFinished,
-                        currentStreak: state.user.currentStreak,
-                        badgesUnlocked: state.badgesUnlocked,
-                        totalBadges: state.totalBadges,
-                      ),
-                      const SizedBox(height: 16),
-                      _FollowRow(
-                        followersCount: state.followersCount,
-                        followingCount: state.followingCount,
-                      ),
-                      const SizedBox(height: 24),
-                      SettingsListGroup(children: [
+                onRefresh: () => context.read<ProfileCubit>().load(),
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _ProfileHeader(user: state.user),
+                    const SizedBox(height: 20),
+                    _StatsRow(
+                      booksFinished: state.booksFinished,
+                      currentStreak: state.user.currentStreak,
+                      badgesUnlocked: state.badgesUnlocked,
+                      totalBadges: state.totalBadges,
+                    ),
+                    const SizedBox(height: 16),
+                    _FollowRow(
+                      followersCount: state.followersCount,
+                      followingCount: state.followingCount,
+                    ),
+                    const SizedBox(height: 24),
+                    SettingsListGroup(
+                      children: [
                         SettingsListTile(
-                          icon: Icons.flag_outlined,
+                          icon: "assets/icons/flag-stroke.png",
                           label: l10n.readingGoals,
                           onTap: () => _openReadingGoals(context, state.user),
                         ),
                         SettingsListTile(
-                          icon: Icons.language,
+                          icon: "assets/icons/globe-stroke.png",
                           label: l10n.language,
                           onTap: () => LanguageBottomSheet.show(context),
                         ),
                         SettingsListTile(
-                          icon: Icons.lock_outline,
+                          icon: "assets/icons/lock-stroke.png",
                           label: l10n.privacy,
                           onTap: () => _openPrivacyPicker(context, state.user),
                         ),
                         SettingsListTile(
-                          icon: Icons.help_outline,
+                          icon: "assets/icons/question-mark-stroke.png",
                           label: l10n.helpAndSupport,
                           onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const HelpSupportPage()),
+                            MaterialPageRoute(
+                              builder: (_) => const HelpSupportPage(),
+                            ),
                           ),
                         ),
-                      ]),
-                      const SizedBox(height: 16),
-                      SettingsListGroup(children: [
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SettingsListGroup(
+                      children: [
                         SettingsListTile(
-                          icon: Icons.logout,
+                          icon: "assets/icons/logout-stroke.png",
                           label: l10n.logOut,
                           destructive: true,
                           onTap: () => _confirmLogOut(context),
                         ),
-                      ]),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
+              ),
             };
           },
         ),
@@ -163,11 +176,15 @@ class _ProfileHeader extends StatelessWidget {
         CircleAvatar(
           radius: 40,
           backgroundColor: AppColors.tangerine100,
-          backgroundImage: user.avatarUrl.isEmpty ? null : NetworkImage(user.avatarUrl),
+          backgroundImage: user.avatarUrl.isEmpty
+              ? null
+              : NetworkImage(user.avatarUrl),
           child: user.avatarUrl.isEmpty
               ? Text(
                   user.name.isEmpty ? '?' : user.name[0].toUpperCase(),
-                  style: AppTypography.displaySm.copyWith(color: AppColors.tangerine700),
+                  style: AppTypography.displaySm.copyWith(
+                    color: AppColors.tangerine700,
+                  ),
                 )
               : null,
         ),
@@ -198,10 +215,16 @@ class _StatsRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _StatColumn(value: '$booksFinished', label: l10n.profileStatsBooks),
+          child: _StatColumn(
+            value: '$booksFinished',
+            label: l10n.profileStatsBooks,
+          ),
         ),
         Expanded(
-          child: _StatColumn(value: '$currentStreak', label: l10n.profileStatsStreak),
+          child: _StatColumn(
+            value: '$currentStreak',
+            label: l10n.profileStatsStreak,
+          ),
         ),
         Expanded(
           child: _StatColumn(
@@ -233,7 +256,10 @@ class _StatColumn extends StatelessWidget {
 }
 
 class _FollowRow extends StatelessWidget {
-  const _FollowRow({required this.followersCount, required this.followingCount});
+  const _FollowRow({
+    required this.followersCount,
+    required this.followingCount,
+  });
 
   final int followersCount;
   final int followingCount;

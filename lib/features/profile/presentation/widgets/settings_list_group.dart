@@ -43,7 +43,7 @@ class SettingsListTile extends StatelessWidget {
     this.destructive = false,
   });
 
-  final IconData icon;
+  final String icon;
   final String label;
   final VoidCallback onTap;
   final bool destructive;
@@ -58,11 +58,25 @@ class SettingsListTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: destructive ? AppColors.berry : AppColors.inkSoft),
+            Image.asset(
+              icon,
+              width: 20,
+              height: 20,
+              color: destructive ? AppColors.berry : AppColors.slate900,
+            ),
             const SizedBox(width: 12),
-            Expanded(child: Text(label, style: AppTypography.bodyStrong.copyWith(color: color))),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.bodyStrong.copyWith(color: color),
+              ),
+            ),
             if (!destructive)
-              const Icon(Icons.chevron_right, size: 20, color: AppColors.inkFaint),
+              const Icon(
+                Icons.chevron_right,
+                size: 20,
+                color: AppColors.inkFaint,
+              ),
           ],
         ),
       ),

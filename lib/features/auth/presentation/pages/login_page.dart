@@ -54,9 +54,9 @@ class _LoginViewState extends State<_LoginView> {
       final state = context.read<AuthCubit>().state;
       if (state is AuthUnauthenticated &&
           state.reason == UnauthenticatedReason.sessionExpired) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.sessionExpired)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.sessionExpired)));
       }
     });
   }
@@ -71,9 +71,9 @@ class _LoginViewState extends State<_LoginView> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
     context.read<AuthCubit>().login(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
   }
 
   @override
@@ -86,99 +86,134 @@ class _LoginViewState extends State<_LoginView> {
           listener: (context, state) {
             if (state is AuthAuthenticated) {
               context.go(
-                state.user.hasOnboarded
-                    ? AppRoutes.home
-                    : AppRoutes.onboarding,
+                state.user.hasOnboarded ? AppRoutes.home : AppRoutes.onboarding,
               );
             }
           },
           builder: (context, state) {
             final isLoading = state is AuthLoading;
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    const SizedBox(height: 64),
-                    Text(l10n.appName, style: AppTypography.displaySm),
-                    const SizedBox(height: 8),
-                    Text(l10n.welcomeBack, style: AppTypography.body),
-                    const SizedBox(height: 32),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(labelText: l10n.email),
-                      validator: (value) =>
-                          (value == null || value.isEmpty)
-                              ? l10n.fieldRequired
-                              : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(labelText: l10n.password),
-                      validator: (value) =>
-                          (value == null || value.isEmpty)
-                              ? l10n.fieldRequired
-                              : null,
-                    ),
-                    if (state is AuthError) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        state.failure.localizedMessage(context),
-                        style: AppTypography.caption,
-                      ),
-                    ],
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: isLoading ? null : _submit,
-                      child: isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(l10n.login),
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
+                child: ConstrainedBox(
+                  // Centred on a phone, and still a readable measure instead
+                  // of an edge-to-edge form on a tablet.
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Expanded(child: Divider(color: AppColors.line)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(l10n.orDivider, style: AppTypography.caption),
+                        Text(
+                          l10n.appName,
+                          style: AppTypography.displaySm,
+                          textAlign: TextAlign.center,
                         ),
-                        const Expanded(child: Divider(color: AppColors.line)),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.welcomeBack,
+                          style: AppTypography.body,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 32),
+                        _FieldLabel(l10n.email),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(
+                            prefixIcon: _FieldIcon(Icons.mail_outline),
+                          ),
+                          validator: (value) => (value == null || value.isEmpty)
+                              ? l10n.fieldRequired
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+                        _FieldLabel(l10n.password),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            prefixIcon: _FieldIcon(Icons.lock_outline),
+                          ),
+                          validator: (value) => (value == null || value.isEmpty)
+                              ? l10n.fieldRequired
+                              : null,
+                        ),
+                        if (state is AuthError) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            state.failure.localizedMessage(context),
+                            style: AppTypography.caption,
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: isLoading ? null : _submit,
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text(l10n.login),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Divider(color: AppColors.line),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              child: Text(
+                                l10n.orDivider,
+                                style: AppTypography.caption,
+                              ),
+                            ),
+                            const Expanded(
+                              child: Divider(color: AppColors.line),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        OutlinedButton.icon(
+                          onPressed: isLoading
+                              ? null
+                              : () =>
+                                    context.read<AuthCubit>().loginWithGoogle(),
+                          icon: const _GoogleIcon(),
+                          label: Text(l10n.continueWithGoogle),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.ink,
+                            side: const BorderSide(color: AppColors.line),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.pill,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextButton(
+                          onPressed: () => context.go(AppRoutes.register),
+                          child: Text(l10n.dontHaveAccount),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    OutlinedButton.icon(
-                      onPressed: isLoading
-                          ? null
-                          : () => context.read<AuthCubit>().loginWithGoogle(),
-                      icon: const _GoogleIcon(),
-                      label: Text(l10n.continueWithGoogle),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.ink,
-                        side: const BorderSide(color: AppColors.line),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.pill),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () => context.go(AppRoutes.register),
-                      child: Text(l10n.dontHaveAccount),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             );
@@ -186,6 +221,38 @@ class _LoginViewState extends State<_LoginView> {
         ),
       ),
     );
+  }
+}
+
+/// A field's own label, above the box rather than floating inside it — it then
+/// reads as a label at rest instead of only once the field is focused.
+class _FieldLabel extends StatelessWidget {
+  const _FieldLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: AppTypography.caption.copyWith(
+        color: AppColors.ink,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
+/// Placeholder glyph on the right of a field. Material icons for now — swap
+/// the [IconData] for the real artwork when it exists.
+class _FieldIcon extends StatelessWidget {
+  const _FieldIcon(this.icon);
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(icon, size: 20, color: AppColors.inkFaint);
   }
 }
 
