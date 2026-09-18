@@ -364,7 +364,18 @@ class AppLocalizationsId extends AppLocalizations {
   String get dayStreak => 'hari beruntun';
 
   @override
+  String longestStreakDays(int count) {
+    return 'Terpanjang: $count hari';
+  }
+
+  @override
   String get viewFullHeatmap => 'Lihat heatmap lengkap';
+
+  @override
+  String get heatmapLess => 'Sedikit';
+
+  @override
+  String get heatmapMore => 'Banyak';
 
   @override
   String get continueReading => 'Lanjut baca';

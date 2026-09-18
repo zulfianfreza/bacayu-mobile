@@ -7,10 +7,11 @@ import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/chunky_button.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
+import '../widgets/auth_text_field.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -121,27 +122,23 @@ class _LoginViewState extends State<_LoginView> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 32),
-                        _FieldLabel(l10n.email),
-                        const SizedBox(height: 8),
-                        TextFormField(
+                        AuthTextField(
+                          label: l10n.email,
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            prefixIcon: _FieldIcon(Icons.mail_outline),
-                          ),
+                          textInputAction: TextInputAction.next,
+                          icon: Icons.mail_outline,
                           validator: (value) => (value == null || value.isEmpty)
                               ? l10n.fieldRequired
                               : null,
                         ),
                         const SizedBox(height: 16),
-                        _FieldLabel(l10n.password),
-                        const SizedBox(height: 8),
-                        TextFormField(
+                        AuthTextField(
+                          label: l10n.password,
                           controller: _passwordController,
                           obscureText: true,
-                          decoration: const InputDecoration(
-                            prefixIcon: _FieldIcon(Icons.lock_outline),
-                          ),
+                          textInputAction: TextInputAction.done,
+                          icon: Icons.lock_outline,
                           validator: (value) => (value == null || value.isEmpty)
                               ? l10n.fieldRequired
                               : null,
@@ -150,22 +147,16 @@ class _LoginViewState extends State<_LoginView> {
                           const SizedBox(height: 16),
                           Text(
                             state.failure.localizedMessage(context),
-                            style: AppTypography.caption,
+                            style: AppTypography.caption.copyWith(
+                              color: AppColors.danger,
+                            ),
                           ),
                         ],
                         const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: isLoading ? null : _submit,
-                          child: isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : Text(l10n.login),
+                        ChunkyButton(
+                          label: l10n.login,
+                          onPressed: _submit,
+                          isLoading: isLoading,
                         ),
                         const SizedBox(height: 24),
                         Row(
@@ -188,23 +179,13 @@ class _LoginViewState extends State<_LoginView> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        OutlinedButton.icon(
-                          onPressed: isLoading
-                              ? null
-                              : () =>
-                                    context.read<AuthCubit>().loginWithGoogle(),
+                        ChunkyButton(
+                          label: l10n.continueWithGoogle,
+                          variant: ChunkyButtonVariant.secondary,
                           icon: const _GoogleIcon(),
-                          label: Text(l10n.continueWithGoogle),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.ink,
-                            side: const BorderSide(color: AppColors.line),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppRadius.pill,
-                              ),
-                            ),
-                          ),
+                          onPressed: () =>
+                              context.read<AuthCubit>().loginWithGoogle(),
+                          isLoading: isLoading,
                         ),
                         const SizedBox(height: 16),
                         TextButton(
@@ -221,38 +202,6 @@ class _LoginViewState extends State<_LoginView> {
         ),
       ),
     );
-  }
-}
-
-/// A field's own label, above the box rather than floating inside it — it then
-/// reads as a label at rest instead of only once the field is focused.
-class _FieldLabel extends StatelessWidget {
-  const _FieldLabel(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: AppTypography.caption.copyWith(
-        color: AppColors.ink,
-        fontWeight: FontWeight.w600,
-      ),
-    );
-  }
-}
-
-/// Placeholder glyph on the right of a field. Material icons for now — swap
-/// the [IconData] for the real artwork when it exists.
-class _FieldIcon extends StatelessWidget {
-  const _FieldIcon(this.icon);
-
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Icon(icon, size: 20, color: AppColors.inkFaint);
   }
 }
 

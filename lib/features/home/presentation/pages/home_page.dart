@@ -146,25 +146,26 @@ class _StreakHeroCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.tangerine100,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.local_fire_department,
-            color: AppColors.tangerine500,
-            size: 36,
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('$currentStreak', style: AppTypography.displayLg),
-              Text(l10n.dayStreak, style: AppTypography.caption),
-            ],
+          Image.asset('assets/images/day-streak.png', width: 64, height: 64),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$currentStreak',
+                  style: AppTypography.displayLg.copyWith(fontSize: 36),
+                ),
+                Text(l10n.dayStreak, style: AppTypography.caption),
+              ],
+            ),
           ),
         ],
       ),
@@ -201,7 +202,7 @@ class _HeatmapStrip extends StatelessWidget {
                     _DayCircle(read: stat.totalMinutes > 0),
                     const SizedBox(height: 6),
                     Text(
-                      dayName.format(stat.date),
+                      dayName.format(stat.date)[0],
                       style: AppTypography.caption,
                       maxLines: 1,
                     ),

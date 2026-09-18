@@ -8,6 +8,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/raised_box.dart';
 import '../../domain/entities/stats_summary.dart';
 import '../cubit/stats_cubit.dart';
 import '../cubit/stats_state.dart';
@@ -51,33 +52,33 @@ class _StatsView extends StatelessWidget {
                 const SizedBox(height: 20),
                 switch (state) {
                   StatsLoading() => const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 48),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
+                    padding: EdgeInsets.symmetric(vertical: 48),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
                   StatsError(:final failure) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      child: Text(
-                        failure.localizedMessage(context),
-                        style: AppTypography.body,
-                      ),
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text(
+                      failure.localizedMessage(context),
+                      style: AppTypography.body,
                     ),
+                  ),
                   StatsLoaded(:final summary, :final heatmap) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _MetricsGrid(summary: summary),
-                        const SizedBox(height: 24),
-                        HeatmapCalendar(
-                          year: DateTime.now().year,
-                          dailyStats: heatmap,
-                        ),
-                        const SizedBox(height: 24),
-                        _GenreDistributionChart(
-                          genreDistribution: summary.genreDistribution,
-                        ),
-                        const SizedBox(height: 24),
-                        const BadgePreviewRow(),
-                      ],
-                    ),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _MetricsGrid(summary: summary),
+                      const SizedBox(height: 24),
+                      HeatmapCalendar(
+                        year: DateTime.now().year,
+                        dailyStats: heatmap,
+                      ),
+                      const SizedBox(height: 24),
+                      _GenreDistributionChart(
+                        genreDistribution: summary.genreDistribution,
+                      ),
+                      const SizedBox(height: 24),
+                      const BadgePreviewRow(),
+                    ],
+                  ),
                   StatsInitial() => const SizedBox.shrink(),
                 },
               ],
@@ -90,7 +91,10 @@ class _StatsView extends StatelessWidget {
 }
 
 class _RangeSegmentedControl extends StatelessWidget {
-  const _RangeSegmentedControl({required this.activeRange, required this.onChanged});
+  const _RangeSegmentedControl({
+    required this.activeRange,
+    required this.onChanged,
+  });
 
   final StatsRange activeRange;
   final ValueChanged<StatsRange> onChanged;
@@ -105,40 +109,60 @@ class _RangeSegmentedControl extends StatelessWidget {
       (StatsRange.all, l10n.rangeAll),
     ];
 
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.line,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Row(
-        children: [
-          for (final (range, label) in options)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(range),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: range == activeRange
-                        ? AppColors.tangerine500
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(AppRadius.pill),
-                  ),
-                  child: Text(
-                    label,
-                    style: AppTypography.button.copyWith(
-                      color: range == activeRange
-                          ? Colors.white
-                          : AppColors.inkSoft,
-                    ),
-                  ),
-                ),
+    return Row(
+      children: [
+        for (var i = 0; i < options.length; i++) ...[
+          if (i > 0) const SizedBox(width: 8),
+          Expanded(
+            child: _RangeSegment(
+              label: options[i].$2,
+              isActive: options[i].$1 == activeRange,
+              onTap: () => onChanged(options[i].$1),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// One range, built like the metric tiles below it: every segment sits on its
+/// own edge, and the selected one is simply filled in — so the control belongs
+/// to the same system as the numbers it filters.
+class _RangeSegment extends StatelessWidget {
+  const _RangeSegment({
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: RaisedBox(
+        color: isActive ? AppColors.tangerine : AppColors.surface,
+        radius: AppRadius.sm,
+        edgeHeight: 3,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        child: SizedBox(
+          width: double.infinity,
+          // Shrinks rather than truncates: four labels have to share one row
+          // in every language, and "Minggu" is already tight in Indonesian.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: AppTypography.button.copyWith(
+                color: isActive ? Colors.white : AppColors.inkSoft,
               ),
             ),
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -156,23 +180,48 @@ class _MetricsGrid extends StatelessWidget {
     final minutes = summary.totalMinutes % 60;
 
     final cards = [
-      (summary.booksFinished.toString(), l10n.metricBooksFinished, AppColors.tangerine50),
-      (summary.totalPages.toString(), l10n.metricPagesRead, AppColors.lagoon50),
-      ('${hours}h ${minutes}m', l10n.metricTimeReading, AppColors.sunshine50),
-      (summary.avgSpeedPpm.toStringAsFixed(1), l10n.metricAvgSpeed, AppColors.tangerine50),
+      (
+        summary.booksFinished.toString(),
+        l10n.metricBooksFinished,
+        AppColors.tangerine300,
+        Icons.auto_stories_outlined,
+      ),
+      (
+        summary.totalPages.toString(),
+        l10n.metricPagesRead,
+        AppColors.lagoon300,
+        Icons.description_outlined,
+      ),
+      (
+        '${hours}h ${minutes}m',
+        l10n.metricTimeReading,
+        AppColors.sunshine300,
+        Icons.schedule,
+      ),
+      (
+        summary.avgSpeedPpm.toStringAsFixed(1),
+        l10n.metricAvgSpeed,
+        AppColors.tangerine300,
+        Icons.speed,
+      ),
     ];
 
-    return GridView.count(
-      crossAxisCount: 2,
+    return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 1.6,
-      children: [
-        for (final (value, label, tint) in cards)
-          MetricCard(value: value, label: label, tint: tint),
-      ],
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        // Asked of the card rather than a fixed aspect ratio: the tile carries
+        // type, and a ratio would clip it as soon as the font size changes.
+        mainAxisExtent: MetricCard.heightFor(context),
+      ),
+      itemCount: cards.length,
+      itemBuilder: (context, index) {
+        final (value, label, tint, icon) = cards[index];
+        return MetricCard(value: value, label: label, tint: tint, icon: icon);
+      },
     );
   }
 }
@@ -182,7 +231,11 @@ class _GenreDistributionChart extends StatelessWidget {
 
   final List<GenreCount> genreDistribution;
 
-  static const _colors = [AppColors.lagoon500, AppColors.sunshine500, AppColors.tangerine500];
+  static const _colors = [
+    AppColors.lagoon500,
+    AppColors.sunshine500,
+    AppColors.tangerine500,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -209,15 +262,23 @@ class _GenreDistributionChart extends StatelessWidget {
                     toY: genreDistribution[i].count.toDouble(),
                     color: _colors[i % _colors.length],
                     width: 20,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(6),
+                    ),
                   ),
                 ],
               ),
           ],
           titlesData: FlTitlesData(
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,

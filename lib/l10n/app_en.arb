@@ -463,9 +463,26 @@
   "@dayStreak": {
     "description": "Label under the big streak number on the home page"
   },
+  "longestStreakDays": "Longest: {count} days",
+  "@longestStreakDays": {
+    "description": "Secondary line on the home page streak card, next to the current streak",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "viewFullHeatmap": "View full heatmap",
   "@viewFullHeatmap": {
     "description": "Link under the home page's 7-day heatmap strip, opens Stats"
+  },
+  "heatmapLess": "Less",
+  "@heatmapLess": {
+    "description": "Left end of the heatmap legend, next to the palest swatch"
+  },
+  "heatmapMore": "More",
+  "@heatmapMore": {
+    "description": "Right end of the heatmap legend, next to the darkest swatch"
   },
   "continueReading": "Continue reading",
   "@continueReading": {

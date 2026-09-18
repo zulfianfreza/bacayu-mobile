@@ -40,14 +40,27 @@ BacaYu terasa seperti teman gym yang menyemangati, bukan aplikasi pelacak yang m
 
 ### 2.2 Ramp per Warna (untuk tint/shade — dipakai di background, hover, disabled state)
 
-| Step | Tangerine (Primary) | Lagoon (Secondary) | Sunshine (Accent) |
+| Step | Tangerine (Primary) | Lagoon (Secondary) | Sunshine (Accent) | Slate (Cool neutral) |
+|---|---|---|---|---|
+| 50 (tint tipis, bg) | `#FFF1EB` | `#E6FBF8` | `#FFF8E1` | `#F8FAFC` |
+| 100 (bg chip/badge) | `#FFE0D1` | `#B8F0E8` | `#FFEDB3` | `#F1F5F9` |
+| 300 (border/icon muted) | `#FFA477` | `#5FD9CB` | `#FFDD7A` | `#CBD5E1` |
+| 500 (base) | `#FF6A3D` | `#14B8A6` | `#FFC93C` | `#64748B` |
+| 700 (hover/pressed, teks di atas tint) | `#D94A22` | `#0E8577` | `#D9A420` | `#334155` |
+| 900 (teks di atas background terang, kontras tinggi) | `#8C2E12` | `#0A5A50` | `#8C6A0E` | `#0F172A` |
+
+**Slate** adalah satu-satunya netral *dingin* di palet. Dipakai kalau sebuah permukaan memang harus terbaca sebagai "bukan hangat": divider di atas foto yang ramai, chrome sekunder, atau apa pun yang jadi keruh kalau pakai tint hangat. Untuk teks dan permukaan biasa tetap pakai Neutral (2.3) — jangan campur keduanya dalam satu blok. Slate punya step lengkap 50–900 (termasuk 200/400/600/800) karena dipakai sebagai netral fungsional, bukan cuma tint brand.
+
+**Tangga penuh (50–900).** Enam step di tabel di atas adalah jangkar yang dipakai sehari-hari. Tangerine, Lagoon, dan Sunshine semuanya punya tangga penuh: step antara duduk di tengah dua jangkarnya — hue & saturasi mengikuti jangkar, dan hasilnya selalu lebih gelap dari step di atasnya. Jarak antar-step mengikuti jangkar aslinya, jadi tidak seragam: **jangan "rapikan" nilai jangkarnya.**
+
+| Step | Tangerine | Lagoon | Sunshine |
 |---|---|---|---|
-| 50 (tint tipis, bg) | `#FFF1EB` | `#E6FBF8` | `#FFF8E1` |
-| 100 (bg chip/badge) | `#FFE0D1` | `#B8F0E8` | `#FFEDB3` |
-| 300 (border/icon muted) | `#FFA477` | `#5FD9CB` | `#FFDD7A` |
-| 500 (base) | `#FF6A3D` | `#14B8A6` | `#FFC93C` |
-| 700 (hover/pressed, teks di atas tint) | `#D94A22` | `#0E8577` | `#D9A420` |
-| 900 (teks di atas background terang, kontras tinggi) | `#8C2E12` | `#0A5A50` | `#8C6A0E` |
+| 200 | `#FFC2A3` | `#8BE5D9` | `#FFE596` |
+| 400 | `#FF895A` | `#38CAB8` | `#FCD25E` |
+| 600 | `#EE592E` | `#327E75` | `#EAB630` |
+| 800 | `#9C4830` | `#2E4E4A` | `#9A7C2F` |
+
+Dipakai kalau butuh tingkat tint/shade yang lebih halus daripada enam jangkar (misal border yang harus lebih terang dari 300 tapi lebih tegas dari 100), atau saat dua step berdekatan perlu dibedakan.
 
 ### 2.3 Neutral / Grayscale (warm-tinted, bukan abu-abu netral)
 
@@ -66,6 +79,21 @@ BacaYu terasa seperti teman gym yang menyemangati, bukan aplikasi pelacak yang m
 - **Lagoon untuk progres positif** yang bukan CTA utama — progress bar buku, status "Finished" di shelf, checkmark.
 - **Kontras teks:** teks kecil (<18px) di atas warna solid Tangerine/Lagoon/Sunshine sebaiknya pakai `Ink` (#2B2117) atau putih dengan bobot semibold+ agar tetap terbaca — untuk teks body reguler ukuran kecil, gunakan warna solid ini hanya sebagai *background chip* dengan teks dari ramp step 700/900 warna yang sama (bukan putih), memastikan kontras aman.
 - **Dark mode (opsional v1.x):** background gelap gunakan `#241A12` (bukan hitam pekat), surface card `#332619`, Tangerine tetap sama karena sudah cukup vivid untuk terlihat di background gelap.
+
+### 2.5 Peran Semantik & Palet Tambahan
+
+**Peran semantik** — pakai ini kalau yang dimaksud adalah *state*, bukan warna brand tertentu, supaya artinya sama di seluruh app:
+
+| Peran | Token | Warna |
+|---|---|---|
+| Success | `AppColors.success` | Lagoon 500 `#14B8A6` — warna positif brand, sama dengan progress bar |
+| Danger | `AppColors.danger` | Berry `#FF4D6D` — error & aksi merusak |
+| Warning | `AppColors.warning` | Amber 500 `#F59E0B` — **sengaja bukan Sunshine**, karena Sunshine dikhususkan untuk momen achievement (2.4) |
+| Info | `AppColors.info` | Blue 500 `#3B82F6` — satu-satunya biru di palet |
+
+Untuk banner/alert, pasangkan base-nya dengan step 50 (latar) dan 700 (teks) dari keluarga yang sama — jangan taruh teks putih di atas step 500 yang terang.
+
+**Palet tambahan (Tailwind v3).** Untuk hue yang tidak dimiliki brand: deret chart, aksen sekali pakai, state khusus. Setiap keluarga lengkap 50–900 dengan bentuk yang sama seperti ramp brand — `red`, `amber`, `green`, `blue`, `indigo`, `violet`, `purple`, `pink`, `cyan`. Nilainya diambil apa adanya dari Tailwind v3, jadi **jangan diubah**; kalau butuh hue lain (lime, emerald, sky, rose, dst.) tambahkan dengan pola yang sama. Ini palet pinjaman, bukan keputusan brand: chrome app tetap memakai palet brand di atas, dan aturan "satu aksen dominan per layar" (2.4) tetap berlaku.
 
 ---
 

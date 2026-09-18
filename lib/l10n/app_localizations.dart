@@ -758,11 +758,29 @@ abstract class AppLocalizations {
   /// **'day streak'**
   String get dayStreak;
 
+  /// Secondary line on the home page streak card, next to the current streak
+  ///
+  /// In en, this message translates to:
+  /// **'Longest: {count} days'**
+  String longestStreakDays(int count);
+
   /// Link under the home page's 7-day heatmap strip, opens Stats
   ///
   /// In en, this message translates to:
   /// **'View full heatmap'**
   String get viewFullHeatmap;
+
+  /// Left end of the heatmap legend, next to the palest swatch
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get heatmapLess;
+
+  /// Right end of the heatmap legend, next to the darkest swatch
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get heatmapMore;
 
   /// Home page section heading
   ///
