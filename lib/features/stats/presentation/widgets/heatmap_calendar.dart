@@ -324,7 +324,7 @@ class _HeatmapCell extends StatelessWidget {
         color: heatmapColorFor(minutes: minutes, maxMinutes: maxMinutes),
         borderRadius: BorderRadius.circular(4),
         border: isToday
-            ? Border.all(color: AppColors.inkFaint, width: 1.5)
+            ? Border.all(color: AppColors.slate400, width: 1.5)
             : null,
       ),
     );

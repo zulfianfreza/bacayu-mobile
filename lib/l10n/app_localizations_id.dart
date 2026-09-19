@@ -392,6 +392,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get activityNotAvailable => 'Aktivitas ini tidak tersedia.';
 
   @override
+  String get bookSynopsis => 'Sinopsis';
+
+  @override
   String speedPpmValue(String speed) {
     return '$speed ppm';
   }
@@ -460,6 +463,9 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get addCommentHint => 'Tulis komentar...';
+
+  @override
+  String get commentsTitle => 'Komentar';
 
   @override
   String get postComment => 'Kirim';

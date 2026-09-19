@@ -65,7 +65,7 @@ class _ChunkyButtonState extends State<ChunkyButton> {
     // the moment its submit starts.
     final (body, label) = _enabled
         ? (fill, foreground)
-        : (AppColors.line, AppColors.inkFaint);
+        : (AppColors.slate200, AppColors.slate400);
 
     return GestureDetector(
       onTap: _enabled ? widget.onPressed : null,

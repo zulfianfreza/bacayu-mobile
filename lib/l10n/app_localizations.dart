@@ -818,6 +818,12 @@ abstract class AppLocalizations {
   /// **'This activity isn\'t available.'**
   String get activityNotAvailable;
 
+  /// Book detail page — heading of the description card
+  ///
+  /// In en, this message translates to:
+  /// **'Synopsis'**
+  String get bookSynopsis;
+
   /// Reading speed shown on a session activity card
   ///
   /// In en, this message translates to:
@@ -943,6 +949,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a comment...'**
   String get addCommentHint;
+
+  /// Comments bottom sheet heading
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsTitle;
 
   /// Comments bottom sheet send button
   ///

@@ -107,7 +107,7 @@ class _RegisterViewState extends State<_RegisterView> {
                           label: l10n.name,
                           controller: _nameController,
                           textInputAction: TextInputAction.next,
-                          icon: Icons.person_outline,
+                          icon: 'assets/icons/user-stroke.png',
                           validator: (value) => (value == null || value.isEmpty)
                               ? l10n.fieldRequired
                               : null,
@@ -118,7 +118,7 @@ class _RegisterViewState extends State<_RegisterView> {
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
-                          icon: Icons.mail_outline,
+                          icon: 'assets/icons/mail-stroke.png',
                           validator: (value) => (value == null || value.isEmpty)
                               ? l10n.fieldRequired
                               : null,
@@ -129,7 +129,7 @@ class _RegisterViewState extends State<_RegisterView> {
                           controller: _passwordController,
                           obscureText: true,
                           textInputAction: TextInputAction.done,
-                          icon: Icons.lock_outline,
+                          icon: 'assets/icons/lock-stroke.png',
                           validator: (value) => (value == null || value.isEmpty)
                               ? l10n.fieldRequired
                               : null,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
@@ -127,7 +128,7 @@ class _LoginViewState extends State<_LoginView> {
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
-                          icon: Icons.mail_outline,
+                          icon: 'assets/icons/mail-stroke.png',
                           validator: (value) => (value == null || value.isEmpty)
                               ? l10n.fieldRequired
                               : null,
@@ -138,7 +139,7 @@ class _LoginViewState extends State<_LoginView> {
                           controller: _passwordController,
                           obscureText: true,
                           textInputAction: TextInputAction.done,
-                          icon: Icons.lock_outline,
+                          icon: 'assets/icons/lock-stroke.png',
                           validator: (value) => (value == null || value.isEmpty)
                               ? l10n.fieldRequired
                               : null,
@@ -182,7 +183,11 @@ class _LoginViewState extends State<_LoginView> {
                         ChunkyButton(
                           label: l10n.continueWithGoogle,
                           variant: ChunkyButtonVariant.secondary,
-                          icon: const _GoogleIcon(),
+                          icon: SvgPicture.asset(
+                            'assets/icons/google-icon.svg',
+                            width: 18,
+                            height: 18,
+                          ),
                           onPressed: () =>
                               context.read<AuthCubit>().loginWithGoogle(),
                           isLoading: isLoading,
@@ -199,32 +204,6 @@ class _LoginViewState extends State<_LoginView> {
               ),
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-/// Lightweight Google "G" mark — no bundled brand asset in this repo, so
-/// this approximates it with the brand blue rather than pulling in a
-/// dedicated icon package for a single glyph.
-class _GoogleIcon extends StatelessWidget {
-  const _GoogleIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 18,
-      height: 18,
-      child: Center(
-        child: Text(
-          'G',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF4285F4),
-            height: 1,
-          ),
         ),
       ),
     );

@@ -278,7 +278,7 @@ class _DateField extends StatelessWidget {
             const Icon(
               Icons.calendar_today_outlined,
               size: 18,
-              color: AppColors.inkFaint,
+              color: AppColors.slate400,
             ),
             const SizedBox(width: 12),
             Expanded(child: Text(label, style: AppTypography.bodyStrong)),
@@ -292,7 +292,7 @@ class _DateField extends StatelessWidget {
             const Icon(
               Icons.chevron_right,
               size: 20,
-              color: AppColors.inkFaint,
+              color: AppColors.slate400,
             ),
           ],
         ),

@@ -81,6 +81,7 @@ class _AddFirstBookViewState extends State<_AddFirstBookView> {
   Future<void> _openManualAdd(BuildContext context) async {
     final book = await showModalBottomSheet<Book>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       builder: (_) => const AddManualBookSheet(),
     );
@@ -104,7 +105,7 @@ class _AddFirstBookViewState extends State<_AddFirstBookView> {
             controller: _queryController,
             decoration: InputDecoration(
               hintText: l10n.searchTitleOrAuthorHint,
-              prefixIcon: const Icon(Icons.search, color: AppColors.inkFaint),
+              prefixIcon: const Icon(Icons.search, color: AppColors.slate400),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 16,

@@ -147,7 +147,7 @@ class _GenreChip extends StatelessWidget {
           child: Text(
             label,
             style: AppTypography.button.copyWith(
-              color: selected ? Colors.white : AppColors.inkSoft,
+              color: selected ? Colors.white : AppColors.slate600,
             ),
           ),
         ),

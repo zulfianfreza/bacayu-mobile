@@ -4,12 +4,15 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/option_tile.dart';
 import '../../domain/entities/user_book.dart';
 
 /// Bottom sheet listing the 4 [ShelfStatus] options — the current status is
-/// highlighted and disabled (already selected, nothing to do). Picking a
-/// different option pops the sheet with that [ShelfStatus]; the caller
-/// (`ShelfBookCard`) is responsible for calling `ShelfCubit.updateStatus`.
+/// highlighted and dead (already selected, nothing to do). Picking a different
+/// option pops the sheet with that [ShelfStatus]; the caller (`ShelfBookCard`)
+/// is responsible for calling `ShelfCubit.updateStatus`.
+///
+/// Same rows as the language and privacy pickers: one [OptionTile] per choice.
 class StatusPickerBottomSheet extends StatelessWidget {
   const StatusPickerBottomSheet({super.key, required this.currentStatus});
 
@@ -21,6 +24,8 @@ class StatusPickerBottomSheet extends StatelessWidget {
   }) {
     return showModalBottomSheet<ShelfStatus>(
       context: context,
+      useRootNavigator: true,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
@@ -31,69 +36,37 @@ class StatusPickerBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final options = [
+      (ShelfStatus.wantToRead, l10n.statusWantToRead),
+      (ShelfStatus.reading, l10n.statusReading),
+      (ShelfStatus.finished, l10n.statusFinished),
+      (ShelfStatus.dnf, l10n.statusDnf),
+    ];
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(l10n.changeStatus, style: AppTypography.heading),
-            ),
-            const SizedBox(height: 8),
-            _StatusOption(
-              label: l10n.statusWantToRead,
-              status: ShelfStatus.wantToRead,
-              selected: currentStatus == ShelfStatus.wantToRead,
-            ),
-            _StatusOption(
-              label: l10n.statusReading,
-              status: ShelfStatus.reading,
-              selected: currentStatus == ShelfStatus.reading,
-            ),
-            _StatusOption(
-              label: l10n.statusFinished,
-              status: ShelfStatus.finished,
-              selected: currentStatus == ShelfStatus.finished,
-            ),
-            _StatusOption(
-              label: l10n.statusDnf,
-              status: ShelfStatus.dnf,
-              selected: currentStatus == ShelfStatus.dnf,
-            ),
+            Text(l10n.changeStatus, style: AppTypography.heading),
+            const SizedBox(height: 16),
+            for (var i = 0; i < options.length; i++) ...[
+              if (i > 0) const SizedBox(height: 8),
+              OptionTile(
+                label: options[i].$2,
+                selected: options[i].$1 == currentStatus,
+                // The current status is already set — tapping it is a no-op,
+                // not a second way to close the sheet.
+                onTap: options[i].$1 == currentStatus
+                    ? null
+                    : () => Navigator.of(context).pop(options[i].$1),
+              ),
+            ],
           ],
         ),
       ),
-    );
-  }
-}
-
-class _StatusOption extends StatelessWidget {
-  const _StatusOption({
-    required this.label,
-    required this.status,
-    required this.selected,
-  });
-
-  final String label;
-  final ShelfStatus status;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(
-        label,
-        style: selected
-            ? AppTypography.bodyStrong.copyWith(color: AppColors.tangerine500)
-            : AppTypography.bodyStrong,
-      ),
-      trailing: selected ? const Icon(Icons.check, color: AppColors.tangerine500) : null,
-      enabled: !selected,
-      onTap: selected ? null : () => Navigator.of(context).pop(status),
     );
   }
 }

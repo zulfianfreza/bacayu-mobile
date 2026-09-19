@@ -62,14 +62,14 @@ class _StepTile extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: RaisedBox(
-          color: enabled ? AppColors.tangerine : AppColors.line,
+          color: enabled ? AppColors.tangerine : AppColors.slate200,
           radius: AppRadius.md,
           edgeHeight: 3,
           padding: const EdgeInsets.all(12),
           child: Icon(
             icon,
             size: 22,
-            color: enabled ? Colors.white : AppColors.inkFaint,
+            color: enabled ? Colors.white : AppColors.slate400,
           ),
         ),
       ),

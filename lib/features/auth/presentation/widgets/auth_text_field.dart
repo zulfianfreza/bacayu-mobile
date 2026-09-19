@@ -28,8 +28,9 @@ class AuthTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final bool obscureText;
 
-  /// Placeholder glyph on the right of the field.
-  final IconData? icon;
+  /// Field-type glyph inside the field, as an asset path — the app's icons are
+  /// files, so the artwork can be swapped without touching this widget.
+  final String? icon;
 
   final TextInputAction? textInputAction;
 
@@ -59,7 +60,20 @@ class AuthTextField extends StatelessWidget {
             ),
             prefixIcon: icon == null
                 ? null
-                : Icon(icon, size: 20, color: AppColors.inkFaint),
+                : Padding(
+                    padding: const EdgeInsets.only(left: 14, right: 10),
+                    child: Image.asset(
+                      icon!,
+                      width: 20,
+                      height: 20,
+                      color: AppColors.slate400,
+                    ),
+                  ),
+            // The decorator's default minimum here is 48x48 — a tap target,
+            // which is right for an action but stretches a decorative glyph to
+            // nearly the field's full height. This is a label for the field,
+            // not a button, so the box is allowed to be the glyph's own size.
+            prefixIconConstraints: const BoxConstraints(),
             border: _border(AppColors.slate200),
             enabledBorder: _border(AppColors.slate200),
             focusedBorder: _border(AppColors.tangerine, width: 2.5),

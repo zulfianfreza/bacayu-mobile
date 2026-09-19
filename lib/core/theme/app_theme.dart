@@ -47,6 +47,14 @@ class AppTheme {
           side: const BorderSide(color: AppColors.slate200, width: 1),
         ),
       ),
+      // Sheets are white, not Material 3's `surfaceContainerLow`. That default
+      // is derived from the seed colour, so with a tangerine seed it comes out
+      // a soft orange — every sheet was passing `surface` by hand to avoid it,
+      // and the ones that forgot went warm.
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.surface,
+        modalBackgroundColor: AppColors.surface,
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.tangerine,

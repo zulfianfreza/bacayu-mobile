@@ -493,6 +493,10 @@
   "@activityNotAvailable": {
     "description": "ActivityDetailPage fallback when reached without the Activity in memory (e.g. a future deep link) — there's no fetch-by-id endpoint yet, only the feed list"
   },
+  "bookSynopsis": "Synopsis",
+  "@bookSynopsis": {
+    "description": "Book detail page — heading of the description card"
+  },
   "speedPpmValue": "{speed} ppm",
   "@speedPpmValue": {
     "description": "Reading speed shown on a session activity card",
@@ -591,6 +595,10 @@
   "addCommentHint": "Add a comment...",
   "@addCommentHint": {
     "description": "Comments bottom sheet text field placeholder"
+  },
+  "commentsTitle": "Comments",
+  "@commentsTitle": {
+    "description": "Comments bottom sheet heading"
   },
   "postComment": "Post",
   "@postComment": {

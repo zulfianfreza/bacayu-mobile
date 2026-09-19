@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/raised_box.dart';
 
@@ -16,6 +15,7 @@ class MetricCard extends StatelessWidget {
     required this.value,
     required this.label,
     required this.tint,
+    required this.accent,
     this.icon,
   });
 
@@ -37,11 +37,17 @@ class MetricCard extends StatelessWidget {
   final String value;
   final String label;
 
-  /// The card body. Its own darker shade becomes the edge, so a card only ever
-  /// needs one colour from the palette.
+  /// The card body — a step-100 tint, so the grid reads soft rather than
+  /// saturated. Its own darker shade becomes the slab underneath.
   final Color tint;
 
-  final IconData? icon;
+  /// The colour of [icon], from the same family's 700 step: at this tint the
+  /// body is too pale to carry the tile's identity on its own.
+  final Color accent;
+
+  /// Asset path, drawn in [accent]. The app's icons are files rather than
+  /// [IconData], so the artwork can be swapped without touching this widget.
+  final String? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +60,7 @@ class MetricCard extends StatelessWidget {
         // tile in the grid lines up whatever its content.
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (icon != null) Icon(icon, size: 20, color: AppColors.ink),
+          if (icon != null) Image.asset(icon!, width: 24, height: 24, color: accent),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -67,7 +73,7 @@ class MetricCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 label,
-                style: AppTypography.caption.copyWith(color: AppColors.ink),
+                style: AppTypography.caption,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

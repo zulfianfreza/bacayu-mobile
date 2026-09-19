@@ -43,6 +43,7 @@ class ShareCardPreviewSheet extends StatefulWidget {
   }) {
     return showModalBottomSheet<void>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
@@ -168,7 +169,7 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.line,
+                color: AppColors.slate200,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
             ),
@@ -219,7 +220,7 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
                     decoration: BoxDecoration(
                       color: i == _pageIndex
                           ? AppColors.tangerine500
-                          : AppColors.line,
+                          : AppColors.slate200,
                       borderRadius: BorderRadius.circular(AppRadius.pill),
                     ),
                   ),

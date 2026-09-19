@@ -5,6 +5,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
+import '../../../../core/navigation/full_screen_page.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../badges/domain/entities/badge.dart';
@@ -36,9 +37,8 @@ class _BadgePreviewRowState extends State<BadgePreviewRow> {
           children: [
             Text(l10n.yourBadges, style: AppTypography.heading),
             TextButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const BadgeGalleryPage()),
-              ),
+              onPressed: () =>
+                  pushFullScreen(context, (_) => const BadgeGalleryPage()),
               child: Text(l10n.seeAll),
             ),
           ],

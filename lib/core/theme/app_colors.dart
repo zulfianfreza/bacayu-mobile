@@ -72,10 +72,10 @@ class AppColors {
   static const slate800 = Color(0xFF1E293B);
   static const slate900 = Color(0xFF0F172A);
 
-  // Neutral / grayscale, warm-tinted (Style Guide 2.3)
-  static const inkSoft = Color(0xFF6B5D50);
-  static const inkFaint = Color(0xFFA79C8F);
-  static const line = Color(0xFFEFE4D8);
+  // Neutral surfaces. The warm-tinted grays this used to carry (ink soft/ink
+  // faint/line) are gone: every secondary text, divider and hairline in the app
+  // is drawn from the slate ramp instead — slate400, slate600, slate200
+  // respectively, matched on darkness.
   static const surface = Color(0xFFFFFFFF);
 
   // Semantic roles (Style Guide 2.5) — the state, not the hue. Each points at

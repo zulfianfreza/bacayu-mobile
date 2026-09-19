@@ -4,7 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
+import '../../../../core/navigation/full_screen_page.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/error_listener.dart';
 import '../../../shelf/domain/usecases/add_to_shelf.dart';
 import '../../domain/entities/book.dart';
@@ -48,9 +52,9 @@ class _BookSearchViewState extends State<_BookSearchView> {
     if (!context.mounted) return;
     result.fold(
       (failure) => context.showFailureSnackBar(failure),
-      (_) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.bookAddedToShelf)),
-      ),
+      (_) => ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.bookAddedToShelf))),
     );
   }
 
@@ -60,83 +64,155 @@ class _BookSearchViewState extends State<_BookSearchView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: TextField(
-          controller: _queryController,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: l10n.searchBooksHint,
-            border: InputBorder.none,
-          ),
-          onChanged: (query) =>
-              context.read<BookSearchBloc>().add(SearchQueryChanged(query)),
-        ),
+        title: Text(l10n.addABook),
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
             tooltip: l10n.scanBarcode,
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const BarcodeScannerPage()),
-            ),
+            onPressed: () =>
+                pushFullScreen(context, (_) => const BarcodeScannerPage()),
           ),
         ],
       ),
-      body: BlocConsumer<BookSearchBloc, BookSearchState>(
-        listener: (context, state) {
-          if (state is BookImported) {
-            _addToShelf(context, state.book);
-          } else if (state is BookImportError) {
-            context.showFailureSnackBar(state.failure);
-          }
-        },
-        builder: (context, state) {
-          return switch (state) {
-            BookSearchInitial() => const SizedBox.shrink(),
-            BookSearchLoading() =>
-              const Center(child: CircularProgressIndicator()),
-            BookSearchError(:final failure) => Center(
-                child: Text(
-                  failure.localizedMessage(context),
-                  style: AppTypography.body,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // The field lives in the body, not in the app bar: a chunky
+            // bordered input does not fit an app bar's height.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: TextField(
+                controller: _queryController,
+                autofocus: true,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: l10n.searchBooksHint,
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: AppColors.slate400,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  border: _fieldBorder(AppColors.slate200),
+                  enabledBorder: _fieldBorder(AppColors.slate200),
+                  focusedBorder: _fieldBorder(
+                    AppColors.tangerine,
+                    width: 2.5,
+                  ),
+                ),
+                onChanged: (query) => context.read<BookSearchBloc>().add(
+                  SearchQueryChanged(query),
                 ),
               ),
-            BookSearchLoaded(:final results) ||
-            BookImporting(:final results) ||
-            BookImported(:final results) ||
-            BookImportError(:final results) =>
-              results.isEmpty
-                  ? Center(
-                      child: Text(l10n.noSearchResults,
-                          style: AppTypography.body),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: results.length,
-                      itemBuilder: (context, index) {
-                        final book = results[index];
-                        final isImportingThis =
-                            state is BookImporting && state.selected == book;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: isImportingThis
-                              ? const Card(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(24),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  ),
-                                )
-                              : BookResultCard(
-                                  book: book,
-                                  onAdd: () => context
-                                      .read<BookSearchBloc>()
-                                      .add(SearchResultSelected(book)),
-                                ),
-                        );
-                      },
+            ),
+            Expanded(
+              child: BlocConsumer<BookSearchBloc, BookSearchState>(
+                listener: (context, state) {
+                  if (state is BookImported) {
+                    _addToShelf(context, state.book);
+                  } else if (state is BookImportError) {
+                    context.showFailureSnackBar(state.failure);
+                  }
+                },
+                builder: (context, state) {
+                  return switch (state) {
+                    BookSearchInitial() => const SizedBox.shrink(),
+                    BookSearchLoading() => const Center(
+                      child: CircularProgressIndicator(),
                     ),
-          };
-        },
+                    BookSearchError(:final failure) => _SearchMessage(
+                      icon: Icons.cloud_off,
+                      text: failure.localizedMessage(context),
+                    ),
+                    BookSearchLoaded(:final results) ||
+                    BookImporting(:final results) ||
+                    BookImported(:final results) ||
+                    BookImportError(:final results) =>
+                      results.isEmpty
+                          ? _SearchMessage(
+                              icon: Icons.search_off,
+                              text: l10n.noSearchResults,
+                            )
+                          : ListView.builder(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                              itemCount: results.length,
+                              itemBuilder: (context, index) {
+                                final book = results[index];
+                                final isImportingThis =
+                                    state is BookImporting &&
+                                    state.selected == book;
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: isImportingThis
+                                      ? const _ImportingCard()
+                                      : BookResultCard(
+                                          book: book,
+                                          onAdd: () => context
+                                              .read<BookSearchBloc>()
+                                              .add(SearchResultSelected(book)),
+                                        ),
+                                );
+                              },
+                            ),
+                  };
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The chunky input the rest of the app's forms use: a thick rounded border,
+/// with focus called out by colour rather than a hairline.
+OutlineInputBorder _fieldBorder(Color color, {double width = 2}) {
+  return OutlineInputBorder(
+    borderRadius: BorderRadius.circular(AppRadius.md),
+    borderSide: BorderSide(color: color, width: width),
+  );
+}
+
+/// A centred icon and line — used for both "nothing matched" and "the search
+/// itself failed", so an empty result never reads as a broken screen.
+class _SearchMessage extends StatelessWidget {
+  const _SearchMessage({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 40, color: AppColors.tangerine300),
+            const SizedBox(height: 12),
+            Text(text, style: AppTypography.body, textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The result that is being imported right now, in the same chunky card the
+/// others use — the list should not change shape while a row is busy.
+class _ImportingCard extends StatelessWidget {
+  const _ImportingCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return const BorderedCard(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Center(child: CircularProgressIndicator()),
       ),
     );
   }

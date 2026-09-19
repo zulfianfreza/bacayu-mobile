@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/localization/build_context_extension.dart';
+import '../../../../core/navigation/full_screen_page.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -41,11 +42,7 @@ class ShelfBookCard extends StatelessWidget {
   final bool compact;
 
   void _openBookDetail(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BookDetailPage(bookId: userBook.book.id),
-      ),
-    );
+    pushFullScreen(context, (_) => BookDetailPage(bookId: userBook.book.id));
   }
 
   Future<void> _openStatusPicker(BuildContext context) async {
@@ -126,7 +123,7 @@ class ShelfBookCard extends StatelessWidget {
                                   .clamp(0, 1)
                                   .toDouble(),
                               minHeight: 4,
-                              backgroundColor: AppColors.line,
+                              backgroundColor: AppColors.slate200,
                               color: AppColors.lagoon500,
                             ),
                           ),
@@ -253,8 +250,8 @@ class _StatusChip extends StatelessWidget {
     final (label, background, foreground) = switch (status) {
       ShelfStatus.wantToRead => (
         l10n.statusWantToRead,
-        AppColors.line,
-        AppColors.inkSoft,
+        AppColors.slate200,
+        AppColors.slate600,
       ),
       ShelfStatus.reading => (
         l10n.statusReading,
@@ -266,7 +263,7 @@ class _StatusChip extends StatelessWidget {
         AppColors.sunshine100,
         AppColors.sunshine700,
       ),
-      ShelfStatus.dnf => (l10n.statusDnf, AppColors.line, AppColors.inkSoft),
+      ShelfStatus.dnf => (l10n.statusDnf, AppColors.slate200, AppColors.slate600),
     };
 
     return ClipRRect(

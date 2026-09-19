@@ -12,6 +12,7 @@ import 'package:mobile/features/books/domain/usecases/get_book_detail.dart';
 import 'package:mobile/features/books/presentation/pages/book_detail_page.dart';
 import 'package:mobile/features/feed/domain/entities/activity.dart';
 import 'package:mobile/features/feed/presentation/pages/activity_detail_page.dart';
+import 'package:mobile/features/feed/presentation/widgets/activity_author_header.dart';
 import 'package:mobile/features/social/domain/entities/activity_comment.dart';
 import 'package:mobile/features/social/domain/usecases/add_comment.dart';
 import 'package:mobile/features/social/domain/usecases/list_comments.dart';
@@ -114,4 +115,51 @@ void main() {
       expect(find.text("This activity isn't available."), findsOneWidget);
     },
   );
+
+  testWidgets('introduces the poster the feed named', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        ActivityDetailPage(
+          activityId: _sessionActivity.id,
+          activity: _sessionActivity,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byType(ActivityAuthorHeader), findsOneWidget);
+    expect(find.text('Julian'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a badge unlock has nothing to share', (tester) async {
+    final badgeActivity = Activity(
+      id: 'act-2',
+      author: const ActivityAuthor(id: 'u1', name: 'Julian', avatarUrl: null),
+      occurredAt: DateTime(2026, 1, 1),
+      payload: const BadgeActivityPayload(
+        badgeName: 'First Step',
+        badgeIcon: '🎉',
+        badgeDescription: 'Finish your first session',
+      ),
+      likeCount: 0,
+      commentCount: 0,
+      isLiked: false,
+    );
+
+    await tester.pumpWidget(
+      wrap(
+        ActivityDetailPage(
+          activityId: badgeActivity.id,
+          activity: badgeActivity,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('First Step'), findsOneWidget);
+    // Only reading sessions render as a shareable card.
+    expect(find.text('Share'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }

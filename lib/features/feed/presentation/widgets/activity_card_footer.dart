@@ -31,14 +31,7 @@ class ActivityCardFooter extends StatelessWidget {
   final bool isOwnActivity;
 
   Future<void> _openComments(BuildContext context) {
-    return showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
-      ),
-      builder: (_) => CommentsBottomSheet(activityId: activity.id),
-    );
+    return CommentsBottomSheet.show(context, activityId: activity.id);
   }
 
   Future<void> _changeVisibility(
@@ -82,7 +75,7 @@ class ActivityCardFooter extends StatelessWidget {
                   'assets/icons/message-stroke.png',
                   width: 24,
                   height: 24,
-                  color: AppColors.inkSoft,
+                  color: AppColors.slate600,
                 ),
                 const SizedBox(width: 4),
                 Text('${activity.commentCount}', style: AppTypography.caption),
@@ -96,7 +89,7 @@ class ActivityCardFooter extends StatelessWidget {
             icon: const Icon(
               Icons.more_vert,
               size: 18,
-              color: AppColors.inkSoft,
+              color: AppColors.slate600,
             ),
             tooltip: l10n.changeVisibility,
             onSelected: (visibility) => _changeVisibility(context, visibility),

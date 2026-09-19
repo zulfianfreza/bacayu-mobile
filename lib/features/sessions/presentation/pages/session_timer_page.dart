@@ -58,6 +58,7 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
   Future<void> _pickBook() async {
     final userBook = await showModalBottomSheet<UserBook>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
@@ -187,7 +188,7 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
                         icon: Icons.stop,
                         backgroundColor: AppColors.surface,
                         iconColor: AppColors.ink,
-                        borderColor: AppColors.line,
+                        borderColor: AppColors.slate200,
                         onPressed: () => context.read<SessionTimerCubit>().stop(),
                       ),
                     ],

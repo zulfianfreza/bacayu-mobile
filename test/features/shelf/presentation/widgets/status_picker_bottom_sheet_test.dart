@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile/core/widgets/option_tile.dart';
 import 'package:mobile/features/shelf/domain/entities/user_book.dart';
 import 'package:mobile/features/shelf/presentation/widgets/status_picker_bottom_sheet.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -54,16 +55,29 @@ void main() {
     expect(find.byType(StatusPickerBottomSheet), findsNothing);
   });
 
-  testWidgets('the current status option is highlighted and disabled', (tester) async {
+  testWidgets('the current status option is highlighted and dead', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap(ShelfStatus.reading));
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
 
-    final readingTile = tester.widget<ListTile>(
-      find.ancestor(of: find.text('Reading'), matching: find.byType(ListTile)),
+    OptionTile tileOf(String label) => tester.widget<OptionTile>(
+      find.ancestor(of: find.text(label), matching: find.byType(OptionTile)),
     );
-    expect(readingTile.enabled, isFalse);
-    expect(readingTile.trailing, isNotNull);
+
+    expect(tileOf('Reading').selected, isTrue);
+    expect(tileOf('Reading').onTap, isNull);
+    expect(
+      find.descendant(
+        of: find.ancestor(
+          of: find.text('Reading'),
+          matching: find.byType(OptionTile),
+        ),
+        matching: find.byIcon(Icons.check_circle),
+      ),
+      findsOneWidget,
+    );
 
     // Tapping the disabled current option does nothing — sheet stays open.
     await tester.tap(find.text('Reading'));
@@ -71,10 +85,7 @@ void main() {
     expect(result, isNull);
     expect(find.byType(StatusPickerBottomSheet), findsOneWidget);
 
-    final finishedTile = tester.widget<ListTile>(
-      find.ancestor(of: find.text('Finished'), matching: find.byType(ListTile)),
-    );
-    expect(finishedTile.enabled, isTrue);
-    expect(finishedTile.trailing, isNull);
+    expect(tileOf('Finished').selected, isFalse);
+    expect(tileOf('Finished').onTap, isNotNull);
   });
 }

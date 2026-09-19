@@ -76,7 +76,7 @@ class _LikeButtonState extends State<LikeButton> {
                   : 'assets/icons/like-stroke.png',
               width: 24,
               height: 24,
-              color: _isLiked ? AppColors.berry : AppColors.inkSoft,
+              color: _isLiked ? AppColors.berry : AppColors.slate600,
             ),
             const SizedBox(width: 4),
             Text('$_likeCount', style: AppTypography.caption),

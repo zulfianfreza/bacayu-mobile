@@ -141,13 +141,13 @@ void main() {
 
     expect(activeLabel.style?.color, AppColors.tangerine700);
     expect(activeLabel.style?.fontWeight, FontWeight.w700);
-    expect(inactiveLabel.style?.color, AppColors.inkSoft);
+    expect(inactiveLabel.style?.color, AppColors.slate600);
 
     // Icons follow the same two colours. Order in the bar is Home, Shelf,
     // session, Stats, Profile.
     final icons = tester.widgetList<Image>(find.byType(Image)).toList();
     expect(icons[0].color, AppColors.tangerine700);
-    expect(icons[1].color, AppColors.inkSoft);
+    expect(icons[1].color, AppColors.slate600);
     expect(icons[2].color, Colors.white);
   });
 

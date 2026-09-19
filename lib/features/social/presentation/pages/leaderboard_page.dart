@@ -83,7 +83,7 @@ class _RangeToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.line,
+        color: AppColors.slate200,
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Row(
@@ -105,7 +105,7 @@ class _RangeToggle extends StatelessWidget {
                   child: Text(
                     label,
                     style: AppTypography.button.copyWith(
-                      color: range == activeRange ? Colors.white : AppColors.inkSoft,
+                      color: range == activeRange ? Colors.white : AppColors.slate600,
                     ),
                   ),
                 ),

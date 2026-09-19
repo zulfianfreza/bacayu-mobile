@@ -11,6 +11,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
+import '../../../../core/widgets/bordered_card.dart';
+import '../../../../core/widgets/chunky_button.dart';
 import '../../../../core/widgets/error_listener.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/get_current_user.dart';
@@ -18,8 +20,10 @@ import '../../../books/presentation/pages/book_detail_page.dart';
 import '../../../social/domain/entities/activity_comment.dart';
 import '../../../social/domain/usecases/add_comment.dart';
 import '../../../social/domain/usecases/list_comments.dart';
+import '../../../social/presentation/widgets/comment_tile.dart';
 import '../../../social/presentation/widgets/like_button.dart';
 import '../../domain/entities/activity.dart';
+import '../widgets/activity_author_header.dart';
 
 /// Full-page counterpart to [CommentsBottomSheet] — reached by tapping an
 /// activity card's main body (cover/title/badge, NOT the comment icon,
@@ -28,7 +32,7 @@ import '../../domain/entities/activity.dart';
 ///
 /// [activity] is nullable because the `/feed/:activityId` route can in
 /// principle be reached without one (a future deep link) — there's no
-/// fetch-a-single-activity usecase yet, only `GetFeed`'s list. When null,
+/// fetch-a-single-activity usecase yet, only the feed list. When null,
 /// renders a simple "not available" state instead of guessing.
 class ActivityDetailPage extends StatelessWidget {
   const ActivityDetailPage({
@@ -48,17 +52,39 @@ class ActivityDetailPage extends StatelessWidget {
       appBar: AppBar(),
       body: SafeArea(
         child: activity == null
-            ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    context.l10n.activityNotAvailable,
-                    style: AppTypography.body,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
+            ? const _NotAvailable()
             : _ActivityDetailBody(activity: activity),
+      ),
+    );
+  }
+}
+
+/// Reached without an Activity in memory (a deep link, before there is a
+/// fetch-by-id usecase) — says so plainly instead of guessing.
+class _NotAvailable extends StatelessWidget {
+  const _NotAvailable();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.search_off,
+              size: 40,
+              color: AppColors.tangerine300,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              context.l10n.activityNotAvailable,
+              style: AppTypography.body,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -114,8 +140,8 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
       context,
       data: SessionShareData(
         bookTitle: payload.bookTitle,
-        // The denormalized feed payload has no author — the card drops that
-        // line rather than inventing one.
+        // The denormalized feed payload has no book authors — the card drops
+        // that line rather than inventing one.
         bookAuthors: const [],
         bookCoverUrl: payload.bookCoverUrl,
         pagesRead: payload.pagesRead,
@@ -168,6 +194,7 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final activity = widget.activity;
+    final canShare = activity.payload is SessionActivityPayload;
 
     return Column(
       children: [
@@ -175,27 +202,52 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              _ActivityHeader(activity: activity),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  LikeButton(
-                    activityId: activity.id,
-                    initialIsLiked: activity.isLiked,
-                    initialLikeCount: activity.likeCount,
-                  ),
-                  const Spacer(),
-                  // Badge unlocks have nothing to render as a reading card —
-                  // only session activities can be shared.
-                  if (activity.payload is SessionActivityPayload)
-                    OutlinedButton.icon(
-                      onPressed: () => _shareSession(activity),
-                      icon: const Icon(Icons.ios_share, size: 18),
-                      label: Text(l10n.share),
+              // The post itself, in one card: who posted it, what they read or
+              // unlocked, and its like/share row — the same shape as the feed
+              // card it was opened from, at full size.
+              BorderedCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ActivityAuthorHeader(
+                      name: activity.author.name,
+                      avatarUrl: activity.author.avatarUrl,
+                      occurredAt: activity.occurredAt,
                     ),
-                ],
+                    const SizedBox(height: 16),
+                    _ActivityHeader(activity: activity),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        LikeButton(
+                          activityId: activity.id,
+                          initialIsLiked: activity.isLiked,
+                          initialLikeCount: activity.likeCount,
+                        ),
+                        // Expanded + Align rather than a Spacer: ChunkyButton
+                        // wraps a Flexible label, so it needs a bounded width
+                        // — a plain Row child gets an unbounded one.
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            // Badge unlocks have nothing to render as a
+                            // reading card — only sessions can be shared.
+                            child: canShare
+                                ? ChunkyButton(
+                                    label: l10n.share,
+                                    variant: ChunkyButtonVariant.secondary,
+                                    icon: const Icon(Icons.ios_share, size: 18),
+                                    onPressed: () => _shareSession(activity),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const Divider(height: 32, color: AppColors.slate200),
+              const SizedBox(height: 24),
               FutureBuilder<Either<Failure, List<ActivityComment>>>(
                 future: _commentsFuture,
                 builder: (context, snapshot) {
@@ -215,23 +267,15 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                     ),
                     (fetched) {
                       final comments = [..._newComments, ...fetched];
-                      if (comments.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
-                          child: Center(
-                            child: Text(
-                              l10n.noComments,
-                              style: AppTypography.body,
-                            ),
-                          ),
-                        );
-                      }
+                      if (comments.isEmpty) return const CommentsEmpty();
+
                       return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           for (final comment in comments)
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: _CommentTile(comment: comment),
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: CommentTile(comment: comment),
                             ),
                         ],
                       );
@@ -251,21 +295,33 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: InputDecoration(hintText: l10n.addCommentHint),
+                    decoration: InputDecoration(
+                      hintText: l10n.addCommentHint,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      border: _fieldBorder(AppColors.slate200),
+                      enabledBorder: _fieldBorder(AppColors.slate200),
+                      focusedBorder: _fieldBorder(
+                        AppColors.tangerine,
+                        width: 2.5,
+                      ),
+                    ),
                     onSubmitted: (_) => _submit(),
                   ),
                 ),
                 const SizedBox(width: 8),
                 _isSubmitting
                     ? const SizedBox(
-                        width: 20,
-                        height: 20,
+                        width: 24,
+                        height: 24,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : IconButton(
                         onPressed: _submit,
                         icon: const Icon(
-                          Icons.send,
+                          Icons.send_rounded,
                           color: AppColors.tangerine500,
                         ),
                       ),
@@ -276,6 +332,15 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
       ],
     );
   }
+}
+
+/// The chunky input the rest of the app's forms use: a thick rounded border,
+/// with focus called out by colour rather than a hairline.
+OutlineInputBorder _fieldBorder(Color color, {double width = 2}) {
+  return OutlineInputBorder(
+    borderRadius: BorderRadius.circular(AppRadius.md),
+    borderSide: BorderSide(color: color, width: width),
+  );
 }
 
 class _ActivityHeader extends StatelessWidget {
@@ -418,7 +483,7 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.line,
+        color: AppColors.slate200,
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(text, style: AppTypography.bodyStrong),
@@ -439,50 +504,6 @@ class _CoverPlaceholder extends StatelessWidget {
         size: 40,
         color: AppColors.tangerine300,
       ),
-    );
-  }
-}
-
-class _CommentTile extends StatelessWidget {
-  const _CommentTile({required this.comment});
-
-  final ActivityComment comment;
-
-  @override
-  Widget build(BuildContext context) {
-    final avatarUrl = comment.userAvatarUrl;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CircleAvatar(
-          radius: 16,
-          backgroundColor: AppColors.tangerine100,
-          backgroundImage: avatarUrl == null || avatarUrl.isEmpty
-              ? null
-              : NetworkImage(avatarUrl),
-          child: avatarUrl == null || avatarUrl.isEmpty
-              ? Text(
-                  comment.userName.isEmpty
-                      ? '?'
-                      : comment.userName[0].toUpperCase(),
-                  style: AppTypography.caption.copyWith(
-                    color: AppColors.tangerine700,
-                  ),
-                )
-              : null,
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(comment.userName, style: AppTypography.bodyStrong),
-              Text(comment.body, style: AppTypography.body),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

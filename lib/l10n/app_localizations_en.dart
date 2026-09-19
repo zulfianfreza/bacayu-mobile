@@ -391,6 +391,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityNotAvailable => 'This activity isn\'t available.';
 
   @override
+  String get bookSynopsis => 'Synopsis';
+
+  @override
   String speedPpmValue(String speed) {
     return '$speed ppm';
   }
@@ -459,6 +462,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addCommentHint => 'Add a comment...';
+
+  @override
+  String get commentsTitle => 'Comments';
 
   @override
   String get postComment => 'Post';

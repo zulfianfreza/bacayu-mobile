@@ -8,6 +8,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/bordered_card.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/usecases/get_book_detail.dart';
 import '../widgets/book_description.dart';
@@ -41,19 +42,42 @@ class _BookDetailPageState extends State<BookDetailPage> {
             }
 
             return snapshot.data!.fold(
-              (failure) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    failure.localizedMessage(context),
-                    style: AppTypography.body,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
+              (failure) => _LoadFailure(failure: failure),
               (book) => _BookDetailBody(book: book),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// The book could not be loaded — an icon and the reason, centred.
+class _LoadFailure extends StatelessWidget {
+  const _LoadFailure({required this.failure});
+
+  final Failure failure;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.menu_book_outlined,
+              size: 40,
+              color: AppColors.tangerine300,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              failure.localizedMessage(context),
+              style: AppTypography.body,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
@@ -72,75 +96,93 @@ class _BookDetailBody extends StatelessWidget {
         book.totalPages != null ||
         book.publishedDate.isNotEmpty ||
         book.genres.isNotEmpty;
+    final hasDescription =
+        book.description != null && book.description!.isNotEmpty;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Column(
-        // Stretch so the header block can centre itself, while the description
-        // still gets the full measure to wrap against.
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              child: SizedBox(
-                width: 140,
-                height: 200,
-                child: book.coverUrl == null
-                    ? const _CoverPlaceholder()
-                    : Image.network(
-                        book.coverUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const _CoverPlaceholder(),
-                      ),
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // The book's identity in one card: the cover, then everything that
+        // names it. Kept apart from the synopsis below, which is prose rather
+        // than a label you scan.
+        BorderedCard(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  child: SizedBox(
+                    width: 140,
+                    height: 200,
+                    child: book.coverUrl == null
+                        ? const _CoverPlaceholder()
+                        : Image.network(
+                            book.coverUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const _CoverPlaceholder(),
+                          ),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 20),
+              Text(
+                book.title,
+                style: AppTypography.heading,
+                textAlign: TextAlign.center,
+              ),
+              if (book.authors.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  l10n.byAuthor(book.authors.join(', ')),
+                  style: AppTypography.body,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+              if (hasMeta) ...[
+                const SizedBox(height: 16),
+                // Facts first, tags after: one reader is scanning for "how long
+                // is it", the other for "what kind of book is it", and both
+                // find their row without reading the other one.
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (book.totalPages != null)
+                      _FactChip(
+                        icon: Icons.menu_book_outlined,
+                        text: l10n.pagesCount(book.totalPages!),
+                      ),
+                    if (book.publishedDate.isNotEmpty)
+                      _FactChip(
+                        icon: Icons.calendar_today_outlined,
+                        text: book.publishedDate,
+                      ),
+                    for (final genre in book.genres) _GenreChip(text: genre),
+                  ],
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: 24),
-          Text(
-            book.title,
-            style: AppTypography.heading,
-            textAlign: TextAlign.center,
-          ),
-          if (book.authors.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              l10n.byAuthor(book.authors.join(', ')),
-              style: AppTypography.body,
-              textAlign: TextAlign.center,
-            ),
-          ],
-          if (hasMeta) ...[
-            const SizedBox(height: 16),
-            // Facts first, tags after: one reader is scanning for "how long is
-            // it", the other for "what kind of book is it", and both find their
-            // row without reading the other one.
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
+        ),
+        if (hasDescription) ...[
+          const SizedBox(height: 16),
+          BorderedCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (book.totalPages != null)
-                  _FactChip(
-                    icon: Icons.menu_book_outlined,
-                    text: l10n.pagesCount(book.totalPages!),
-                  ),
-                if (book.publishedDate.isNotEmpty)
-                  _FactChip(
-                    icon: Icons.calendar_today_outlined,
-                    text: book.publishedDate,
-                  ),
-                for (final genre in book.genres) _GenreChip(text: genre),
+                Text(l10n.bookSynopsis, style: AppTypography.heading),
+                const SizedBox(height: 12),
+                BookDescription(html: book.description!),
               ],
             ),
-          ],
-          if (book.description != null && book.description!.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            BookDescription(html: book.description!),
-          ],
+          ),
         ],
-      ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 }
@@ -157,8 +199,8 @@ class _FactChip extends StatelessWidget {
     return _Chip(
       icon: icon,
       text: text,
-      background: AppColors.line,
-      foreground: AppColors.inkSoft,
+      background: AppColors.slate200,
+      foreground: AppColors.slate600,
     );
   }
 }

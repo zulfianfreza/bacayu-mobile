@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
+import '../../../../core/navigation/full_screen_page.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -32,9 +33,7 @@ class _ShelfView extends StatelessWidget {
   const _ShelfView();
 
   void _openAddBook(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const BookSearchPage()));
+    pushFullScreen(context, (_) => const BookSearchPage());
   }
 
   @override
@@ -95,9 +94,7 @@ class _ShelfBody extends StatelessWidget {
 
     if (items.isEmpty) {
       return _EmptyShelf(
-        onAddBook: () => Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => const BookSearchPage())),
+        onAddBook: () => pushFullScreen(context, (_) => const BookSearchPage()),
       );
     }
 
@@ -247,7 +244,7 @@ class _FilterTab extends StatelessWidget {
         child: Text(
           label,
           style: AppTypography.button.copyWith(
-            color: isActive ? Colors.white : AppColors.inkSoft,
+            color: isActive ? Colors.white : AppColors.slate600,
           ),
         ),
       ),

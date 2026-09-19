@@ -191,7 +191,7 @@ class _RangeSegment extends StatelessWidget {
             child: Text(
               label,
               style: AppTypography.button.copyWith(
-                color: isActive ? Colors.white : AppColors.inkSoft,
+                color: isActive ? Colors.white : AppColors.slate600,
               ),
             ),
           ),
@@ -212,30 +212,37 @@ class _MetricsGrid extends StatelessWidget {
     final hours = summary.totalMinutes ~/ 60;
     final minutes = summary.totalMinutes % 60;
 
+    // Step-100 tints rather than the 300s these started on: the tiles carry a
+    // step-700 icon, which is where the colour reads from now, and the softer
+    // body keeps four of them in one grid from shouting.
     final cards = [
       (
         summary.booksFinished.toString(),
         l10n.metricBooksFinished,
-        AppColors.tangerine300,
-        Icons.auto_stories_outlined,
+        AppColors.lagoon100,
+        AppColors.lagoon700,
+        'assets/icons/book-open-02-stroke.png',
       ),
       (
         summary.totalPages.toString(),
         l10n.metricPagesRead,
-        AppColors.lagoon300,
-        Icons.description_outlined,
+        AppColors.tangerine100,
+        AppColors.tangerine700,
+        'assets/icons/document-stroke.png',
       ),
       (
         '${hours}h ${minutes}m',
         l10n.metricTimeReading,
-        AppColors.sunshine300,
-        Icons.schedule,
+        AppColors.sunshine100,
+        AppColors.sunshine700,
+        'assets/icons/clock-stroke.png',
       ),
       (
         summary.avgSpeedPpm.toStringAsFixed(1),
         l10n.metricAvgSpeed,
-        AppColors.tangerine300,
-        Icons.speed,
+        AppColors.tangerine100,
+        AppColors.tangerine700,
+        'assets/icons/speed-stroke.png',
       ),
     ];
 
@@ -252,8 +259,14 @@ class _MetricsGrid extends StatelessWidget {
       ),
       itemCount: cards.length,
       itemBuilder: (context, index) {
-        final (value, label, tint, icon) = cards[index];
-        return MetricCard(value: value, label: label, tint: tint, icon: icon);
+        final (value, label, tint, accent, icon) = cards[index];
+        return MetricCard(
+          value: value,
+          label: label,
+          tint: tint,
+          accent: accent,
+          icon: icon,
+        );
       },
     );
   }

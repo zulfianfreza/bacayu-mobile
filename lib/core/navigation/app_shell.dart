@@ -38,6 +38,7 @@ class AppShell extends StatelessWidget {
   Future<void> _startSession(BuildContext context) async {
     final userBook = await showModalBottomSheet<UserBook>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
@@ -160,7 +161,7 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The active tab is carried by colour alone — no pill behind it.
-    final color = isActive ? AppColors.tangerine : AppColors.inkSoft;
+    final color = isActive ? AppColors.tangerine : AppColors.slate600;
 
     return InkWell(
       onTap: onTap,

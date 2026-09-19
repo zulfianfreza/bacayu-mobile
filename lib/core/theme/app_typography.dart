@@ -69,7 +69,7 @@ class AppTypography {
         fontSize: 13,
         fontWeight: FontWeight.w500,
         height: 1.4,
-        color: AppColors.inkSoft,
+        color: AppColors.slate600,
       );
 
   /// 15px SemiBold — button and nav labels.

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
+import '../../../../core/navigation/full_screen_page.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -37,8 +38,9 @@ class _ProfileView extends StatelessWidget {
   const _ProfileView();
 
   Future<void> _openReadingGoals(BuildContext context, User user) async {
-    final changed = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => ReadingGoalsPage(user: user)),
+    final changed = await pushFullScreen<bool>(
+      context,
+      (_) => ReadingGoalsPage(user: user),
     );
     if (changed == true && context.mounted) {
       context.read<ProfileCubit>().load();
@@ -136,10 +138,9 @@ class _ProfileView extends StatelessWidget {
                         SettingsListTile(
                           icon: "assets/icons/question-mark-stroke.png",
                           label: l10n.helpAndSupport,
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const HelpSupportPage(),
-                            ),
+                          onTap: () => pushFullScreen(
+                            context,
+                            (_) => const HelpSupportPage(),
                           ),
                         ),
                       ],
