@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/chunky_button.dart';
 
+/// Screen 1: the promise, the illustration, and one way forward.
 class OnboardingWelcomeStep extends StatelessWidget {
   const OnboardingWelcomeStep({super.key, required this.onGetStarted});
 
@@ -16,20 +18,21 @@ class OnboardingWelcomeStep extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
             child: Center(
               child: Container(
-                width: 200,
-                height: 200,
+                width: 216,
+                height: 216,
+                alignment: Alignment.center,
                 decoration: const BoxDecoration(
                   color: AppColors.tangerine100,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.local_fire_department,
-                  size: 80,
+                  size: 96,
                   color: AppColors.tangerine500,
                 ),
               ),
@@ -40,14 +43,14 @@ class OnboardingWelcomeStep extends StatelessWidget {
             style: AppTypography.displaySm,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: onGetStarted,
-              child: Text(l10n.getStarted),
-            ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.onboardingWelcomeBody,
+            style: AppTypography.body,
+            textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 32),
+          ChunkyButton(label: l10n.getStarted, onPressed: onGetStarted),
           const SizedBox(height: 24),
         ],
       ),

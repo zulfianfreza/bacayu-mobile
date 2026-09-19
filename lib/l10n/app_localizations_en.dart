@@ -152,6 +152,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Track your reading like Strava tracks your run';
 
   @override
+  String get onboardingWelcomeBody =>
+      'Set a goal, log every session, and keep your streak alive.';
+
+  @override
   String get getStarted => 'Get started';
 
   @override
@@ -276,6 +280,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionSaved => 'Session saved';
+
+  @override
+  String get sessionModeTitle => 'Log a session';
+
+  @override
+  String get chooseSessionMode => 'How do you want to log this?';
+
+  @override
+  String get startTimerOption => 'Start timer';
+
+  @override
+  String get startTimerOptionBody => 'Track it live while you read.';
+
+  @override
+  String get addManualOptionBody =>
+      'Read without the timer? Enter the pages and how long it took.';
+
+  @override
+  String get manualSessionTitle => 'Manual session';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get todayLabel => 'Today';
+
+  @override
+  String get durationLabel => 'Duration';
+
+  @override
+  String get minutesShort => 'min';
+
+  @override
+  String get invalidDuration => 'Enter how long you read.';
+
+  @override
+  String get invalidPageRange => 'The end page has to be after the start page.';
 
   @override
   String get newBadge => 'New badge!';

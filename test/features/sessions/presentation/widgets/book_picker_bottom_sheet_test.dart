@@ -147,6 +147,18 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('nothing in progress gets the empty state, not an empty list',
+      (tester) async {
+    await openSheet(tester, const []);
+
+    expect(
+      find.text('No books in progress. Add one to your shelf first.'),
+      findsOneWidget,
+    );
+    expect(find.byIcon(Icons.menu_book_outlined), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('tapping a row pops with that shelf entry', (tester) async {
     UserBook? picked;
     final first = _userBook(_book(title: 'Atomic Habits'));

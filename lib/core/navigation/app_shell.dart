@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/sessions/presentation/pages/session_timer_page.dart';
+import '../../features/sessions/presentation/pages/session_start_page.dart';
 import '../../features/sessions/presentation/widgets/book_picker_bottom_sheet.dart';
 import '../../features/shelf/domain/entities/user_book.dart';
 import '../localization/build_context_extension.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
-
-const _barHeight = 60.0;
 
 /// Nav icons are assets rather than `IconData`, so the artwork can be swapped
 /// without touching this file. Replace the files in `assets/icons/` — they
@@ -52,7 +50,7 @@ class AppShell extends StatelessWidget {
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => SessionTimerPage(initialUserBook: userBook),
+        builder: (_) => SessionStartPage(userBook: userBook),
       ),
     );
   }

@@ -368,6 +368,12 @@ abstract class AppLocalizations {
   /// **'Track your reading like Strava tracks your run'**
   String get onboardingWelcomeHeadline;
 
+  /// Onboarding screen 1 supporting text under the headline
+  ///
+  /// In en, this message translates to:
+  /// **'Set a goal, log every session, and keep your streak alive.'**
+  String get onboardingWelcomeBody;
+
   /// Onboarding screen 1 primary button
   ///
   /// In en, this message translates to:
@@ -595,6 +601,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Session saved'**
   String get sessionSaved;
+
+  /// App bar title of the timer/manual choice page
+  ///
+  /// In en, this message translates to:
+  /// **'Log a session'**
+  String get sessionModeTitle;
+
+  /// Headline of the timer/manual choice page
+  ///
+  /// In en, this message translates to:
+  /// **'How do you want to log this?'**
+  String get chooseSessionMode;
+
+  /// Choice page — live timer option
+  ///
+  /// In en, this message translates to:
+  /// **'Start timer'**
+  String get startTimerOption;
+
+  /// Choice page — supporting text under the timer option
+  ///
+  /// In en, this message translates to:
+  /// **'Track it live while you read.'**
+  String get startTimerOptionBody;
+
+  /// Choice page — supporting text under the manual option
+  ///
+  /// In en, this message translates to:
+  /// **'Read without the timer? Enter the pages and how long it took.'**
+  String get addManualOptionBody;
+
+  /// App bar title of the manual session form
+  ///
+  /// In en, this message translates to:
+  /// **'Manual session'**
+  String get manualSessionTitle;
+
+  /// Manual session form — date field label
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// Manual session form — shown instead of a date when the day is today
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayLabel;
+
+  /// Manual session form — duration field label
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get durationLabel;
+
+  /// Manual session form — unit suffix next to the duration field
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get minutesShort;
+
+  /// Manual session form — validation error for a missing/zero duration
+  ///
+  /// In en, this message translates to:
+  /// **'Enter how long you read.'**
+  String get invalidDuration;
+
+  /// Manual session form — validation error; the backend also rejects end_page <= start_page
+  ///
+  /// In en, this message translates to:
+  /// **'The end page has to be after the start page.'**
+  String get invalidPageRange;
 
   /// Celebratory banner heading when a session unlocks a badge
   ///

@@ -43,27 +43,29 @@ class _OnboardingView extends StatelessWidget {
             return Column(
               children: [
                 const SizedBox(height: 16),
-                OnboardingProgressDots(step: state.step),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: OnboardingProgressDots(step: state.step),
+                ),
                 const SizedBox(height: 8),
                 Expanded(
                   child: switch (state.step) {
                     OnboardingStep.welcome => OnboardingWelcomeStep(
-                        onGetStarted: () =>
-                            context.read<OnboardingCubit>().goToPreferences(),
-                      ),
+                      onGetStarted: () =>
+                          context.read<OnboardingCubit>().goToPreferences(),
+                    ),
                     OnboardingStep.preferences => OnboardingPreferencesStep(
-                        isSaving: state is OnboardingSaving,
-                        onSubmit: (genres, yearlyGoal) => context
-                            .read<OnboardingCubit>()
-                            .submitPreferences(
-                              favoriteGenres: genres,
-                              yearlyGoalBooks: yearlyGoal,
-                            ),
-                      ),
+                      isSaving: state is OnboardingSaving,
+                      onSubmit: (genres, yearlyGoal) =>
+                          context.read<OnboardingCubit>().submitPreferences(
+                            favoriteGenres: genres,
+                            yearlyGoalBooks: yearlyGoal,
+                          ),
+                    ),
                     OnboardingStep.addFirstBook => OnboardingAddFirstBookStep(
-                        onDone: () => context.read<OnboardingCubit>().finish(),
-                        onSkip: () => context.read<OnboardingCubit>().finish(),
-                      ),
+                      onDone: () => context.read<OnboardingCubit>().finish(),
+                      onSkip: () => context.read<OnboardingCubit>().finish(),
+                    ),
                   },
                 ),
               ],

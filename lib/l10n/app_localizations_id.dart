@@ -152,6 +152,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Lacak bacaanmu, kayak Strava ngelacak larimu';
 
   @override
+  String get onboardingWelcomeBody =>
+      'Pasang target, catat tiap sesi baca, dan jaga streak tetap hidup.';
+
+  @override
   String get getStarted => 'Mulai';
 
   @override
@@ -276,6 +280,44 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get sessionSaved => 'Sesi tersimpan';
+
+  @override
+  String get sessionModeTitle => 'Catat sesi';
+
+  @override
+  String get chooseSessionMode => 'Mau dicatat bagaimana?';
+
+  @override
+  String get startTimerOption => 'Mulai timer';
+
+  @override
+  String get startTimerOptionBody => 'Lacak langsung sambil kamu baca.';
+
+  @override
+  String get addManualOptionBody =>
+      'Baca tanpa timer? Isi halaman dan berapa lama bacanya.';
+
+  @override
+  String get manualSessionTitle => 'Sesi manual';
+
+  @override
+  String get dateLabel => 'Tanggal';
+
+  @override
+  String get todayLabel => 'Hari ini';
+
+  @override
+  String get durationLabel => 'Durasi';
+
+  @override
+  String get minutesShort => 'menit';
+
+  @override
+  String get invalidDuration => 'Isi berapa lama kamu membaca.';
+
+  @override
+  String get invalidPageRange =>
+      'Halaman akhir harus lebih besar dari halaman awal.';
 
   @override
   String get newBadge => 'Badge baru!';

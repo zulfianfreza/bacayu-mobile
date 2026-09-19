@@ -198,6 +198,10 @@
   "@onboardingWelcomeHeadline": {
     "description": "Onboarding screen 1 headline"
   },
+  "onboardingWelcomeBody": "Set a goal, log every session, and keep your streak alive.",
+  "@onboardingWelcomeBody": {
+    "description": "Onboarding screen 1 supporting text under the headline"
+  },
   "getStarted": "Get started",
   "@getStarted": {
     "description": "Onboarding screen 1 primary button"
@@ -344,6 +348,54 @@
   "sessionSaved": "Session saved",
   "@sessionSaved": {
     "description": "Session summary button label after a successful submit"
+  },
+  "sessionModeTitle": "Log a session",
+  "@sessionModeTitle": {
+    "description": "App bar title of the timer/manual choice page"
+  },
+  "chooseSessionMode": "How do you want to log this?",
+  "@chooseSessionMode": {
+    "description": "Headline of the timer/manual choice page"
+  },
+  "startTimerOption": "Start timer",
+  "@startTimerOption": {
+    "description": "Choice page — live timer option"
+  },
+  "startTimerOptionBody": "Track it live while you read.",
+  "@startTimerOptionBody": {
+    "description": "Choice page — supporting text under the timer option"
+  },
+  "addManualOptionBody": "Read without the timer? Enter the pages and how long it took.",
+  "@addManualOptionBody": {
+    "description": "Choice page — supporting text under the manual option"
+  },
+  "manualSessionTitle": "Manual session",
+  "@manualSessionTitle": {
+    "description": "App bar title of the manual session form"
+  },
+  "dateLabel": "Date",
+  "@dateLabel": {
+    "description": "Manual session form — date field label"
+  },
+  "todayLabel": "Today",
+  "@todayLabel": {
+    "description": "Manual session form — shown instead of a date when the day is today"
+  },
+  "durationLabel": "Duration",
+  "@durationLabel": {
+    "description": "Manual session form — duration field label"
+  },
+  "minutesShort": "min",
+  "@minutesShort": {
+    "description": "Manual session form — unit suffix next to the duration field"
+  },
+  "invalidDuration": "Enter how long you read.",
+  "@invalidDuration": {
+    "description": "Manual session form — validation error for a missing/zero duration"
+  },
+  "invalidPageRange": "The end page has to be after the start page.",
+  "@invalidPageRange": {
+    "description": "Manual session form — validation error; the backend also rejects end_page <= start_page"
   },
   "newBadge": "New badge!",
   "@newBadge": {

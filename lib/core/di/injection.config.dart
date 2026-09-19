@@ -118,6 +118,8 @@ import 'package:mobile/features/sessions/domain/usecases/get_session_history.dar
     as _i759;
 import 'package:mobile/features/sessions/domain/usecases/submit_session.dart'
     as _i621;
+import 'package:mobile/features/sessions/presentation/cubit/manual_session_cubit.dart'
+    as _i452;
 import 'package:mobile/features/sessions/presentation/cubit/session_timer_cubit.dart'
     as _i928;
 import 'package:mobile/features/shelf/data/datasources/shelf_remote_datasource.dart'
@@ -440,6 +442,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i52.GetSocialFeed>(),
         gh<_i1052.GetCurrentUser>(),
       ),
+    );
+    gh.factory<_i452.ManualSessionCubit>(
+      () => _i452.ManualSessionCubit(gh<_i621.SubmitSession>()),
     );
     gh.factory<_i928.SessionTimerCubit>(
       () => _i928.SessionTimerCubit(gh<_i621.SubmitSession>()),

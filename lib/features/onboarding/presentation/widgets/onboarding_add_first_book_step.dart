@@ -3,8 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../../core/widgets/raised_box.dart';
 import '../../../books/domain/entities/book.dart';
 import '../../../books/presentation/bloc/book_search_bloc.dart';
 import '../../../books/presentation/bloc/book_search_event.dart';
@@ -95,13 +98,20 @@ class _AddFirstBookViewState extends State<_AddFirstBookView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          Text(l10n.addFirstBookHeadline, style: AppTypography.heading),
+          Text(l10n.addFirstBookHeadline, style: AppTypography.displaySm),
           const SizedBox(height: 16),
           TextField(
             controller: _queryController,
             decoration: InputDecoration(
               hintText: l10n.searchTitleOrAuthorHint,
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search, color: AppColors.inkFaint),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+              border: _searchBorder(AppColors.slate200),
+              enabledBorder: _searchBorder(AppColors.slate200),
+              focusedBorder: _searchBorder(AppColors.tangerine, width: 2.5),
             ),
             onChanged: (query) =>
                 context.read<BookSearchBloc>().add(SearchQueryChanged(query)),
@@ -110,18 +120,18 @@ class _AddFirstBookViewState extends State<_AddFirstBookView> {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _openScanner(context),
-                  icon: const Icon(Icons.qr_code_scanner),
-                  label: Text(l10n.scanIsbn),
+                child: _ChoiceTile(
+                  icon: Icons.qr_code_scanner,
+                  label: l10n.scanIsbn,
+                  onTap: () => _openScanner(context),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _openManualAdd(context),
-                  icon: const Icon(Icons.edit_outlined),
-                  label: Text(l10n.addManually),
+                child: _ChoiceTile(
+                  icon: Icons.edit_outlined,
+                  label: l10n.addManually,
+                  onTap: () => _openManualAdd(context),
                 ),
               ),
             ],
@@ -170,9 +180,9 @@ class _AddFirstBookViewState extends State<_AddFirstBookView> {
                             )
                           : BookResultCard(
                               book: book,
-                              onAdd: () => context
-                                  .read<BookSearchBloc>()
-                                  .add(SearchResultSelected(book)),
+                              onAdd: () => context.read<BookSearchBloc>().add(
+                                SearchResultSelected(book),
+                              ),
                             ),
                     );
                   },
@@ -188,6 +198,55 @@ class _AddFirstBookViewState extends State<_AddFirstBookView> {
           ),
           const SizedBox(height: 16),
         ],
+      ),
+    );
+  }
+}
+
+/// The chunky input the rest of the app's forms use: a thick rounded border,
+/// with focus called out by colour rather than a hairline.
+OutlineInputBorder _searchBorder(Color color, {double width = 2}) {
+  return OutlineInputBorder(
+    borderRadius: BorderRadius.circular(AppRadius.md),
+    borderSide: BorderSide(color: color, width: width),
+  );
+}
+
+/// One of the two ways to add a book. Icon above label rather than beside it:
+/// the labels ("Scan ISBN", "Tambah manual") are long enough that a horizontal
+/// row would squeeze one of them into an ellipsis at phone width.
+class _ChoiceTile extends StatelessWidget {
+  const _ChoiceTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: RaisedBox(
+        color: AppColors.surface,
+        radius: AppRadius.md,
+        edgeHeight: 3,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 22, color: AppColors.tangerine),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: AppTypography.button,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

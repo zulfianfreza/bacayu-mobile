@@ -4,6 +4,10 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/bordered_card.dart';
+import '../../../../core/widgets/chunky_button.dart';
+import '../../../../core/widgets/number_stepper.dart';
+import '../../../../core/widgets/raised_box.dart';
 import '../../../../l10n/app_localizations.dart';
 
 const _genreSlugs = [
@@ -20,18 +24,18 @@ const _genreSlugs = [
 ];
 
 String _genreLabel(AppLocalizations l10n, String slug) => switch (slug) {
-      'fiction' => l10n.genreFiction,
-      'non_fiction' => l10n.genreNonFiction,
-      'fantasy' => l10n.genreFantasy,
-      'romance' => l10n.genreRomance,
-      'self_help' => l10n.genreSelfHelp,
-      'comics' => l10n.genreComics,
-      'mystery' => l10n.genreMystery,
-      'biography' => l10n.genreBiography,
-      'sci_fi' => l10n.genreSciFi,
-      'poetry' => l10n.genrePoetry,
-      _ => slug,
-    };
+  'fiction' => l10n.genreFiction,
+  'non_fiction' => l10n.genreNonFiction,
+  'fantasy' => l10n.genreFantasy,
+  'romance' => l10n.genreRomance,
+  'self_help' => l10n.genreSelfHelp,
+  'comics' => l10n.genreComics,
+  'mystery' => l10n.genreMystery,
+  'biography' => l10n.genreBiography,
+  'sci_fi' => l10n.genreSciFi,
+  'poetry' => l10n.genrePoetry,
+  _ => slug,
+};
 
 class OnboardingPreferencesStep extends StatefulWidget {
   const OnboardingPreferencesStep({
@@ -48,8 +52,7 @@ class OnboardingPreferencesStep extends StatefulWidget {
       _OnboardingPreferencesStepState();
 }
 
-class _OnboardingPreferencesStepState
-    extends State<OnboardingPreferencesStep> {
+class _OnboardingPreferencesStepState extends State<OnboardingPreferencesStep> {
   final Set<String> _selectedGenres = {};
   int _yearlyGoal = 12;
 
@@ -62,9 +65,9 @@ class _OnboardingPreferencesStepState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 24),
-          Text(l10n.whatDoYouLoveReading, style: AppTypography.heading),
           const SizedBox(height: 16),
+          Text(l10n.whatDoYouLoveReading, style: AppTypography.displaySm),
+          const SizedBox(height: 20),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -83,52 +86,30 @@ class _OnboardingPreferencesStepState
                 ),
             ],
           ),
-          const SizedBox(height: 32),
-          Text(l10n.yearlyReadingGoal, style: AppTypography.subheading),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                onPressed: _yearlyGoal > 1
-                    ? () => setState(() => _yearlyGoal--)
-                    : null,
-                icon: const Icon(Icons.remove_circle_outline),
-                color: AppColors.tangerine500,
-              ),
-              SizedBox(
-                width: 120,
-                child: Text(
-                  l10n.booksPerYear(_yearlyGoal),
-                  style: AppTypography.bodyStrong,
-                  textAlign: TextAlign.center,
+          const SizedBox(height: 24),
+          BorderedCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.yearlyReadingGoal, style: AppTypography.subheading),
+                const SizedBox(height: 16),
+                NumberStepper(
+                  value: l10n.booksPerYear(_yearlyGoal),
+                  onDecrement: _yearlyGoal > 1
+                      ? () => setState(() => _yearlyGoal--)
+                      : null,
+                  onIncrement: () => setState(() => _yearlyGoal++),
                 ),
-              ),
-              IconButton(
-                onPressed: () => setState(() => _yearlyGoal++),
-                icon: const Icon(Icons.add_circle_outline),
-                color: AppColors.tangerine500,
-              ),
-            ],
+              ],
+            ),
           ),
           const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: widget.isSaving
-                  ? null
-                  : () => widget.onSubmit(_selectedGenres.toList(), _yearlyGoal),
-              child: widget.isSaving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Text(l10n.continueLabel),
-            ),
+          ChunkyButton(
+            label: l10n.continueLabel,
+            onPressed: widget.isSaving
+                ? null
+                : () => widget.onSubmit(_selectedGenres.toList(), _yearlyGoal),
+            isLoading: widget.isSaving,
           ),
           const SizedBox(height: 24),
         ],
@@ -137,6 +118,9 @@ class _OnboardingPreferencesStepState
   }
 }
 
+/// One genre: a chunky pill on its own edge, filled in when picked — the same
+/// control as the shelf's filter tabs, so a selectable chip looks the same
+/// everywhere.
 class _GenreChip extends StatelessWidget {
   const _GenreChip({
     required this.label,
@@ -150,21 +134,23 @@ class _GenreChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FilterChip(
-      label: Text(label),
+    return Semantics(
+      button: true,
       selected: selected,
-      onSelected: onSelected,
-      showCheckmark: false,
-      selectedColor: AppColors.tangerine500,
-      backgroundColor: AppColors.surface,
-      labelStyle: AppTypography.button.copyWith(
-        color: selected ? Colors.white : AppColors.inkSoft,
-      ),
-      side: BorderSide(
-        color: selected ? AppColors.tangerine500 : AppColors.line,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.pill),
+      child: GestureDetector(
+        onTap: () => onSelected(!selected),
+        child: RaisedBox(
+          color: selected ? AppColors.tangerine : AppColors.surface,
+          radius: AppRadius.pill,
+          edgeHeight: 3,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Text(
+            label,
+            style: AppTypography.button.copyWith(
+              color: selected ? Colors.white : AppColors.inkSoft,
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/chunky_button.dart';
-import '../../../../core/widgets/raised_box.dart';
+import '../../../../core/widgets/number_stepper.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/update_profile.dart';
 
@@ -119,53 +117,12 @@ class _GoalCard extends StatelessWidget {
         children: [
           Text(title, style: AppTypography.subheading),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              _StepTile(icon: Icons.remove_rounded, onTap: onDecrement),
-              Expanded(
-                child: Text(
-                  value,
-                  style: AppTypography.heading,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              _StepTile(icon: Icons.add_rounded, onTap: onIncrement),
-            ],
+          NumberStepper(
+            value: value,
+            onDecrement: onDecrement,
+            onIncrement: onIncrement,
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// One end of the stepper: a pressable tile on its own edge, flat and
-/// unpressable when [onTap] is null.
-class _StepTile extends StatelessWidget {
-  const _StepTile({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final enabled = onTap != null;
-
-    return Semantics(
-      button: true,
-      enabled: enabled,
-      child: GestureDetector(
-        onTap: onTap,
-        child: RaisedBox(
-          color: enabled ? AppColors.tangerine : AppColors.line,
-          radius: AppRadius.md,
-          edgeHeight: 3,
-          padding: const EdgeInsets.all(12),
-          child: Icon(
-            icon,
-            size: 22,
-            color: enabled ? Colors.white : AppColors.inkFaint,
-          ),
-        ),
       ),
     );
   }
