@@ -660,21 +660,21 @@
   "@profileStatsBadges": {
     "description": "Profile page stats row — badges unlocked column label"
   },
-  "profileFollowersCount": "{count} Followers",
-  "@profileFollowersCount": {
-    "description": "Profile page followers count, tap navigates to FollowersPage",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
+  "profileFollowersLabel": "Followers",
+  "@profileFollowersLabel": {
+    "description": "Profile header — label under the followers number, tap opens FollowersPage"
   },
-  "profileFollowingCount": "{count} Following",
-  "@profileFollowingCount": {
-    "description": "Profile page following count, tap navigates to FollowingPage",
+  "profileFollowingLabel": "Following",
+  "@profileFollowingLabel": {
+    "description": "Profile header — label under the following number, tap opens FollowingPage"
+  },
+  "memberSince": "Reading since {date}",
+  "@memberSince": {
+    "description": "Profile header — when the account was created, month and year",
     "placeholders": {
-      "count": {
-        "type": "int"
+      "date": {
+        "type": "String",
+        "example": "January 2026"
       }
     }
   },

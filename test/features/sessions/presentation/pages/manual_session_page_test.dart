@@ -2,6 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/di/injection.dart';
+import 'package:mobile/core/theme/app_colors.dart';
+import 'package:mobile/core/theme/app_theme.dart';
 import 'package:mobile/features/books/domain/entities/book.dart';
 import 'package:mobile/features/sessions/domain/entities/reading_session.dart';
 import 'package:mobile/features/sessions/domain/usecases/submit_session.dart';
@@ -81,6 +83,8 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        // The app's own theme: the picker's surfaces come from it.
+        theme: AppTheme.light,
         // Pinned to the app's primary locale so the assertions below can name
         // the strings it actually ships with.
         locale: const Locale('id'),
@@ -118,6 +122,21 @@ void main() {
     expect(find.text('Hari ini'), findsOneWidget);
     expect(find.text('50'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the date picker is white, not the seeded warm surface', (
+    tester,
+  ) async {
+    await openForm(tester);
+
+    await tester.tap(find.text('Hari ini'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DatePickerDialog), findsOneWidget);
+    expect(
+      tester.widget<Dialog>(find.byType(Dialog)).backgroundColor,
+      AppColors.surface,
+    );
   });
 
   testWidgets('an end page that is not past the start page never submits', (

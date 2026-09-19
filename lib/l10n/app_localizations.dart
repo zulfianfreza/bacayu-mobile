@@ -1046,17 +1046,23 @@ abstract class AppLocalizations {
   /// **'Badges'**
   String get profileStatsBadges;
 
-  /// Profile page followers count, tap navigates to FollowersPage
+  /// Profile header — label under the followers number, tap opens FollowersPage
   ///
   /// In en, this message translates to:
-  /// **'{count} Followers'**
-  String profileFollowersCount(int count);
+  /// **'Followers'**
+  String get profileFollowersLabel;
 
-  /// Profile page following count, tap navigates to FollowingPage
+  /// Profile header — label under the following number, tap opens FollowingPage
   ///
   /// In en, this message translates to:
-  /// **'{count} Following'**
-  String profileFollowingCount(int count);
+  /// **'Following'**
+  String get profileFollowingLabel;
+
+  /// Profile header — when the account was created, month and year
+  ///
+  /// In en, this message translates to:
+  /// **'Reading since {date}'**
+  String memberSince(String date);
 
   /// Profile settings list item — navigates to ReadingGoalsPage
   ///

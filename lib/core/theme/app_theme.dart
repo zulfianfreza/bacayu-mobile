@@ -55,6 +55,13 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         modalBackgroundColor: AppColors.surface,
       ),
+      // Same story for the date picker: body and header both default to a
+      // seeded `surfaceContainerHigh`, and both belong to the app's white
+      // surfaces.
+      datePickerTheme: const DatePickerThemeData(
+        backgroundColor: AppColors.surface,
+        headerBackgroundColor: AppColors.surface,
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.tangerine,

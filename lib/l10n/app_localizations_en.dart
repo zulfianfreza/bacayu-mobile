@@ -512,13 +512,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileStatsBadges => 'Badges';
 
   @override
-  String profileFollowersCount(int count) {
-    return '$count Followers';
-  }
+  String get profileFollowersLabel => 'Followers';
 
   @override
-  String profileFollowingCount(int count) {
-    return '$count Following';
+  String get profileFollowingLabel => 'Following';
+
+  @override
+  String memberSince(String date) {
+    return 'Reading since $date';
   }
 
   @override

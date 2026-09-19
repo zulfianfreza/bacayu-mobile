@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
@@ -170,6 +171,10 @@ class _ProfileView extends StatelessWidget {
 /// The avatar, the name, and the two counts that describe the account's
 /// social side — one card, because they are one identity rather than three
 /// separate sections.
+///
+/// Identity reads left-to-right: who (avatar), then their name and how long
+/// they have been reading, then a rule, then the numbers. Centring it left a
+/// tall stack with the counts floating at the bottom like stray buttons.
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({
     required this.user,
@@ -185,57 +190,77 @@ class _ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final hasAvatar = user.avatarUrl.isNotEmpty;
+    final locale = Localizations.localeOf(context).toLanguageTag();
 
     return BorderedCard(
       padding: const EdgeInsets.all(20),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.slate200, width: 2),
-            ),
-            child: CircleAvatar(
-              radius: 40,
-              backgroundColor: AppColors.tangerine100,
-              backgroundImage: hasAvatar ? NetworkImage(user.avatarUrl) : null,
-              child: hasAvatar
-                  ? null
-                  : Text(
-                      user.name.isEmpty ? '?' : user.name[0].toUpperCase(),
-                      style: AppTypography.displaySm.copyWith(
-                        color: AppColors.tangerine700,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.slate200, width: 2),
+                ),
+                child: CircleAvatar(
+                  radius: 32,
+                  backgroundColor: AppColors.tangerine100,
+                  backgroundImage: hasAvatar
+                      ? NetworkImage(user.avatarUrl)
+                      : null,
+                  child: hasAvatar
+                      ? null
+                      : Text(
+                          user.name.isEmpty ? '?' : user.name[0].toUpperCase(),
+                          style: AppTypography.heading.copyWith(
+                            color: AppColors.tangerine700,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Uncapped, like every other identity line in the app: a
+                    // long name wraps rather than being cut.
+                    Text(user.name, style: AppTypography.displaySm),
+                    const SizedBox(height: 4),
+                    Text(
+                      l10n.memberSince(
+                        DateFormat.yMMMM(locale).format(user.createdAt),
                       ),
+                      style: AppTypography.caption,
                     ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            user.name,
-            style: AppTypography.heading,
-            textAlign: TextAlign.center,
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: _FollowPill(
-                    label: l10n.profileFollowersCount(followersCount),
-                    onTap: () => context.push(AppRoutes.followers),
-                  ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _FollowStat(
+                  count: followersCount,
+                  label: l10n.profileFollowersLabel,
+                  onTap: () => context.push(AppRoutes.followers),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _FollowPill(
-                    label: l10n.profileFollowingCount(followingCount),
-                    onTap: () => context.push(AppRoutes.following),
-                  ),
+              ),
+              Expanded(
+                child: _FollowStat(
+                  count: followingCount,
+                  label: l10n.profileFollowingLabel,
+                  onTap: () => context.push(AppRoutes.following),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -243,26 +268,36 @@ class _ProfileHeader extends StatelessWidget {
   }
 }
 
-/// A count you can tap, drawn with the same border language as the cards so it
-/// reads as pressable sitting on the header's white body.
-class _FollowPill extends StatelessWidget {
-  const _FollowPill({required this.label, required this.onTap});
+/// One of the two social counts: the number over its word, with the whole
+/// column tappable rather than just the number.
+class _FollowStat extends StatelessWidget {
+  const _FollowStat({
+    required this.count,
+    required this.label,
+    required this.onTap,
+  });
 
+  final int count;
   final String label;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: BorderedCard(
-        radius: AppRadius.pill,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Center(
-          child: Text(
-            label,
-            style: AppTypography.bodyStrong,
-            textAlign: TextAlign.center,
+    return Semantics(
+      button: true,
+      label: '$count $label',
+      child: GestureDetector(
+        onTap: onTap,
+        // Opaque so the gap either side of the column is part of the target.
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            children: [
+              Text('$count', style: AppTypography.heading),
+              const SizedBox(height: 2),
+              Text(label, style: AppTypography.caption),
+            ],
           ),
         ),
       ),
@@ -311,7 +346,7 @@ class _StatsRow extends StatelessWidget {
               label: l10n.profileStatsStreak,
               tint: AppColors.tangerine100,
               accent: AppColors.tangerine700,
-              iconSize: 32,
+              iconSize: 24,
               // The streak flame is full-colour artwork — tinting it to one
               // hue would flatten the yellow highlight that makes it read as
               // a flame.

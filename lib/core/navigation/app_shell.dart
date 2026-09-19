@@ -50,9 +50,7 @@ class AppShell extends StatelessWidget {
     if (userBook == null || !context.mounted) return;
 
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => SessionStartPage(userBook: userBook),
-      ),
+      MaterialPageRoute(builder: (_) => SessionStartPage(userBook: userBook)),
     );
   }
 

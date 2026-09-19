@@ -89,7 +89,7 @@ void main() {
       ]),
     );
     when(() => socialRepository.getFollowersCount())
-        .thenAnswer((_) async => const Right(12));
+        .thenAnswer((_) async => const Right(21));
     when(() => socialRepository.getFollowingCount())
         .thenAnswer((_) async => const Right(30));
 
@@ -126,14 +126,20 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('the header carries the name and both follow counts', (
+  testWidgets('the header carries the name, the join line and both counts', (
     tester,
   ) async {
     await pumpProfile(tester);
 
     expect(find.text('Julian'), findsOneWidget);
-    expect(find.text('12 Pengikut'), findsOneWidget);
-    expect(find.text('30 Mengikuti'), findsOneWidget);
+    // Each count is its own number and word, so they can be set as a pair of
+    // stacked figures rather than one run of text.
+    expect(find.text('21'), findsOneWidget);
+    expect(find.text('Pengikut'), findsOneWidget);
+    expect(find.text('30'), findsOneWidget);
+    expect(find.text('Mengikuti'), findsOneWidget);
+    // From the account's createdAt, month and year only.
+    expect(find.textContaining('Membaca sejak'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

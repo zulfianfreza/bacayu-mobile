@@ -513,13 +513,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get profileStatsBadges => 'Lencana';
 
   @override
-  String profileFollowersCount(int count) {
-    return '$count Pengikut';
-  }
+  String get profileFollowersLabel => 'Pengikut';
 
   @override
-  String profileFollowingCount(int count) {
-    return '$count Mengikuti';
+  String get profileFollowingLabel => 'Mengikuti';
+
+  @override
+  String memberSince(String date) {
+    return 'Membaca sejak $date';
   }
 
   @override
