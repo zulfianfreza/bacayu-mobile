@@ -80,6 +80,8 @@ import 'package:mobile/features/feed/data/repositories/feed_repository_impl.dart
 import 'package:mobile/features/feed/domain/repositories/feed_repository.dart'
     as _i674;
 import 'package:mobile/features/feed/domain/usecases/get_feed.dart' as _i108;
+import 'package:mobile/features/feed/domain/usecases/get_social_feed.dart'
+    as _i52;
 import 'package:mobile/features/feed/presentation/cubit/feed_cubit.dart'
     as _i498;
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart'
@@ -411,6 +413,9 @@ extension GetItInjectableX on _i174.GetIt {
           _i428.StatsCubit(gh<_i884.GetStatsSummary>(), gh<_i485.GetHeatmap>()),
     );
     gh.factory<_i108.GetFeed>(() => _i108.GetFeed(gh<_i674.FeedRepository>()));
+    gh.factory<_i52.GetSocialFeed>(
+      () => _i52.GetSocialFeed(gh<_i674.FeedRepository>()),
+    );
     gh.lazySingleton<_i180.ShelfRepository>(
       () => _i841.ShelfRepositoryImpl(
         gh<_i192.ShelfRemoteDataSource>(),
@@ -430,7 +435,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i567.NotificationNavigator>(),
       ),
     );
-    gh.factory<_i498.FeedCubit>(() => _i498.FeedCubit(gh<_i108.GetFeed>()));
+    gh.factory<_i498.FeedCubit>(
+      () => _i498.FeedCubit(
+        gh<_i52.GetSocialFeed>(),
+        gh<_i1052.GetCurrentUser>(),
+      ),
+    );
     gh.factory<_i928.SessionTimerCubit>(
       () => _i928.SessionTimerCubit(gh<_i621.SubmitSession>()),
     );
@@ -453,17 +463,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i88.UpdateShelfStatus>(
       () => _i88.UpdateShelfStatus(gh<_i180.ShelfRepository>()),
     );
-    gh.lazySingleton<_i387.SessionExpiredHandler>(
-      () => sessionExpiredHandlerModule.sessionExpiredHandler(
-        gh<_i948.AuthCubit>(),
-      ),
-    );
     gh.factory<_i1054.HomeCubit>(
       () => _i1054.HomeCubit(
         gh<_i1052.GetCurrentUser>(),
         gh<_i485.GetHeatmap>(),
         gh<_i156.ListShelf>(),
-        gh<_i108.GetFeed>(),
+      ),
+    );
+    gh.lazySingleton<_i387.SessionExpiredHandler>(
+      () => sessionExpiredHandlerModule.sessionExpiredHandler(
+        gh<_i948.AuthCubit>(),
       ),
     );
     gh.lazySingleton<_i584.GoRouter>(

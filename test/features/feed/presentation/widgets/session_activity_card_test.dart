@@ -7,6 +7,7 @@ import 'package:mobile/l10n/app_localizations.dart';
 
 Activity _activity(String bookTitle) => Activity(
   id: 'act-1',
+  author: const ActivityAuthor(id: 'u1', name: 'Julian', avatarUrl: null),
   occurredAt: DateTime(2026, 1, 1),
   payload: SessionActivityPayload(
     bookId: 'book-1',

@@ -47,10 +47,9 @@ class AppRoutes {
   static String feedActivityDetailPath(String activityId) =>
       '/feed/$activityId';
 
-  /// Temporary — still no real navigation entry point (leaderboard wasn't
-  /// in `profile`'s scope). Exists purely for manual testing, same pattern
-  /// followers/following used before `profile` gave them a real one.
-  static const leaderboardDebug = '/debug/leaderboard';
+  /// Reached from Home's empty-feed "find friends" CTA. Doubles as the app's
+  /// only user-discovery surface until a real search exists.
+  static const leaderboard = '/leaderboard';
 }
 
 /// Routes reachable without an auth token.
@@ -121,7 +120,7 @@ abstract class AppRouterModule {
           builder: (context, state) => const FollowingPage(),
         ),
         GoRoute(
-          path: AppRoutes.leaderboardDebug,
+          path: AppRoutes.leaderboard,
           builder: (context, state) => const LeaderboardPage(),
         ),
         GoRoute(

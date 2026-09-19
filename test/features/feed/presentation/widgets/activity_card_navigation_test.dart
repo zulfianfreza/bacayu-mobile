@@ -27,6 +27,7 @@ class _MockGetCurrentUser extends Mock implements GetCurrentUser {}
 
 final _sessionActivity = Activity(
   id: 'act-1',
+  author: const ActivityAuthor(id: 'u1', name: 'Julian', avatarUrl: null),
   occurredAt: DateTime(2026, 1, 1),
   payload: const SessionActivityPayload(
     bookId: 'book-1',
@@ -43,6 +44,7 @@ final _sessionActivity = Activity(
 
 final _badgeActivity = Activity(
   id: 'act-2',
+  author: const ActivityAuthor(id: 'u1', name: 'Julian', avatarUrl: null),
   occurredAt: DateTime(2026, 1, 1),
   payload: const BadgeActivityPayload(
     badgeName: 'First Step',
@@ -63,9 +65,11 @@ void main() {
     // Future that never resolves is enough since the tests only assert on
     // whether the sheet/route appeared, not on its fetched content.
     when(() => listComments.call(any())).thenAnswer(
-        (_) => Completer<Either<Failure, List<ActivityComment>>>().future);
-    when(() => getCurrentUser.call())
-        .thenAnswer((_) => Completer<Either<Failure, User>>().future);
+      (_) => Completer<Either<Failure, List<ActivityComment>>>().future,
+    );
+    when(
+      () => getCurrentUser.call(),
+    ).thenAnswer((_) => Completer<Either<Failure, User>>().future);
 
     getIt
       ..registerFactory<ListComments>(() => listComments)
@@ -103,61 +107,75 @@ void main() {
 
   group('SessionActivityCard', () {
     testWidgets(
-        'tapping the comment icon still opens CommentsBottomSheet, unchanged',
-        (tester) async {
-      await tester.pumpWidget(wrap(SessionActivityCard(activity: _sessionActivity)));
-      await tester.pumpAndSettle();
+      'tapping the comment icon still opens CommentsBottomSheet, unchanged',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(SessionActivityCard(activity: _sessionActivity)),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.mode_comment_outlined));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(find.byIcon(Icons.mode_comment_outlined));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.byType(CommentsBottomSheet), findsOneWidget);
-      expect(find.text('detail:act-1'), findsNothing);
-    });
+        expect(find.byType(CommentsBottomSheet), findsOneWidget);
+        expect(find.text('detail:act-1'), findsNothing);
+      },
+    );
 
     testWidgets(
-        'tapping the cover/title area (not the comment icon) navigates to '
-        'ActivityDetailPage', (tester) async {
-      await tester.pumpWidget(wrap(SessionActivityCard(activity: _sessionActivity)));
-      await tester.pumpAndSettle();
+      'tapping the cover/title area (not the comment icon) navigates to '
+      'ActivityDetailPage',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(SessionActivityCard(activity: _sessionActivity)),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Atomic Habits'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(find.text('Atomic Habits'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.text('detail:act-1'), findsOneWidget);
-      expect(find.byType(CommentsBottomSheet), findsNothing);
-    });
+        expect(find.text('detail:act-1'), findsOneWidget);
+        expect(find.byType(CommentsBottomSheet), findsNothing);
+      },
+    );
   });
 
   group('BadgeActivityCard', () {
     testWidgets(
-        'tapping the comment icon still opens CommentsBottomSheet, unchanged',
-        (tester) async {
-      await tester.pumpWidget(wrap(BadgeActivityCard(activity: _badgeActivity)));
-      await tester.pumpAndSettle();
+      'tapping the comment icon still opens CommentsBottomSheet, unchanged',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(BadgeActivityCard(activity: _badgeActivity)),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.mode_comment_outlined));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(find.byIcon(Icons.mode_comment_outlined));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.byType(CommentsBottomSheet), findsOneWidget);
-      expect(find.text('detail:act-2'), findsNothing);
-    });
+        expect(find.byType(CommentsBottomSheet), findsOneWidget);
+        expect(find.text('detail:act-2'), findsNothing);
+      },
+    );
 
     testWidgets(
-        'tapping the medal/text area (not the comment icon) navigates to '
-        'ActivityDetailPage', (tester) async {
-      await tester.pumpWidget(wrap(BadgeActivityCard(activity: _badgeActivity)));
-      await tester.pumpAndSettle();
+      'tapping the medal/text area (not the comment icon) navigates to '
+      'ActivityDetailPage',
+      (tester) async {
+        await tester.pumpWidget(
+          wrap(BadgeActivityCard(activity: _badgeActivity)),
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('First Step'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(find.text('First Step'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.text('detail:act-2'), findsOneWidget);
-      expect(find.byType(CommentsBottomSheet), findsNothing);
-    });
+        expect(find.text('detail:act-2'), findsOneWidget);
+        expect(find.byType(CommentsBottomSheet), findsNothing);
+      },
+    );
   });
 }

@@ -16,12 +16,10 @@ import '../../domain/entities/activity.dart';
 /// count, comment count (tap opens [CommentsBottomSheet]), and — only for
 /// the requester's own activity — a small "..." menu to change visibility.
 ///
-/// `isOwnActivity` is a caller-supplied flag rather than compared from the
-/// activity's own data: `GET /feed` (the only feed endpoint currently
-/// wired up) always returns the requester's OWN activities, so it's always
-/// `true` there. `ActivityResponse` also has no `user_id` field to compare
-/// against anyway — once a social/following feed exists (someone else's
-/// activities mixed in), that caller passes the real comparison instead.
+/// [isOwnActivity] is caller-supplied rather than derived here: the caller
+/// knows who is viewing (the social feed keeps the viewer's id alongside the
+/// page), and an item's author now comes from the feed itself, so the
+/// comparison belongs where both are in scope.
 class ActivityCardFooter extends StatelessWidget {
   const ActivityCardFooter({
     super.key,

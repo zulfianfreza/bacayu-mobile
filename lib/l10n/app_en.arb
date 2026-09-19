@@ -437,14 +437,6 @@
   "@awesome": {
     "description": "Dismiss button on the badge-unlocked modal"
   },
-  "feedTitle": "Activity",
-  "@feedTitle": {
-    "description": "Feed page app bar title"
-  },
-  "feedEmpty": "No activity yet — start a reading session to see it here.",
-  "@feedEmpty": {
-    "description": "Feed empty state"
-  },
   "activityNotAvailable": "This activity isn't available.",
   "@activityNotAvailable": {
     "description": "ActivityDetailPage fallback when reached without the Activity in memory (e.g. a future deep link) — there's no fetch-by-id endpoint yet, only the feed list"
@@ -500,17 +492,17 @@
   "@recentActivity": {
     "description": "Home page section heading"
   },
-  "viewAllActivity": "View all",
-  "@viewAllActivity": {
-    "description": "Link at the end of the home page's Recent activity section, opens Feed"
+  "findFriendsHeadline": "Find reading friends",
+  "@findFriendsHeadline": {
+    "description": "Home page empty social feed — headline of the find-friends call to action"
   },
-  "startFirstSessionCta": "Start your first reading session",
-  "@startFirstSessionCta": {
-    "description": "Home page empty-state call to action (new user, no sessions yet)"
+  "findFriendsBody": "Follow people to see what they're reading. Their activity shows up here.",
+  "@findFriendsBody": {
+    "description": "Home page empty social feed — supporting text"
   },
-  "startFirstSessionBody": "Pick a book from your shelf and start your first timer.",
-  "@startFirstSessionBody": {
-    "description": "Home page empty-state supporting text"
+  "findFriends": "Find friends",
+  "@findFriends": {
+    "description": "Home page empty social feed — CTA button, opens the leaderboard"
   },
   "followersTitle": "Followers",
   "@followersTitle": {

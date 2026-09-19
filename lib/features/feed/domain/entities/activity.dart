@@ -37,13 +37,13 @@ class SessionActivityPayload extends ActivityPayload {
 
   @override
   List<Object?> get props => [
-        bookId,
-        bookTitle,
-        bookCoverUrl,
-        pagesRead,
-        speedPpm,
-        activeDurationSeconds,
-      ];
+    bookId,
+    bookTitle,
+    bookCoverUrl,
+    pagesRead,
+    speedPpm,
+    activeDurationSeconds,
+  ];
 }
 
 class BadgeActivityPayload extends ActivityPayload {
@@ -61,9 +61,28 @@ class BadgeActivityPayload extends ActivityPayload {
   List<Object?> get props => [badgeName, badgeIcon, badgeDescription];
 }
 
+/// Who posted an activity. Filled fresh per request by the backend's batch
+/// user lookup (not part of the denormalized [ActivityPayload] snapshot), so a
+/// profile edit shows up on the next load.
+class ActivityAuthor extends Equatable {
+  const ActivityAuthor({
+    required this.id,
+    required this.name,
+    required this.avatarUrl,
+  });
+
+  final String id;
+  final String name;
+  final String? avatarUrl;
+
+  @override
+  List<Object?> get props => [id, name, avatarUrl];
+}
+
 class Activity extends Equatable {
   const Activity({
     required this.id,
+    required this.author,
     required this.occurredAt,
     required this.payload,
     required this.likeCount,
@@ -72,6 +91,11 @@ class Activity extends Equatable {
   });
 
   final String id;
+
+  /// The user who posted it — in a social feed this is someone else, which is
+  /// also how a card knows whether the "..." visibility menu is its to show.
+  final ActivityAuthor author;
+
   final DateTime occurredAt;
   final ActivityPayload payload;
 
@@ -82,6 +106,13 @@ class Activity extends Equatable {
   final bool isLiked;
 
   @override
-  List<Object?> get props =>
-      [id, occurredAt, payload, likeCount, commentCount, isLiked];
+  List<Object?> get props => [
+    id,
+    author,
+    occurredAt,
+    payload,
+    likeCount,
+    commentCount,
+    isLiked,
+  ];
 }

@@ -347,13 +347,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get awesome => 'Keren!';
 
   @override
-  String get feedTitle => 'Aktivitas';
-
-  @override
-  String get feedEmpty =>
-      'Belum ada aktivitas — mulai sesi baca buat lihat di sini.';
-
-  @override
   String get activityNotAvailable => 'Aktivitas ini tidak tersedia.';
 
   @override
@@ -390,14 +383,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get recentActivity => 'Aktivitas terbaru';
 
   @override
-  String get viewAllActivity => 'Lihat semua';
+  String get findFriendsHeadline => 'Cari teman baca';
 
   @override
-  String get startFirstSessionCta => 'Mulai sesi membaca pertamamu';
+  String get findFriendsBody =>
+      'Follow teman biar aktivitas bacanya muncul di sini.';
 
   @override
-  String get startFirstSessionBody =>
-      'Pilih buku dari rakmu dan mulai timer pertamamu.';
+  String get findFriends => 'Cari teman';
 
   @override
   String get followersTitle => 'Pengikut';

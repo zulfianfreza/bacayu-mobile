@@ -11,6 +11,7 @@ const _typeBadgeUnlocked = 'badge_unlocked';
 class ActivityModel extends Activity {
   const ActivityModel({
     required super.id,
+    required super.author,
     required super.occurredAt,
     required super.payload,
     required super.likeCount,
@@ -24,11 +25,20 @@ class ActivityModel extends Activity {
 
     return ActivityModel(
       id: json['id'] as String,
+      author: _authorFromJson(json['user'] as Map<String, dynamic>),
       occurredAt: DateTime.parse(json['occurred_at'] as String),
       payload: _payloadFromJson(activityType, payloadJson),
       likeCount: (json['like_count'] as num?)?.toInt() ?? 0,
       commentCount: (json['comment_count'] as num?)?.toInt() ?? 0,
       isLiked: json['is_liked'] as bool? ?? false,
+    );
+  }
+
+  static ActivityAuthor _authorFromJson(Map<String, dynamic> json) {
+    return ActivityAuthor(
+      id: json['id'] as String,
+      name: json['name'] as String? ?? '',
+      avatarUrl: json['avatar_url'] as String?,
     );
   }
 
@@ -54,7 +64,9 @@ class ActivityModel extends Activity {
           badgeDescription: payloadJson['badge_description'] as String? ?? '',
         );
       default:
-        throw ArgumentError('Unknown activity_type from backend: $activityType');
+        throw ArgumentError(
+          'Unknown activity_type from backend: $activityType',
+        );
     }
   }
 }

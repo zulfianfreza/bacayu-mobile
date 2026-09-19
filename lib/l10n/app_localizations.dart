@@ -734,18 +734,6 @@ abstract class AppLocalizations {
   /// **'Awesome!'**
   String get awesome;
 
-  /// Feed page app bar title
-  ///
-  /// In en, this message translates to:
-  /// **'Activity'**
-  String get feedTitle;
-
-  /// Feed empty state
-  ///
-  /// In en, this message translates to:
-  /// **'No activity yet — start a reading session to see it here.'**
-  String get feedEmpty;
-
   /// ActivityDetailPage fallback when reached without the Activity in memory (e.g. a future deep link) — there's no fetch-by-id endpoint yet, only the feed list
   ///
   /// In en, this message translates to:
@@ -806,23 +794,23 @@ abstract class AppLocalizations {
   /// **'Recent activity'**
   String get recentActivity;
 
-  /// Link at the end of the home page's Recent activity section, opens Feed
+  /// Home page empty social feed — headline of the find-friends call to action
   ///
   /// In en, this message translates to:
-  /// **'View all'**
-  String get viewAllActivity;
+  /// **'Find reading friends'**
+  String get findFriendsHeadline;
 
-  /// Home page empty-state call to action (new user, no sessions yet)
+  /// Home page empty social feed — supporting text
   ///
   /// In en, this message translates to:
-  /// **'Start your first reading session'**
-  String get startFirstSessionCta;
+  /// **'Follow people to see what they\'re reading. Their activity shows up here.'**
+  String get findFriendsBody;
 
-  /// Home page empty-state supporting text
+  /// Home page empty social feed — CTA button, opens the leaderboard
   ///
   /// In en, this message translates to:
-  /// **'Pick a book from your shelf and start your first timer.'**
-  String get startFirstSessionBody;
+  /// **'Find friends'**
+  String get findFriends;
 
   /// Followers page app bar title
   ///

@@ -28,6 +28,7 @@ class _MockGetBookDetail extends Mock implements GetBookDetail {}
 
 final _sessionActivity = Activity(
   id: 'act-1',
+  author: const ActivityAuthor(id: 'u1', name: 'Julian', avatarUrl: null),
   occurredAt: DateTime(2026, 1, 1),
   payload: const SessionActivityPayload(
     bookId: 'book-1',
@@ -51,11 +52,14 @@ void main() {
     // Never-resolving futures — these tests only assert on navigation, not
     // on the fetched comments/user/book content.
     when(() => listComments.call(any())).thenAnswer(
-        (_) => Completer<Either<Failure, List<ActivityComment>>>().future);
-    when(() => getCurrentUser.call())
-        .thenAnswer((_) => Completer<Either<Failure, User>>().future);
-    when(() => getBookDetail.call(any()))
-        .thenAnswer((_) => Completer<Either<Failure, Book>>().future);
+      (_) => Completer<Either<Failure, List<ActivityComment>>>().future,
+    );
+    when(
+      () => getCurrentUser.call(),
+    ).thenAnswer((_) => Completer<Either<Failure, User>>().future);
+    when(
+      () => getBookDetail.call(any()),
+    ).thenAnswer((_) => Completer<Either<Failure, Book>>().future);
 
     getIt
       ..registerFactory<ListComments>(() => listComments)
@@ -75,30 +79,39 @@ void main() {
   }
 
   testWidgets(
-      'tapping the book cover/title navigates to BookDetailPage with the '
-      "activity's book id", (tester) async {
-    await tester.pumpWidget(wrap(
-      ActivityDetailPage(activityId: _sessionActivity.id, activity: _sessionActivity),
-    ));
-    await tester.pump();
+    'tapping the book cover/title navigates to BookDetailPage with the '
+    "activity's book id",
+    (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          ActivityDetailPage(
+            activityId: _sessionActivity.id,
+            activity: _sessionActivity,
+          ),
+        ),
+      );
+      await tester.pump();
 
-    await tester.tap(find.text('Atomic Habits'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.text('Atomic Habits'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.byType(BookDetailPage), findsOneWidget);
-    final page = tester.widget<BookDetailPage>(find.byType(BookDetailPage));
-    expect(page.bookId, 'book-1');
-  });
+      expect(find.byType(BookDetailPage), findsOneWidget);
+      final page = tester.widget<BookDetailPage>(find.byType(BookDetailPage));
+      expect(page.bookId, 'book-1');
+    },
+  );
 
-  testWidgets('renders the activity-not-available fallback when reached without an Activity',
-      (tester) async {
-    await tester.pumpWidget(wrap(
-      const ActivityDetailPage(activityId: 'act-1', activity: null),
-    ));
-    await tester.pump();
+  testWidgets(
+    'renders the activity-not-available fallback when reached without an Activity',
+    (tester) async {
+      await tester.pumpWidget(
+        wrap(const ActivityDetailPage(activityId: 'act-1', activity: null)),
+      );
+      await tester.pump();
 
-    expect(find.byType(BookDetailPage), findsNothing);
-    expect(find.text("This activity isn't available."), findsOneWidget);
-  });
+      expect(find.byType(BookDetailPage), findsNothing);
+      expect(find.text("This activity isn't available."), findsOneWidget);
+    },
+  );
 }

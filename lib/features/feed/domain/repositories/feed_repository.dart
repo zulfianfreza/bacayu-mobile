@@ -1,13 +1,17 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failure.dart';
-import '../entities/activity.dart';
+import '../entities/activity_page.dart';
 
 abstract class FeedRepository {
-  /// [cursor] is the `occurred_at` (ISO-8601) of the last activity from the
-  /// previous page — the backend has no server-returned "next cursor" to
-  /// hand back (its `FeedMeta.next_cursor` field exists in the DTO but the
-  /// handler never populates it), so the caller derives it from the last
-  /// item it already has.
-  Future<Either<Failure, List<Activity>>> getFeed({String? cursor});
+  /// `GET /feed` — the requester's OWN activities, newest first.
+  ///
+  /// [cursor] is the `meta.next_cursor` from the previous page (an opaque
+  /// `occurred_at` token the backend formats); `null` starts from the top.
+  Future<Either<Failure, ActivityPage>> getFeed({String? cursor});
+
+  /// `GET /feed/social` — activities from the people the requester follows,
+  /// restricted server-side to `visibility` `followers`/`public`, newest
+  /// first. Same cursor contract as [getFeed].
+  Future<Either<Failure, ActivityPage>> getSocialFeed({String? cursor});
 }

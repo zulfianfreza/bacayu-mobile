@@ -347,13 +347,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get awesome => 'Awesome!';
 
   @override
-  String get feedTitle => 'Activity';
-
-  @override
-  String get feedEmpty =>
-      'No activity yet — start a reading session to see it here.';
-
-  @override
   String get activityNotAvailable => 'This activity isn\'t available.';
 
   @override
@@ -390,14 +383,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recentActivity => 'Recent activity';
 
   @override
-  String get viewAllActivity => 'View all';
+  String get findFriendsHeadline => 'Find reading friends';
 
   @override
-  String get startFirstSessionCta => 'Start your first reading session';
+  String get findFriendsBody =>
+      'Follow people to see what they\'re reading. Their activity shows up here.';
 
   @override
-  String get startFirstSessionBody =>
-      'Pick a book from your shelf and start your first timer.';
+  String get findFriends => 'Find friends';
 
   @override
   String get followersTitle => 'Followers';

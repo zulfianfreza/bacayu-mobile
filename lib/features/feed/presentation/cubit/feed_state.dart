@@ -25,15 +25,25 @@ class FeedLoaded extends FeedState {
     required this.hasMore,
     required this.isLoadingMore,
     required this.cursor,
+    required this.viewerId,
   });
 
   final List<Activity> activities;
+
+  /// Whether the backend handed back a `next_cursor` — i.e. there is another
+  /// page to ask for. Read from the server, never inferred from item count.
   final bool hasMore;
+
   final bool isLoadingMore;
 
-  /// `occurred_at` of the last activity — what the next `loadMore()` call
-  /// sends as `cursor`.
+  /// The `meta.next_cursor` from the last page — what `loadMore()` sends back
+  /// as `cursor`. `null` on the last page.
   final String? cursor;
+
+  /// The signed-in user's id. Cards compare it against an activity's author to
+  /// decide whether the item is the viewer's own (and so may show the
+  /// visibility menu).
+  final String viewerId;
 
   FeedLoaded copyWith({
     List<Activity>? activities,
@@ -46,11 +56,18 @@ class FeedLoaded extends FeedState {
       hasMore: hasMore ?? this.hasMore,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       cursor: cursor ?? this.cursor,
+      viewerId: viewerId,
     );
   }
 
   @override
-  List<Object?> get props => [activities, hasMore, isLoadingMore, cursor];
+  List<Object?> get props => [
+    activities,
+    hasMore,
+    isLoadingMore,
+    cursor,
+    viewerId,
+  ];
 }
 
 class FeedError extends FeedState {

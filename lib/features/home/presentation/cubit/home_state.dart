@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 
 import '../../../../core/error/failure.dart';
-import '../../../feed/domain/entities/activity.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../../stats/domain/entities/daily_stat.dart';
 
@@ -28,8 +27,6 @@ class HomeLoaded extends HomeState {
     required this.longestStreak,
     required this.last7Days,
     required this.continueReading,
-    required this.recentActivity,
-    required this.isEmptyState,
   });
 
   final String userName;
@@ -41,24 +38,15 @@ class HomeLoaded extends HomeState {
   final List<DailyStat> last7Days;
   final List<UserBook> continueReading;
 
-  /// Already trimmed to the small preview count shown on Home.
-  final List<Activity> recentActivity;
-
-  /// True only when the user has never submitted a session at all
-  /// (feed is empty AND current_streak is 0) — both conditions, not either.
-  final bool isEmptyState;
-
   @override
   List<Object?> get props => [
-        userName,
-        avatarUrl,
-        currentStreak,
-        longestStreak,
-        last7Days,
-        continueReading,
-        recentActivity,
-        isEmptyState,
-      ];
+    userName,
+    avatarUrl,
+    currentStreak,
+    longestStreak,
+    last7Days,
+    continueReading,
+  ];
 }
 
 class HomeError extends HomeState {

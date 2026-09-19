@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -12,11 +14,11 @@ import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/chunky_button.dart';
 import '../../../../core/widgets/raised_box.dart';
 import '../../../feed/domain/entities/activity.dart';
-import '../../../feed/presentation/pages/feed_page.dart';
+import '../../../feed/presentation/cubit/feed_cubit.dart';
+import '../../../feed/presentation/cubit/feed_state.dart';
 import '../../../feed/presentation/widgets/activity_author_header.dart';
 import '../../../feed/presentation/widgets/badge_activity_card.dart';
 import '../../../feed/presentation/widgets/session_activity_card.dart';
-import '../../../sessions/presentation/widgets/book_picker_bottom_sheet.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../../shelf/presentation/widgets/shelf_book_card.dart';
 import '../../../stats/domain/entities/daily_stat.dart';
@@ -28,25 +30,58 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<HomeCubit>()..load(),
+    // Two cubits, one page: HomeCubit owns the dashboard data, FeedCubit owns
+    // the social feed. The feed is paged on scroll, which is a whole state
+    // machine of its own — folding it into HomeCubit would just hide it.
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<HomeCubit>()..load()),
+        BlocProvider(create: (_) => getIt<FeedCubit>()..refresh()),
+      ],
       child: const _HomeView(),
     );
   }
 }
 
-class _HomeView extends StatelessWidget {
+class _HomeView extends StatefulWidget {
   const _HomeView();
 
-  Future<void> _openBookPicker(BuildContext context) async {
-    await showModalBottomSheet<UserBook>(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
-      ),
-      builder: (_) => const BookPickerBottomSheet(),
-    );
+  @override
+  State<_HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<_HomeView> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  /// The feed pages itself in as the page nears its end — there is no "see
+  /// all", this list *is* the feed.
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final threshold = _scrollController.position.maxScrollExtent - 300;
+    if (_scrollController.position.pixels >= threshold) {
+      context.read<FeedCubit>().loadMore();
+    }
+  }
+
+  Future<void> _refresh() async {
+    await Future.wait([
+      context.read<HomeCubit>().load(),
+      context.read<FeedCubit>().refresh(),
+    ]);
   }
 
   @override
@@ -65,8 +100,9 @@ class _HomeView extends StatelessWidget {
                 ),
               ),
               HomeLoaded() => RefreshIndicator(
-                onRefresh: () => context.read<HomeCubit>().load(),
+                onRefresh: _refresh,
                 child: ListView(
+                  controller: _scrollController,
                   padding: const EdgeInsets.all(16),
                   children: [
                     _Header(
@@ -79,19 +115,11 @@ class _HomeView extends StatelessWidget {
                       last7Days: state.last7Days,
                     ),
                     const SizedBox(height: 24),
-                    if (state.isEmptyState)
-                      _EmptyStateCta(onTap: () => _openBookPicker(context))
-                    else ...[
-                      if (state.continueReading.isNotEmpty) ...[
-                        _ContinueReadingSection(books: state.continueReading),
-                        const SizedBox(height: 24),
-                      ],
-                      _RecentActivitySection(
-                        activities: state.recentActivity,
-                        userName: state.userName,
-                        avatarUrl: state.avatarUrl,
-                      ),
+                    if (state.continueReading.isNotEmpty) ...[
+                      _ContinueReadingSection(books: state.continueReading),
+                      const SizedBox(height: 24),
                     ],
+                    const _ActivityFeed(),
                   ],
                 ),
               ),
@@ -281,71 +309,84 @@ class _ContinueReadingSection extends StatelessWidget {
   }
 }
 
-class _RecentActivitySection extends StatelessWidget {
-  const _RecentActivitySection({
-    required this.activities,
-    required this.userName,
-    required this.avatarUrl,
-  });
-
-  final List<Activity> activities;
-  final String userName;
-  final String avatarUrl;
+/// The social feed: everyone the viewer follows, newest first. Pages itself in
+/// as the page scrolls.
+class _ActivityFeed extends StatelessWidget {
+  const _ActivityFeed();
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(l10n.recentActivity, style: AppTypography.heading),
-            TextButton(
-              style: TextButton.styleFrom(padding: EdgeInsets.zero),
-              onPressed: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const FeedPage())),
-              child: Text(l10n.viewAllActivity),
-            ),
-          ],
-        ),
-        for (final activity in activities)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            // Activities are posts: each card introduces its author and its
-            // own timestamp, so one header per activity — never shared.
-            child: switch (activity.payload) {
-              SessionActivityPayload() => SessionActivityCard(
-                activity: activity,
-                author: _authorOf(activity),
-              ),
-              BadgeActivityPayload() => BadgeActivityCard(
-                activity: activity,
-                author: _authorOf(activity),
-              ),
-            },
+    return BlocBuilder<FeedCubit, FeedState>(
+      builder: (context, state) {
+        return switch (state) {
+          FeedInitial() || FeedLoading() => const Padding(
+            padding: EdgeInsets.symmetric(vertical: 48),
+            child: Center(child: CircularProgressIndicator()),
           ),
-      ],
+          FeedError(:final failure) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Text(
+              failure.localizedMessage(context),
+              style: AppTypography.body,
+            ),
+          ),
+          FeedLoaded(
+            :final activities,
+            :final isLoadingMore,
+            :final viewerId,
+          ) =>
+            activities.isEmpty
+                ? const _FindFriendsCta()
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.recentActivity, style: AppTypography.heading),
+                      const SizedBox(height: 12),
+                      for (final activity in activities)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          // Activities are posts: each card introduces its own
+                          // author and timestamp — now the real one from the
+                          // feed, not the signed-in user by assumption.
+                          child: switch (activity.payload) {
+                            SessionActivityPayload() => SessionActivityCard(
+                              activity: activity,
+                              isOwnActivity: activity.author.id == viewerId,
+                              author: _authorOf(activity),
+                            ),
+                            BadgeActivityPayload() => BadgeActivityCard(
+                              activity: activity,
+                              isOwnActivity: activity.author.id == viewerId,
+                              author: _authorOf(activity),
+                            ),
+                          },
+                        ),
+                      if (isLoadingMore)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                    ],
+                  ),
+        };
+      },
     );
   }
 
-  /// Activities are posts, so every card is introduced by its author. The feed
-  /// endpoint only returns the requester's own activities for now, which makes
-  /// that author the signed-in user.
   ActivityAuthorHeader _authorOf(Activity activity) => ActivityAuthorHeader(
-    name: userName,
-    avatarUrl: avatarUrl,
+    name: activity.author.name,
+    avatarUrl: activity.author.avatarUrl,
     occurredAt: activity.occurredAt,
   );
 }
 
-class _EmptyStateCta extends StatelessWidget {
-  const _EmptyStateCta({required this.onTap});
-
-  final VoidCallback onTap;
+/// Shown instead of the feed when there is nothing in it — which, on a social
+/// feed, means the reader follows nobody yet rather than that they haven't
+/// read anything.
+class _FindFriendsCta extends StatelessWidget {
+  const _FindFriendsCta();
 
   @override
   Widget build(BuildContext context) {
@@ -358,24 +399,27 @@ class _EmptyStateCta extends StatelessWidget {
       child: Column(
         children: [
           const Icon(
-            Icons.menu_book_outlined,
+            Icons.people_outline,
             size: 40,
             color: AppColors.tangerine300,
           ),
           const SizedBox(height: 16),
           Text(
-            l10n.startFirstSessionCta,
+            l10n.findFriendsHeadline,
             style: AppTypography.heading,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            l10n.startFirstSessionBody,
+            l10n.findFriendsBody,
             style: AppTypography.body,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
-          ChunkyButton(label: l10n.startSession, onPressed: onTap),
+          ChunkyButton(
+            label: l10n.findFriends,
+            onPressed: () => context.push(AppRoutes.leaderboard),
+          ),
         ],
       ),
     );
