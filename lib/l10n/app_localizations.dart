@@ -926,6 +926,12 @@ abstract class AppLocalizations {
   /// **'Following'**
   String get followingButton;
 
+  /// Following list — the listed user follows you back
+  ///
+  /// In en, this message translates to:
+  /// **'Follows you back'**
+  String get followsYouBack;
+
   /// Followers page empty state
   ///
   /// In en, this message translates to:

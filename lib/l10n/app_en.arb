@@ -580,6 +580,10 @@
   "@followingButton": {
     "description": "Follow button label when already following (tap to unfollow)"
   },
+  "followsYouBack": "Follows you back",
+  "@followsYouBack": {
+    "description": "Following list — the listed user follows you back"
+  },
   "noFollowers": "No followers yet",
   "@noFollowers": {
     "description": "Followers page empty state"

@@ -453,6 +453,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get followingButton => 'Mengikuti';
 
   @override
+  String get followsYouBack => 'Follow kamu balik';
+
+  @override
   String get noFollowers => 'Belum ada pengikut';
 
   @override

@@ -83,12 +83,10 @@ class FollowCubit extends Cubit<FollowState> {
         final updatedUsers = [
           for (final u in latest.users)
             if (u.id == user.id)
-              FollowedUser(
-                id: u.id,
-                name: u.name,
-                avatarUrl: u.avatarUrl,
-                isFollowing: willFollow,
-              )
+              // copyWith, not a fresh FollowedUser: the flip only touches
+              // isFollowing, and rebuilding by hand is how the "follows you
+              // back" flag gets silently dropped.
+              u.copyWith(isFollowing: willFollow)
             else
               u,
         ];

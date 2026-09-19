@@ -47,7 +47,7 @@ class SocialRepositoryImpl implements SocialRepository {
       final json = await _remote.listFollowers();
       final users = json
           .cast<Map<String, dynamic>>()
-          .map((j) => FollowedUserModel.fromJson(j, isFollowing: false))
+          .map(FollowedUserModel.fromJson)
           .toList();
       return Right(users);
     } on DioException catch (e) {
@@ -61,7 +61,7 @@ class SocialRepositoryImpl implements SocialRepository {
       final json = await _remote.listFollowing();
       final users = json
           .cast<Map<String, dynamic>>()
-          .map((j) => FollowedUserModel.fromJson(j, isFollowing: true))
+          .map(FollowedUserModel.fromJson)
           .toList();
       return Right(users);
     } on DioException catch (e) {

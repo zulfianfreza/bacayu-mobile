@@ -10,19 +10,36 @@ class FollowedUser extends Equatable {
     required this.name,
     required this.avatarUrl,
     required this.isFollowing,
+    required this.isFollowedBy,
   });
 
   final String id;
   final String name;
   final String? avatarUrl;
 
-  /// For the "following" list this is trivially always true. For
-  /// "followers", the backend doesn't report whether you follow them back
-  /// (`GET /social/followers` has no reciprocal-follow flag), so this
-  /// starts `false` there and only reflects what's changed locally this
-  /// session via `FollowCubit.toggleFollow`.
+  /// Whether *you* follow this user — the state the follow button shows.
+  ///
+  /// Comes from the list response itself, so a followers list paints the
+  /// right button on the first frame: someone you already follow back must
+  /// not be offered "Follow" again.
   final bool isFollowing;
 
+  /// Whether this user follows *you* — "follows you back".
+  ///
+  /// Only worth showing on the following list. On a followers list every row
+  /// is true by definition (that is what put them there), so the page hides it.
+  final bool isFollowedBy;
+
+  FollowedUser copyWith({bool? isFollowing}) {
+    return FollowedUser(
+      id: id,
+      name: name,
+      avatarUrl: avatarUrl,
+      isFollowing: isFollowing ?? this.isFollowing,
+      isFollowedBy: isFollowedBy,
+    );
+  }
+
   @override
-  List<Object?> get props => [id, name, avatarUrl, isFollowing];
+  List<Object?> get props => [id, name, avatarUrl, isFollowing, isFollowedBy];
 }

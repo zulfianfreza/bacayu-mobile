@@ -43,7 +43,13 @@ void main() {
       code: 'CANNOT_FOLLOW_SELF',
       message: 'cannot follow yourself',
     );
-    const me = FollowedUser(id: 'me', name: 'Me', avatarUrl: null, isFollowing: false);
+    const me = FollowedUser(
+      id: 'me',
+      name: 'Me',
+      avatarUrl: null,
+      isFollowing: false,
+      isFollowedBy: true,
+    );
 
     when(() => repository.listFollowers()).thenAnswer((_) async => const Right([me]));
     when(() => repository.followUser(any())).thenAnswer((_) async => const Left(failure));
@@ -61,8 +67,13 @@ void main() {
 
   test('toggling still works right after a previous toggle failed (not stuck)',
       () async {
-    const other =
-        FollowedUser(id: 'u2', name: 'Other', avatarUrl: null, isFollowing: false);
+    const other = FollowedUser(
+      id: 'u2',
+      name: 'Other',
+      avatarUrl: null,
+      isFollowing: false,
+      isFollowedBy: false,
+    );
 
     when(() => repository.listFollowers())
         .thenAnswer((_) async => const Right([other]));

@@ -452,6 +452,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get followingButton => 'Following';
 
   @override
+  String get followsYouBack => 'Follows you back';
+
+  @override
   String get noFollowers => 'No followers yet';
 
   @override
