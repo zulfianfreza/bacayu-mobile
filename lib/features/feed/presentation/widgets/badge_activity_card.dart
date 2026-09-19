@@ -6,6 +6,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/bordered_card.dart';
 import '../../domain/entities/activity.dart';
 import 'activity_author_header.dart';
 import 'activity_card_footer.dart';
@@ -41,57 +42,65 @@ class BadgeActivityCard extends StatelessWidget {
     final l10n = context.l10n;
     final payload = activity.payload as BadgeActivityPayload;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.sunshine100,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
+    return BorderedCard(
+      color: AppColors.sunshine50,
+      // Tinted border rather than the neutral hairline: on a yellow card, the
+      // warm grey edge reads as a mistake.
+      borderColor: AppColors.sunshine300,
+      radius: AppRadius.md,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (author != null) ...[author!, const SizedBox(height: 12)],
-          InkWell(
-            onTap: () => _openDetail(context),
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.sunshine500,
+          Material(
+            // Transparent so the card's own colour still shows, but the tap
+            // ripple has something to paint on.
+            type: MaterialType.transparency,
+            child: InkWell(
+              onTap: () => _openDetail(context),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.sunshine500,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      payload.badgeIcon,
+                      style: const TextStyle(fontSize: 24),
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    payload.badgeIcon,
-                    style: const TextStyle(fontSize: 24),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.newBadge,
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.sunshine700,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.newBadge,
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.sunshine700,
+                          ),
                         ),
-                      ),
-                      Text(payload.badgeName, style: AppTypography.subheading),
-                      const SizedBox(height: 2),
-                      Text(
-                        payload.badgeDescription,
-                        style: AppTypography.caption,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                        Text(
+                          payload.badgeName,
+                          style: AppTypography.subheading,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          payload.badgeDescription,
+                          style: AppTypography.caption,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           ActivityCardFooter(activity: activity, isOwnActivity: isOwnActivity),

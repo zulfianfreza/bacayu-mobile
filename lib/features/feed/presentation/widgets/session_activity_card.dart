@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
+import '../../../../core/widgets/bordered_card.dart';
 import '../../domain/entities/activity.dart';
 import 'activity_author_header.dart';
 import 'activity_card_footer.dart';
@@ -42,14 +43,18 @@ class SessionActivityCard extends StatelessWidget {
     final l10n = context.l10n;
     final payload = activity.payload as SessionActivityPayload;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (author != null) ...[author!, const SizedBox(height: 12)],
-            InkWell(
+    return BorderedCard(
+      radius: AppRadius.md,
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (author != null) ...[author!, const SizedBox(height: 12)],
+          Material(
+            // Transparent so the card's own colour still shows, but the tap
+            // ripple has something to paint on.
+            type: MaterialType.transparency,
+            child: InkWell(
               onTap: () => _openDetail(context),
               borderRadius: BorderRadius.circular(AppRadius.sm),
               child: Row(
@@ -80,20 +85,19 @@ class SessionActivityCard extends StatelessWidget {
                           style: AppTypography.subheading,
                         ),
                         const SizedBox(height: 4),
+                        // One line, not three: the three numbers are read as a
+                        // set ("what did this session amount to"), and stacking
+                        // them made the card twice as tall as its content.
                         Text(
-                          formatSessionDuration(
-                            Duration(seconds: payload.activeDurationSeconds),
-                          ),
-                          style: AppTypography.caption,
-                        ),
-                        Text(
-                          l10n.pagesCount(payload.pagesRead),
-                          style: AppTypography.caption,
-                        ),
-                        Text(
-                          l10n.speedPpmValue(
-                            payload.speedPpm.toStringAsFixed(1),
-                          ),
+                          [
+                            formatSessionDuration(
+                              Duration(seconds: payload.activeDurationSeconds),
+                            ),
+                            l10n.pagesCount(payload.pagesRead),
+                            l10n.speedPpmValue(
+                              payload.speedPpm.toStringAsFixed(1),
+                            ),
+                          ].join(' · '),
                           style: AppTypography.caption,
                         ),
                       ],
@@ -102,12 +106,9 @@ class SessionActivityCard extends StatelessWidget {
                 ],
               ),
             ),
-            ActivityCardFooter(
-              activity: activity,
-              isOwnActivity: isOwnActivity,
-            ),
-          ],
-        ),
+          ),
+          ActivityCardFooter(activity: activity, isOwnActivity: isOwnActivity),
+        ],
       ),
     );
   }

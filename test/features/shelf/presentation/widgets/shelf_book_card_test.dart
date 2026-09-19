@@ -24,37 +24,37 @@ class _MockShelfRepository extends Mock implements ShelfRepository {}
 
 class _MockBookRepository extends Mock implements BookRepository {}
 
-const _book = Book(
+Book _book(String title) => Book(
   id: 'book-1',
   source: 'google_books',
   googleBooksId: 'g1',
   isbn10: null,
   isbn13: null,
-  title: 'Atomic Habits',
-  authors: ['James Clear'],
+  title: title,
+  authors: const ['James Clear'],
   description: null,
   coverUrl: null,
   totalPages: 320,
   language: 'en',
-  genres: [],
+  genres: const [],
   publishedDate: '2018',
 );
 
 UserBook _userBook({
+  String title = 'Atomic Habits',
   ShelfStatus status = ShelfStatus.reading,
   int currentPage = 50,
-}) =>
-    UserBook(
-      id: 'ub-1',
-      book: _book,
-      status: status,
-      format: null,
-      currentPage: currentPage,
-      startedAt: null,
-      finishedAt: null,
-      rating: null,
-      isReread: false,
-    );
+}) => UserBook(
+  id: 'ub-1',
+  book: _book(title),
+  status: status,
+  format: null,
+  currentPage: currentPage,
+  startedAt: null,
+  finishedAt: null,
+  rating: null,
+  isReread: false,
+);
 
 void main() {
   late _MockShelfRepository shelfRepository;
@@ -67,8 +67,9 @@ void main() {
     // with a Future that never resolves. These tests only assert on
     // navigation having happened (and with which bookId), not on the
     // detail page's fetched content.
-    when(() => bookRepository.getById(any()))
-        .thenAnswer((_) => Completer<Either<Failure, Book>>().future);
+    when(
+      () => bookRepository.getById(any()),
+    ).thenAnswer((_) => Completer<Either<Failure, Book>>().future);
 
     if (getIt.isRegistered<GetBookDetail>()) getIt.unregister<GetBookDetail>();
     getIt.registerFactory<GetBookDetail>(() => GetBookDetail(bookRepository));
@@ -101,7 +102,8 @@ void main() {
     );
   }
 
-  /// Mirrors how the home screen's "Continue reading" row sizes itself.
+  /// Mirrors how the home screen's "Continue reading" row sizes itself: a
+  /// fixed slot width, and no height of its own.
   Widget wrapCompact(UserBook userBook, {double textScale = 1.0}) {
     return BlocProvider<ShelfCubit>(
       create: (_) => ShelfCubit(
@@ -114,14 +116,17 @@ void main() {
         home: Scaffold(
           body: Builder(
             builder: (outer) => MediaQuery(
-              data: MediaQuery.of(outer)
-                  .copyWith(textScaler: TextScaler.linear(textScale)),
-              child: Builder(
-                builder: (context) => SizedBox(
-                  width: 280,
-                  height: ShelfBookCard.compactHeightFor(context),
-                  child: ShelfBookCard.compact(userBook: userBook),
-                ),
+              data: MediaQuery.of(
+                outer,
+              ).copyWith(textScaler: TextScaler.linear(textScale)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 280,
+                    child: ShelfBookCard.compact(userBook: userBook),
+                  ),
+                ],
               ),
             ),
           ),
@@ -130,22 +135,26 @@ void main() {
     );
   }
 
-  testWidgets(
-      'tapping the cover/title area navigates to BookDetailPage with the '
-      "book's id", (tester) async {
-    await tester.pumpWidget(wrap(_userBook()));
-
-    await tester.tap(find.text('Atomic Habits'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    expect(find.byType(BookDetailPage), findsOneWidget);
-    final page = tester.widget<BookDetailPage>(find.byType(BookDetailPage));
-    expect(page.bookId, 'book-1');
-  });
+  double compactHeight(WidgetTester tester) =>
+      tester.getSize(find.byType(ShelfBookCard)).height;
 
   testWidgets(
-      'tapping the progress bar area also navigates to BookDetailPage '
+    'tapping the cover/title area navigates to BookDetailPage with the '
+    "book's id",
+    (tester) async {
+      await tester.pumpWidget(wrap(_userBook()));
+
+      await tester.tap(find.text('Atomic Habits'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byType(BookDetailPage), findsOneWidget);
+      final page = tester.widget<BookDetailPage>(find.byType(BookDetailPage));
+      expect(page.bookId, 'book-1');
+    },
+  );
+
+  testWidgets('tapping the progress bar area also navigates to BookDetailPage '
       '(status: reading)', (tester) async {
     await tester.pumpWidget(wrap(_userBook(status: ShelfStatus.reading)));
 
@@ -159,20 +168,22 @@ void main() {
   });
 
   testWidgets(
-      'tapping the cover navigates to BookDetailPage with the book\'s id',
-      (tester) async {
-    await tester.pumpWidget(wrap(_userBook()));
+    'tapping the cover navigates to BookDetailPage with the book\'s id',
+    (tester) async {
+      await tester.pumpWidget(wrap(_userBook()));
 
-    // No cover URL in the fixture, so the placeholder is the cover.
-    await tester.tap(find.byIcon(Icons.menu_book));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+      // No cover URL in the fixture, so the placeholder is the cover.
+      await tester.tap(find.byIcon(Icons.menu_book));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.byType(BookDetailPage), findsOneWidget);
-  });
+      expect(find.byType(BookDetailPage), findsOneWidget);
+    },
+  );
 
-  testWidgets('a long title is laid out in full, never ellipsized',
-      (tester) async {
+  testWidgets('a long title is laid out in full, never ellipsized', (
+    tester,
+  ) async {
     const long = 'The 100-Year-Old Man Who Climbed Out the Window';
     await tester.pumpWidget(
       wrap(
@@ -211,32 +222,50 @@ void main() {
   });
 
   testWidgets(
-      'tapping the status chip opens StatusPickerBottomSheet, and does NOT '
-      'navigate to BookDetailPage', (tester) async {
-    await tester.pumpWidget(wrap(_userBook(status: ShelfStatus.reading)));
+    'tapping the status chip opens StatusPickerBottomSheet, and does NOT '
+    'navigate to BookDetailPage',
+    (tester) async {
+      await tester.pumpWidget(wrap(_userBook(status: ShelfStatus.reading)));
 
-    // "Reading" only appears once in this tree — as the status chip label.
-    await tester.tap(find.text('Reading'));
-    await tester.pumpAndSettle();
+      // "Reading" only appears once in this tree — as the status chip label.
+      await tester.tap(find.text('Reading'));
+      await tester.pumpAndSettle();
 
-    expect(find.byType(StatusPickerBottomSheet), findsOneWidget);
-    expect(find.byType(BookDetailPage), findsNothing);
-  });
-
-  testWidgets(
-      'compact variant fits the height it declares for a carousel slot, and '
-      'drops the redundant status chip', (tester) async {
-    await tester.pumpWidget(wrapCompact(_userBook()));
-
-    expect(tester.takeException(), isNull);
-    expect(find.text('Reading'), findsNothing);
-    expect(find.byType(LinearProgressIndicator), findsOneWidget);
-    expect(find.text('Atomic Habits'), findsOneWidget);
-  });
+      expect(find.byType(StatusPickerBottomSheet), findsOneWidget);
+      expect(find.byType(BookDetailPage), findsNothing);
+    },
+  );
 
   testWidgets(
-      'compact variant still fits when the user has larger type set',
-      (tester) async {
+    'compact variant is as tall as its content, and drops the redundant '
+    'status chip',
+    (tester) async {
+      await tester.pumpWidget(wrapCompact(_userBook(title: 'Dune')));
+      final oneLine = compactHeight(tester);
+
+      await tester.pumpWidget(wrapCompact(_userBook()));
+      final twoLines = compactHeight(tester);
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Reading'), findsNothing);
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+
+      // Nothing is reserved for a title that isn't there, and nothing is cut
+      // off: more title, taller card.
+      expect(twoLines, greaterThan(oneLine));
+
+      await tester.pumpWidget(
+        wrapCompact(
+          _userBook(title: 'The 100-Year-Old Man Who Climbed Out the Window'),
+        ),
+      );
+      expect(compactHeight(tester), greaterThan(twoLines));
+    },
+  );
+
+  testWidgets('compact variant still fits when the user has larger type set', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrapCompact(_userBook(), textScale: 1.5));
 
     expect(tester.takeException(), isNull);

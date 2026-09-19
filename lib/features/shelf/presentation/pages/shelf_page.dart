@@ -7,7 +7,9 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/chunky_button.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../../core/widgets/raised_box.dart';
 import '../../../books/presentation/pages/book_search_page.dart';
 import '../../domain/entities/user_book.dart';
 import '../cubit/shelf_cubit.dart';
@@ -30,9 +32,9 @@ class _ShelfView extends StatelessWidget {
   const _ShelfView();
 
   void _openAddBook(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const BookSearchPage()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const BookSearchPage()));
   }
 
   @override
@@ -93,9 +95,9 @@ class _ShelfBody extends StatelessWidget {
 
     if (items.isEmpty) {
       return _EmptyShelf(
-        onAddBook: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const BookSearchPage()),
-        ),
+        onAddBook: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const BookSearchPage())),
       );
     }
 
@@ -156,7 +158,11 @@ class _EmptyShelf extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.menu_book_outlined, size: 48, color: AppColors.tangerine300),
+            Icon(
+              Icons.menu_book_outlined,
+              size: 48,
+              color: AppColors.tangerine300,
+            ),
             const SizedBox(height: 16),
             Text(
               l10n.emptyShelfHeadline,
@@ -170,10 +176,7 @@ class _EmptyShelf extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: onAddBook,
-              child: Text(l10n.addABook),
-            ),
+            ChunkyButton(label: l10n.addABook, onPressed: onAddBook),
           ],
         ),
       ),
@@ -198,7 +201,9 @@ class _FilterTabs extends StatelessWidget {
     ];
 
     return SizedBox(
-      height: 48,
+      // Scaled with the user's font size: the pills carry labels, and a fixed
+      // row would clip them the moment someone sets larger type.
+      height: MediaQuery.textScalerOf(context).scale(56),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -206,26 +211,45 @@ class _FilterTabs extends StatelessWidget {
         separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final (status, label) = tabs[index];
-          final isActive = status == activeFilter;
-          return ChoiceChip(
-            label: Text(label),
-            selected: isActive,
-            onSelected: (_) =>
-                context.read<ShelfCubit>().changeFilter(status),
-            showCheckmark: false,
-            selectedColor: AppColors.tangerine500,
-            backgroundColor: AppColors.surface,
-            labelStyle: AppTypography.button.copyWith(
-              color: isActive ? Colors.white : AppColors.inkSoft,
-            ),
-            side: BorderSide(
-              color: isActive ? AppColors.tangerine500 : AppColors.line,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.pill),
-            ),
+          return _FilterTab(
+            label: label,
+            isActive: status == activeFilter,
+            onTap: () => context.read<ShelfCubit>().changeFilter(status),
           );
         },
+      ),
+    );
+  }
+}
+
+/// One shelf filter, built like the range control on Stats: a chunky pill on
+/// its own edge, filled in when it is the active one.
+class _FilterTab extends StatelessWidget {
+  const _FilterTab({
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: RaisedBox(
+        color: isActive ? AppColors.tangerine : AppColors.surface,
+        radius: AppRadius.pill,
+        edgeHeight: 3,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Text(
+          label,
+          style: AppTypography.button.copyWith(
+            color: isActive ? Colors.white : AppColors.inkSoft,
+          ),
+        ),
       ),
     );
   }

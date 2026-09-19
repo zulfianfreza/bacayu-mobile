@@ -8,6 +8,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/raised_box.dart';
 import '../../domain/entities/stats_summary.dart';
 import '../cubit/stats_cubit.dart';
@@ -36,55 +37,87 @@ class _StatsView extends StatelessWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.yourStats)),
-      body: BlocBuilder<StatsCubit, StatsState>(
-        builder: (context, state) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _RangeSegmentedControl(
-                  activeRange: state.range,
-                  onChanged: (range) =>
-                      context.read<StatsCubit>().changeRange(range),
-                ),
-                const SizedBox(height: 20),
-                switch (state) {
-                  StatsLoading() => const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 48),
-                    child: Center(child: CircularProgressIndicator()),
+      // No app bar: the title is the page's own headline, the way Home and
+      // Profile open — one visual language across the tabs.
+      body: SafeArea(
+        child: BlocBuilder<StatsCubit, StatsState>(
+          builder: (context, state) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.yourStats, style: AppTypography.displaySm),
+                  const SizedBox(height: 20),
+                  _RangeSegmentedControl(
+                    activeRange: state.range,
+                    onChanged: (range) =>
+                        context.read<StatsCubit>().changeRange(range),
                   ),
-                  StatsError(:final failure) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Text(
-                      failure.localizedMessage(context),
-                      style: AppTypography.body,
+                  const SizedBox(height: 20),
+                  switch (state) {
+                    StatsLoading() => const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 48),
+                      child: Center(child: CircularProgressIndicator()),
                     ),
-                  ),
-                  StatsLoaded(:final summary, :final heatmap) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _MetricsGrid(summary: summary),
-                      const SizedBox(height: 24),
-                      HeatmapCalendar(
-                        year: DateTime.now().year,
-                        dailyStats: heatmap,
+                    StatsError(:final failure) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Text(
+                        failure.localizedMessage(context),
+                        style: AppTypography.body,
                       ),
-                      const SizedBox(height: 24),
-                      _GenreDistributionChart(
-                        genreDistribution: summary.genreDistribution,
-                      ),
-                      const SizedBox(height: 24),
-                      const BadgePreviewRow(),
-                    ],
-                  ),
-                  StatsInitial() => const SizedBox.shrink(),
-                },
-              ],
-            ),
-          );
-        },
+                    ),
+                    StatsLoaded(:final summary, :final heatmap) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _MetricsGrid(summary: summary),
+                        const SizedBox(height: 20),
+                        _SectionCard(
+                          title: l10n.statsHeatmapTitle,
+                          child: HeatmapCalendar(
+                            year: DateTime.now().year,
+                            dailyStats: heatmap,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _GenreDistributionChart(
+                          genreDistribution: summary.genreDistribution,
+                        ),
+                        const SizedBox(height: 24),
+                        const BadgePreviewRow(),
+                      ],
+                    ),
+                    StatsInitial() => const SizedBox.shrink(),
+                  },
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// A titled chunky card — the page's unit of section, so the heatmap and the
+/// genre chart read as the same kind of object as the metric tiles rather
+/// than as loose widgets on the background.
+class _SectionCard extends StatelessWidget {
+  const _SectionCard({required this.title, required this.child});
+
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return BorderedCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTypography.heading),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }
@@ -239,6 +272,7 @@ class _GenreDistributionChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     if (genreDistribution.isEmpty) return const SizedBox.shrink();
 
     final maxCount = genreDistribution
@@ -246,55 +280,60 @@ class _GenreDistributionChart extends StatelessWidget {
         .reduce((a, b) => a > b ? a : b)
         .toDouble();
 
-    return SizedBox(
-      height: 180,
-      child: BarChart(
-        BarChartData(
-          maxY: maxCount * 1.2,
-          gridData: const FlGridData(show: false),
-          borderData: FlBorderData(show: false),
-          barGroups: [
-            for (var i = 0; i < genreDistribution.length; i++)
-              BarChartGroupData(
-                x: i,
-                barRods: [
-                  BarChartRodData(
-                    toY: genreDistribution[i].count.toDouble(),
-                    color: _colors[i % _colors.length],
-                    width: 20,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(6),
+    return _SectionCard(
+      title: l10n.statsGenresTitle,
+      child: SizedBox(
+        height: 180,
+        child: BarChart(
+          BarChartData(
+            maxY: maxCount * 1.2,
+            gridData: const FlGridData(show: false),
+            borderData: FlBorderData(show: false),
+            barGroups: [
+              for (var i = 0; i < genreDistribution.length; i++)
+                BarChartGroupData(
+                  x: i,
+                  barRods: [
+                    BarChartRodData(
+                      toY: genreDistribution[i].count.toDouble(),
+                      color: _colors[i % _colors.length],
+                      width: 20,
+                      // Rounded like everything else that carries the brand —
+                      // sharp-topped bars read as a charting library default.
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(AppRadius.sm),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+            ],
+            titlesData: FlTitlesData(
+              leftTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
               ),
-          ],
-          titlesData: FlTitlesData(
-            leftTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  final index = value.toInt();
-                  if (index < 0 || index >= genreDistribution.length) {
-                    return const SizedBox.shrink();
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      genreDistribution[index].genre,
-                      style: AppTypography.caption,
-                    ),
-                  );
-                },
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (value, meta) {
+                    final index = value.toInt();
+                    if (index < 0 || index >= genreDistribution.length) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        genreDistribution[index].genre,
+                        style: AppTypography.caption,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ),

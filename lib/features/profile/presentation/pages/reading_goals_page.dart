@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/bordered_card.dart';
+import '../../../../core/widgets/chunky_button.dart';
+import '../../../../core/widgets/raised_box.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/update_profile.dart';
 
@@ -32,14 +36,12 @@ class _ReadingGoalsPageState extends State<ReadingGoalsPage> {
       dailyGoalMinutes: _dailyGoalMinutes,
     );
     if (!mounted) return;
-    result.fold(
-      (failure) => setState(() => _isSaving = false),
-      (_) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(context.l10n.goalsUpdated)));
-        Navigator.of(context).pop(true);
-      },
-    );
+    result.fold((failure) => setState(() => _isSaving = false), (_) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.goalsUpdated)));
+      Navigator.of(context).pop(true);
+    });
   }
 
   @override
@@ -48,87 +50,123 @@ class _ReadingGoalsPageState extends State<ReadingGoalsPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.readingGoals)),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 24),
-            Text(l10n.yearlyReadingGoal, style: AppTypography.subheading),
-            const SizedBox(height: 12),
-            _Stepper(
-              value: _yearlyGoal,
-              label: l10n.booksPerYear(_yearlyGoal),
-              onDecrement:
-                  _yearlyGoal > 1 ? () => setState(() => _yearlyGoal--) : null,
-              onIncrement: () => setState(() => _yearlyGoal++),
-            ),
-            const SizedBox(height: 32),
-            Text(l10n.dailyReadingGoal, style: AppTypography.subheading),
-            const SizedBox(height: 12),
-            _Stepper(
-              value: _dailyGoalMinutes,
-              label: l10n.minutesPerDay(_dailyGoalMinutes),
-              onDecrement: _dailyGoalMinutes > 5
-                  ? () => setState(() => _dailyGoalMinutes -= 5)
-                  : null,
-              onIncrement: () => setState(() => _dailyGoalMinutes += 5),
-            ),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSaving ? null : _save,
-                child: _isSaving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : Text(l10n.save),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 24),
+              _GoalCard(
+                title: l10n.yearlyReadingGoal,
+                value: l10n.booksPerYear(_yearlyGoal),
+                onDecrement: _yearlyGoal > 1
+                    ? () => setState(() => _yearlyGoal--)
+                    : null,
+                onIncrement: () => setState(() => _yearlyGoal++),
               ),
-            ),
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 16),
+              _GoalCard(
+                title: l10n.dailyReadingGoal,
+                value: l10n.minutesPerDay(_dailyGoalMinutes),
+                onDecrement: _dailyGoalMinutes > 5
+                    ? () => setState(() => _dailyGoalMinutes -= 5)
+                    : null,
+                onIncrement: () => setState(() => _dailyGoalMinutes += 5),
+              ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                child: ChunkyButton(
+                  label: l10n.save,
+                  onPressed: _isSaving ? null : _save,
+                  isLoading: _isSaving,
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _Stepper extends StatelessWidget {
-  const _Stepper({
+/// One goal: its name, and a chunky minus/value/plus row that reads as a
+/// single physical control rather than three loose widgets.
+class _GoalCard extends StatelessWidget {
+  const _GoalCard({
+    required this.title,
     required this.value,
-    required this.label,
     required this.onDecrement,
     required this.onIncrement,
   });
 
-  final int value;
-  final String label;
+  final String title;
+  final String value;
+
+  /// Null at the goal's floor — the minus tile goes flat instead of
+  /// disappearing, so the row keeps its shape as the value changes.
   final VoidCallback? onDecrement;
+
   final VoidCallback onIncrement;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: onDecrement,
-          icon: const Icon(Icons.remove_circle_outline),
-          color: AppColors.tangerine500,
+    return BorderedCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTypography.subheading),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _StepTile(icon: Icons.remove_rounded, onTap: onDecrement),
+              Expanded(
+                child: Text(
+                  value,
+                  style: AppTypography.heading,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              _StepTile(icon: Icons.add_rounded, onTap: onIncrement),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One end of the stepper: a pressable tile on its own edge, flat and
+/// unpressable when [onTap] is null.
+class _StepTile extends StatelessWidget {
+  const _StepTile({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onTap != null;
+
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      child: GestureDetector(
+        onTap: onTap,
+        child: RaisedBox(
+          color: enabled ? AppColors.tangerine : AppColors.line,
+          radius: AppRadius.md,
+          edgeHeight: 3,
+          padding: const EdgeInsets.all(12),
+          child: Icon(
+            icon,
+            size: 22,
+            color: enabled ? Colors.white : AppColors.inkFaint,
+          ),
         ),
-        SizedBox(
-          width: 140,
-          child: Text(label, style: AppTypography.bodyStrong, textAlign: TextAlign.center),
-        ),
-        IconButton(
-          onPressed: onIncrement,
-          icon: const Icon(Icons.add_circle_outline),
-          color: AppColors.tangerine500,
-        ),
-      ],
+      ),
     );
   }
 }

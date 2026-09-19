@@ -409,6 +409,14 @@
   "@metricAvgSpeed": {
     "description": "Stats metric card label"
   },
+  "statsHeatmapTitle": "Reading activity",
+  "@statsHeatmapTitle": {
+    "description": "Stats page section title above the full-year heatmap"
+  },
+  "statsGenresTitle": "Favorite genres",
+  "@statsGenresTitle": {
+    "description": "Stats page section title above the genre bar chart"
+  },
   "yourBadges": "Your badges",
   "@yourBadges": {
     "description": "Badge preview row heading on the stats page"

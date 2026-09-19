@@ -8,6 +8,9 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/bordered_card.dart';
+import '../../../../core/widgets/chunky_button.dart';
+import '../../../../core/widgets/raised_box.dart';
 import '../../../feed/domain/entities/activity.dart';
 import '../../../feed/presentation/pages/feed_page.dart';
 import '../../../feed/presentation/widgets/activity_author_header.dart';
@@ -71,9 +74,10 @@ class _HomeView extends StatelessWidget {
                       avatarUrl: state.avatarUrl,
                     ),
                     const SizedBox(height: 20),
-                    _StreakHeroCard(currentStreak: state.currentStreak),
-                    const SizedBox(height: 20),
-                    _HeatmapStrip(last7Days: state.last7Days),
+                    _StreakCard(
+                      currentStreak: state.currentStreak,
+                      last7Days: state.last7Days,
+                    ),
                     const SizedBox(height: 24),
                     if (state.isEmptyState)
                       _EmptyStateCta(onTap: () => _openBookPicker(context))
@@ -117,56 +121,51 @@ class _Header extends StatelessWidget {
             style: AppTypography.displaySm,
           ),
         ),
-        CircleAvatar(
-          radius: 22,
-          backgroundColor: AppColors.tangerine100,
-          backgroundImage: avatarUrl.isEmpty ? null : NetworkImage(avatarUrl),
-          child: avatarUrl.isEmpty
-              ? Text(
-                  userName.isEmpty ? '?' : userName[0].toUpperCase(),
-                  style: AppTypography.subheading.copyWith(
-                    color: AppColors.tangerine700,
-                  ),
-                )
-              : null,
-        ),
       ],
     );
   }
 }
 
-class _StreakHeroCard extends StatelessWidget {
-  const _StreakHeroCard({required this.currentStreak});
+/// The streak and the week that feeds it, in one card: the number is the
+/// headline, the strip underneath is the evidence for it.
+class _StreakCard extends StatelessWidget {
+  const _StreakCard({required this.currentStreak, required this.last7Days});
 
   final int currentStreak;
+  final List<DailyStat> last7Days;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-      ),
-      child: Row(
+    return BorderedCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset('assets/images/day-streak.png', width: 64, height: 64),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$currentStreak',
-                  style: AppTypography.displayLg.copyWith(fontSize: 36),
+          Row(
+            children: [
+              Image.asset(
+                'assets/images/day-streak.png',
+                width: 64,
+                height: 64,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$currentStreak',
+                      style: AppTypography.displayLg.copyWith(fontSize: 36),
+                    ),
+                    Text(l10n.dayStreak, style: AppTypography.caption),
+                  ],
                 ),
-                Text(l10n.dayStreak, style: AppTypography.caption),
-              ],
-            ),
+              ),
+            ],
           ),
+          const SizedBox(height: 20),
+          _WeekStrip(last7Days: last7Days),
         ],
       ),
     );
@@ -176,8 +175,9 @@ class _StreakHeroCard extends StatelessWidget {
 /// Diameter of one day in the week strip.
 const _dayCircleSize = 24.0;
 
-class _HeatmapStrip extends StatelessWidget {
-  const _HeatmapStrip({required this.last7Days});
+/// One week, oldest first, as a row of day markers.
+class _WeekStrip extends StatelessWidget {
+  const _WeekStrip({required this.last7Days});
 
   final List<DailyStat> last7Days;
 
@@ -190,27 +190,22 @@ class _HeatmapStrip extends StatelessWidget {
       Localizations.localeOf(context).toLanguageTag(),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Row(
-          children: [
-            for (final stat in last7Days)
-              Expanded(
-                child: Column(
-                  children: [
-                    _DayCircle(read: stat.totalMinutes > 0),
-                    const SizedBox(height: 6),
-                    Text(
-                      dayName.format(stat.date)[0],
-                      style: AppTypography.caption,
-                      maxLines: 1,
-                    ),
-                  ],
+        for (final stat in last7Days)
+          Expanded(
+            child: Column(
+              children: [
+                _DayCircle(read: stat.totalMinutes > 0),
+                const SizedBox(height: 6),
+                Text(
+                  dayName.format(stat.date)[0],
+                  style: AppTypography.caption,
+                  maxLines: 1,
                 ),
-              ),
-          ],
-        ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -248,6 +243,9 @@ class _ContinueReadingSection extends StatelessWidget {
 
   final List<UserBook> books;
 
+  /// Width of one carousel slot. The width is fixed; the height is not.
+  static const _slotWidth = 280.0;
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -257,18 +255,24 @@ class _ContinueReadingSection extends StatelessWidget {
       children: [
         Text(l10n.continueReading, style: AppTypography.heading),
         const SizedBox(height: 12),
-        SizedBox(
-          // Asked of the card rather than hardcoded: the compact variant is
-          // what fits in a carousel slot, and it is the thing that knows how
-          // tall that is at the user's current text size.
-          height: ShelfBookCard.compactHeightFor(context),
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: books.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 12),
-            itemBuilder: (context, index) => SizedBox(
-              width: 280,
-              child: ShelfBookCard.compact(userBook: books[index]),
+        // IntrinsicHeight rather than a fixed slot height: each card is exactly
+        // as tall as its own title, author and progress need, and the row takes
+        // the tallest of them. A hardcoded height either clips a long title or
+        // leaves dead space under a short one.
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var i = 0; i < books.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 12),
+                  SizedBox(
+                    width: _slotWidth,
+                    child: ShelfBookCard.compact(userBook: books[i]),
+                  ),
+                ],
+              ],
             ),
           ),
         ),
@@ -347,14 +351,10 @@ class _EmptyStateCta extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Container(
-      width: double.infinity,
+    return RaisedBox(
+      color: AppColors.surface,
+      radius: AppRadius.lg,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.line),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-      ),
       child: Column(
         children: [
           const Icon(
@@ -375,7 +375,7 @@ class _EmptyStateCta extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
-          ElevatedButton(onPressed: onTap, child: Text(l10n.startSession)),
+          ChunkyButton(label: l10n.startSession, onPressed: onTap),
         ],
       ),
     );

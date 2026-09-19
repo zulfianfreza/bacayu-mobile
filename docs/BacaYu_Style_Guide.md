@@ -51,6 +51,8 @@ BacaYu terasa seperti teman gym yang menyemangati, bukan aplikasi pelacak yang m
 
 **Slate** adalah satu-satunya netral *dingin* di palet. Dipakai kalau sebuah permukaan memang harus terbaca sebagai "bukan hangat": divider di atas foto yang ramai, chrome sekunder, atau apa pun yang jadi keruh kalau pakai tint hangat. Untuk teks dan permukaan biasa tetap pakai Neutral (2.3) — jangan campur keduanya dalam satu blok. Slate punya step lengkap 50–900 (termasuk 200/400/600/800) karena dipakai sebagai netral fungsional, bukan cuma tint brand.
 
+**Border kartu, border input, dan divider pakai `slate200`, bukan `line`.** Di atas permukaan putih, hairline hangat (`line`) terbaca keruh/kotor; `slate200` memberi garis yang bersih tanpa jadi biru. Ini berlaku untuk border kartu (`BorderedCard`), border input (`inputDecorationTheme` + `AuthTextField`), dan divider di dalam kartu. Kartu bertint boleh (dan sebaiknya) memakai border dari ramp warnanya sendiri — mis. kartu badge kuning pakai `sunshine300` — karena border abu di atas permukaan berwarna justru terbaca salah. `line` tetap dipakai sebagai **warna latar** chip/pill dan sel heatmap yang kosong, serta untuk chrome navigasi (border atas bottom nav).
+
 **Tangga penuh (50–900).** Enam step di tabel di atas adalah jangkar yang dipakai sehari-hari. Tangerine, Lagoon, dan Sunshine semuanya punya tangga penuh: step antara duduk di tengah dua jangkarnya — hue & saturasi mengikuti jangkar, dan hasilnya selalu lebih gelap dari step di atasnya. Jarak antar-step mengikuti jangkar aslinya, jadi tidak seragam: **jangan "rapikan" nilai jangkarnya.**
 
 | Step | Tangerine | Lagoon | Sunshine |

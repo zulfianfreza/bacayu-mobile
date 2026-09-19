@@ -38,7 +38,7 @@ class ActivityAuthorHeader extends StatelessWidget {
     return Row(
       children: [
         CircleAvatar(
-          radius: 16,
+          radius: 20,
           backgroundColor: AppColors.tangerine100,
           backgroundImage: hasAvatar ? NetworkImage(url) : null,
           child: hasAvatar
@@ -52,22 +52,24 @@ class ActivityAuthorHeader extends StatelessWidget {
                 ),
         ),
         const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            name,
-            style: AppTypography.bodyStrong,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          formatRelativeTime(
-            l10n: context.l10n,
-            locale: Localizations.localeOf(context).toLanguageTag(),
-            occurredAt: occurredAt,
-          ),
-          style: AppTypography.caption,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              name,
+              style: AppTypography.bodyStrong,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              formatRelativeTime(
+                l10n: context.l10n,
+                locale: Localizations.localeOf(context).toLanguageTag(),
+                occurredAt: occurredAt,
+              ),
+              style: AppTypography.caption,
+            ),
+          ],
         ),
       ],
     );

@@ -162,7 +162,7 @@ class _LoginViewState extends State<_LoginView> {
                         Row(
                           children: [
                             const Expanded(
-                              child: Divider(color: AppColors.line),
+                              child: Divider(color: AppColors.slate200),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
@@ -174,7 +174,7 @@ class _LoginViewState extends State<_LoginView> {
                               ),
                             ),
                             const Expanded(
-                              child: Divider(color: AppColors.line),
+                              child: Divider(color: AppColors.slate200),
                             ),
                           ],
                         ),

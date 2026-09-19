@@ -5,6 +5,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/option_tile.dart';
 import '../../../auth/domain/usecases/update_profile.dart';
 
 const _options = ['private', 'followers', 'public'];
@@ -19,9 +20,13 @@ class PrivacyBottomSheet extends StatefulWidget {
   final String currentValue;
 
   /// Returns `true` if the value was changed, so the caller can refresh.
-  static Future<bool?> show(BuildContext context, {required String currentValue}) {
+  static Future<bool?> show(
+    BuildContext context, {
+    required String currentValue,
+  }) {
     return showModalBottomSheet<bool>(
       context: context,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
@@ -66,23 +71,21 @@ class _PrivacyBottomSheetState extends State<PrivacyBottomSheet> {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(l10n.privacy, style: AppTypography.heading),
-            ),
-            const SizedBox(height: 8),
-            for (final value in _options)
-              ListTile(
-                title: Text(_label(value), style: AppTypography.bodyStrong),
-                trailing: value == widget.currentValue
-                    ? const Icon(Icons.check, color: AppColors.tangerine500)
-                    : null,
-                onTap: _isSaving ? null : () => _select(value),
+            Text(l10n.privacy, style: AppTypography.heading),
+            const SizedBox(height: 16),
+            for (var i = 0; i < _options.length; i++) ...[
+              if (i > 0) const SizedBox(height: 8),
+              OptionTile(
+                label: _label(_options[i]),
+                selected: _options[i] == widget.currentValue,
+                onTap: _isSaving ? null : () => _select(_options[i]),
               ),
+            ],
           ],
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/localization/locale_cubit.dart';
+import 'package:mobile/core/widgets/bordered_card.dart';
 import 'package:mobile/features/profile/presentation/widgets/language_bottom_sheet.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,8 +37,9 @@ void main() {
     );
   }
 
-  testWidgets('picking English emits a Locale("en") from LocaleCubit',
-      (tester) async {
+  testWidgets('picking English emits a Locale("en") from LocaleCubit', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap());
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
@@ -51,34 +53,48 @@ void main() {
     expect(localeCubit.state, const Locale('en'));
   });
 
-  testWidgets('picking Bahasa Indonesia emits a Locale("id") and closes the sheet',
-      (tester) async {
-    await tester.pumpWidget(wrap());
-    await tester.tap(find.text('open'));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'picking Bahasa Indonesia emits a Locale("id") and closes the sheet',
+    (tester) async {
+      await tester.pumpWidget(wrap());
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Bahasa Indonesia'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Bahasa Indonesia'));
+      await tester.pumpAndSettle();
 
-    expect(localeCubit.state, const Locale('id'));
-    // Sheet closed itself after the pick.
-    expect(find.byType(LanguageBottomSheet), findsNothing);
-  });
+      expect(localeCubit.state, const Locale('id'));
+      // Sheet closed itself after the pick.
+      expect(find.byType(LanguageBottomSheet), findsNothing);
+    },
+  );
 
-  testWidgets('the currently active locale shows a checkmark', (tester) async {
+  testWidgets('the currently active locale is the one that carries the tick', (
+    tester,
+  ) async {
     await localeCubit.setLocale(const Locale('id'));
     await tester.pumpWidget(wrap());
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
 
-    final indonesianTile = tester.widget<ListTile>(
-      find.ancestor(of: find.text('Bahasa Indonesia'), matching: find.byType(ListTile)),
+    Finder rowOf(String label) => find.ancestor(
+      of: find.text(label),
+      matching: find.byType(BorderedCard),
     );
-    expect(indonesianTile.trailing, isNotNull);
 
-    final englishTile = tester.widget<ListTile>(
-      find.ancestor(of: find.text('English'), matching: find.byType(ListTile)),
+    expect(
+      find.descendant(
+        of: rowOf('Bahasa Indonesia'),
+        matching: find.byIcon(Icons.check_circle),
+      ),
+      findsOneWidget,
     );
-    expect(englishTile.trailing, isNull);
+    expect(
+      find.descendant(
+        of: rowOf('English'),
+        matching: find.byIcon(Icons.check_circle),
+      ),
+      findsNothing,
+    );
   });
 }

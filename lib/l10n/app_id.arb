@@ -99,6 +99,8 @@
   "metricPagesRead": "Halaman dibaca",
   "metricTimeReading": "Waktu membaca",
   "metricAvgSpeed": "Kecepatan rata-rata (ppm)",
+  "statsHeatmapTitle": "Aktivitas membaca",
+  "statsGenresTitle": "Genre favorit",
   "yourBadges": "Badge kamu",
   "seeAll": "Lihat semua",
   "noBadgesYet": "Belum ada badge — terus baca!",

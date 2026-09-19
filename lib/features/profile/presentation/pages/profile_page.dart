@@ -7,7 +7,10 @@ import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/bordered_card.dart';
+import '../../../../core/widgets/raised_box.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/logout.dart';
 import '../cubit/profile_cubit.dart';
@@ -98,20 +101,19 @@ class _ProfileView extends StatelessWidget {
               ProfileLoaded() => RefreshIndicator(
                 onRefresh: () => context.read<ProfileCubit>().load(),
                 child: ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                   children: [
-                    _ProfileHeader(user: state.user),
-                    const SizedBox(height: 20),
+                    _ProfileHeader(
+                      user: state.user,
+                      followersCount: state.followersCount,
+                      followingCount: state.followingCount,
+                    ),
+                    const SizedBox(height: 24),
                     _StatsRow(
                       booksFinished: state.booksFinished,
                       currentStreak: state.user.currentStreak,
                       badgesUnlocked: state.badgesUnlocked,
                       totalBadges: state.totalBadges,
-                    ),
-                    const SizedBox(height: 16),
-                    _FollowRow(
-                      followersCount: state.followersCount,
-                      followingCount: state.followingCount,
                     ),
                     const SizedBox(height: 24),
                     SettingsListGroup(
@@ -164,33 +166,105 @@ class _ProfileView extends StatelessWidget {
   }
 }
 
+/// The avatar, the name, and the two counts that describe the account's
+/// social side — one card, because they are one identity rather than three
+/// separate sections.
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({required this.user});
+  const _ProfileHeader({
+    required this.user,
+    required this.followersCount,
+    required this.followingCount,
+  });
 
   final User user;
+  final int followersCount;
+  final int followingCount;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 40,
-          backgroundColor: AppColors.tangerine100,
-          backgroundImage: user.avatarUrl.isEmpty
-              ? null
-              : NetworkImage(user.avatarUrl),
-          child: user.avatarUrl.isEmpty
-              ? Text(
-                  user.name.isEmpty ? '?' : user.name[0].toUpperCase(),
-                  style: AppTypography.displaySm.copyWith(
-                    color: AppColors.tangerine700,
+    final l10n = context.l10n;
+    final hasAvatar = user.avatarUrl.isNotEmpty;
+
+    return BorderedCard(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.slate200, width: 2),
+            ),
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: AppColors.tangerine100,
+              backgroundImage: hasAvatar ? NetworkImage(user.avatarUrl) : null,
+              child: hasAvatar
+                  ? null
+                  : Text(
+                      user.name.isEmpty ? '?' : user.name[0].toUpperCase(),
+                      style: AppTypography.displaySm.copyWith(
+                        color: AppColors.tangerine700,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            user.name,
+            style: AppTypography.heading,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: _FollowPill(
+                    label: l10n.profileFollowersCount(followersCount),
+                    onTap: () => context.push(AppRoutes.followers),
                   ),
-                )
-              : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _FollowPill(
+                    label: l10n.profileFollowingCount(followingCount),
+                    onTap: () => context.push(AppRoutes.following),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A count you can tap, drawn with the same border language as the cards so it
+/// reads as pressable sitting on the header's white body.
+class _FollowPill extends StatelessWidget {
+  const _FollowPill({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: BorderedCard(
+        radius: AppRadius.pill,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Center(
+          child: Text(
+            label,
+            style: AppTypography.bodyStrong,
+            textAlign: TextAlign.center,
+          ),
         ),
-        const SizedBox(height: 12),
-        Text(user.name, style: AppTypography.heading),
-      ],
+      ),
     );
   }
 }
@@ -212,87 +286,110 @@ class _StatsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Row(
-      children: [
-        Expanded(
-          child: _StatColumn(
-            value: '$booksFinished',
-            label: l10n.profileStatsBooks,
+    // IntrinsicHeight so the three tiles match the tallest one: "5/12" wraps
+    // to two lines where "12" does not, and a row of uneven tiles reads as a
+    // mistake rather than a set.
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _StatTile(
+              icon: 'assets/icons/book-open-02-stroke.png',
+              value: '$booksFinished',
+              label: l10n.profileStatsBooks,
+              tint: AppColors.lagoon100,
+              accent: AppColors.lagoon700,
+            ),
           ),
-        ),
-        Expanded(
-          child: _StatColumn(
-            value: '$currentStreak',
-            label: l10n.profileStatsStreak,
+          const SizedBox(width: 12),
+          Expanded(
+            child: _StatTile(
+              icon: 'assets/images/day-streak.png',
+              value: '$currentStreak',
+              label: l10n.profileStatsStreak,
+              tint: AppColors.tangerine100,
+              accent: AppColors.tangerine700,
+              iconSize: 32,
+              // The streak flame is full-colour artwork — tinting it to one
+              // hue would flatten the yellow highlight that makes it read as
+              // a flame.
+              tintIcon: false,
+            ),
           ),
-        ),
-        Expanded(
-          child: _StatColumn(
-            value: '$badgesUnlocked/$totalBadges',
-            label: l10n.profileStatsBadges,
+          const SizedBox(width: 12),
+          Expanded(
+            child: _StatTile(
+              icon: 'assets/icons/star-solid.png',
+              value: '$badgesUnlocked/$totalBadges',
+              label: l10n.profileStatsBadges,
+              tint: AppColors.sunshine100,
+              accent: AppColors.sunshine700,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class _StatColumn extends StatelessWidget {
-  const _StatColumn({required this.value, required this.label});
+/// One number on its own chunky tile: a step-100 background carrying a step-700
+/// icon, the chip recipe at tile size.
+class _StatTile extends StatelessWidget {
+  const _StatTile({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.tint,
+    required this.accent,
+    this.tintIcon = true,
+    this.iconSize = 26,
+  });
 
+  final String icon;
   final String value;
   final String label;
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(value, style: AppTypography.heading),
-        const SizedBox(height: 2),
-        Text(label, style: AppTypography.caption),
-      ],
-    );
-  }
-}
+  /// The tile's family: [tint] for the body, [accent] for the icon.
+  final Color tint;
+  final Color accent;
 
-class _FollowRow extends StatelessWidget {
-  const _FollowRow({
-    required this.followersCount,
-    required this.followingCount,
-  });
+  /// Whether [icon] should be recoloured to [accent]. Off for artwork that is
+  /// already coloured.
+  final bool tintIcon;
 
-  final int followersCount;
-  final int followingCount;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        InkWell(
-          onTap: () => context.push(AppRoutes.followers),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Text(
-              l10n.profileFollowersCount(followersCount),
-              style: AppTypography.bodyStrong,
-            ),
+    return RaisedBox(
+      color: tint,
+      radius: AppRadius.md,
+      edgeHeight: 4,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            icon,
+            width: iconSize,
+            height: iconSize,
+            color: tintIcon ? accent : null,
           ),
-        ),
-        const SizedBox(width: 8),
-        InkWell(
-          onTap: () => context.push(AppRoutes.following),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Text(
-              l10n.profileFollowingCount(followingCount),
-              style: AppTypography.bodyStrong,
-            ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: AppTypography.heading,
+            textAlign: TextAlign.center,
           ),
-        ),
-      ],
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: AppTypography.caption,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

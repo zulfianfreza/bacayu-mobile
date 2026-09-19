@@ -692,6 +692,18 @@ abstract class AppLocalizations {
   /// **'Avg. speed (ppm)'**
   String get metricAvgSpeed;
 
+  /// Stats page section title above the full-year heatmap
+  ///
+  /// In en, this message translates to:
+  /// **'Reading activity'**
+  String get statsHeatmapTitle;
+
+  /// Stats page section title above the genre bar chart
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite genres'**
+  String get statsGenresTitle;
+
   /// Badge preview row heading on the stats page
   ///
   /// In en, this message translates to:

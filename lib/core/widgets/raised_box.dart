@@ -8,6 +8,8 @@ import '../theme/app_radius.dart';
 /// makes the tile read as a physical object you could press. The edge is
 /// derived from [color] — same hue, one step darker — so a caller only ever
 /// passes one palette colour.
+///
+/// The body clips, so a cover image can bleed to its rounded corners.
 class RaisedBox extends StatelessWidget {
   const RaisedBox({
     super.key,
@@ -46,10 +48,13 @@ class RaisedBox extends StatelessWidget {
       padding: EdgeInsets.only(bottom: edgeHeight),
       child: Transform.translate(
         offset: Offset(0, sink),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(color: color, borderRadius: shape),
-          child: child,
+        child: ClipRRect(
+          borderRadius: shape,
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(color: color, borderRadius: shape),
+            child: child,
+          ),
         ),
       ),
     );

@@ -138,30 +138,29 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
     if (body.isEmpty || _isSubmitting) return;
 
     setState(() => _isSubmitting = true);
-    final result = await getIt<AddComment>()
-        .call(activityId: widget.activity.id, body: body);
+    final result = await getIt<AddComment>().call(
+      activityId: widget.activity.id,
+      body: body,
+    );
     if (!mounted) return;
 
-    result.fold(
-      (failure) => context.showFailureSnackBar(failure),
-      (comment) {
-        final user = _currentUser;
-        final display = user == null
-            ? comment
-            : ActivityComment(
-                id: comment.id,
-                userId: comment.userId,
-                userName: user.name,
-                userAvatarUrl: user.avatarUrl.isEmpty ? null : user.avatarUrl,
-                body: comment.body,
-                createdAt: comment.createdAt,
-              );
-        setState(() {
-          _newComments.insert(0, display);
-          _controller.clear();
-        });
-      },
-    );
+    result.fold((failure) => context.showFailureSnackBar(failure), (comment) {
+      final user = _currentUser;
+      final display = user == null
+          ? comment
+          : ActivityComment(
+              id: comment.id,
+              userId: comment.userId,
+              userName: user.name,
+              userAvatarUrl: user.avatarUrl.isEmpty ? null : user.avatarUrl,
+              body: comment.body,
+              createdAt: comment.createdAt,
+            );
+      setState(() {
+        _newComments.insert(0, display);
+        _controller.clear();
+      });
+    });
     setState(() => _isSubmitting = false);
   }
 
@@ -196,7 +195,7 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                     ),
                 ],
               ),
-              const Divider(height: 32, color: AppColors.line),
+              const Divider(height: 32, color: AppColors.slate200),
               FutureBuilder<Either<Failure, List<ActivityComment>>>(
                 future: _commentsFuture,
                 builder: (context, snapshot) {
@@ -220,7 +219,10 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           child: Center(
-                            child: Text(l10n.noComments, style: AppTypography.body),
+                            child: Text(
+                              l10n.noComments,
+                              style: AppTypography.body,
+                            ),
                           ),
                         );
                       }
@@ -262,7 +264,10 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                       )
                     : IconButton(
                         onPressed: _submit,
-                        icon: const Icon(Icons.send, color: AppColors.tangerine500),
+                        icon: const Icon(
+                          Icons.send,
+                          color: AppColors.tangerine500,
+                        ),
                       ),
               ],
             ),
@@ -295,9 +300,9 @@ class _SessionHeader extends StatelessWidget {
   void _openBookDetail(BuildContext context) {
     final bookId = payload.bookId;
     if (bookId == null || bookId.isEmpty) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => BookDetailPage(bookId: bookId)),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => BookDetailPage(bookId: bookId)));
   }
 
   @override
@@ -341,7 +346,9 @@ class _SessionHeader extends StatelessWidget {
               ),
             ),
             _StatChip(text: l10n.pagesCount(payload.pagesRead)),
-            _StatChip(text: l10n.speedPpmValue(payload.speedPpm.toStringAsFixed(1))),
+            _StatChip(
+              text: l10n.speedPpmValue(payload.speedPpm.toStringAsFixed(1)),
+            ),
           ],
         ),
       ],
@@ -427,7 +434,11 @@ class _CoverPlaceholder extends StatelessWidget {
     return Container(
       color: AppColors.tangerine50,
       alignment: Alignment.center,
-      child: const Icon(Icons.menu_book, size: 40, color: AppColors.tangerine300),
+      child: const Icon(
+        Icons.menu_book,
+        size: 40,
+        color: AppColors.tangerine300,
+      ),
     );
   }
 }
@@ -452,8 +463,12 @@ class _CommentTile extends StatelessWidget {
               : NetworkImage(avatarUrl),
           child: avatarUrl == null || avatarUrl.isEmpty
               ? Text(
-                  comment.userName.isEmpty ? '?' : comment.userName[0].toUpperCase(),
-                  style: AppTypography.caption.copyWith(color: AppColors.tangerine700),
+                  comment.userName.isEmpty
+                      ? '?'
+                      : comment.userName[0].toUpperCase(),
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.tangerine700,
+                  ),
                 )
               : null,
         ),

@@ -326,6 +326,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricAvgSpeed => 'Avg. speed (ppm)';
 
   @override
+  String get statsHeatmapTitle => 'Reading activity';
+
+  @override
+  String get statsGenresTitle => 'Favorite genres';
+
+  @override
   String get yourBadges => 'Your badges';
 
   @override

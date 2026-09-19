@@ -326,6 +326,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get metricAvgSpeed => 'Kecepatan rata-rata (ppm)';
 
   @override
+  String get statsHeatmapTitle => 'Aktivitas membaca';
+
+  @override
+  String get statsGenresTitle => 'Genre favorit';
+
+  @override
   String get yourBadges => 'Badge kamu';
 
   @override

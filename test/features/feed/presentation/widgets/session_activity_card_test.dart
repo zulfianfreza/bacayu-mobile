@@ -63,14 +63,21 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(wrap('Atomic Habits'));
-    final shortHeight = tester.getSize(find.byType(Card)).height;
+    final shortHeight = tester.getSize(find.byType(SessionActivityCard)).height;
 
     await tester.pumpWidget(
       wrap('The 100-Year-Old Man Who Climbed Out the Window'),
     );
-    final longHeight = tester.getSize(find.byType(Card)).height;
+    final longHeight = tester.getSize(find.byType(SessionActivityCard)).height;
 
     expect(longHeight, greaterThan(shortHeight));
+  });
+
+  testWidgets('summarises the session on one line', (tester) async {
+    await tester.pumpWidget(wrap('Atomic Habits'));
+
+    // Duration, pages and speed read as one set, not three stacked facts.
+    expect(find.text('10:00 · 20 pages · 1.2 ppm'), findsOneWidget);
   });
 
   testWidgets('introduces its author when one is passed', (tester) async {

@@ -17,17 +17,17 @@ Color _cellColor(WidgetTester tester, DateTime date) {
 
 void main() {
   group('heatmapColorFor (pure)', () {
-    test('no activity, or an all-zero dataset, is the neutral line color', () {
-      expect(heatmapColorFor(minutes: 0, maxMinutes: 100), AppColors.line);
-      expect(heatmapColorFor(minutes: 50, maxMinutes: 0), AppColors.line);
+    test('no activity, or an all-zero dataset, is the slate neutral', () {
+      expect(heatmapColorFor(minutes: 0, maxMinutes: 100), AppColors.slate200);
+      expect(heatmapColorFor(minutes: 50, maxMinutes: 0), AppColors.slate200);
     });
 
     test('intensity increases monotonically with minutes relative to max', () {
       final rank = {
-        AppColors.line: 0,
-        AppColors.tangerine50: 1,
-        AppColors.tangerine100: 2,
-        AppColors.tangerine300: 3,
+        AppColors.slate200: 0,
+        AppColors.tangerine200: 1,
+        AppColors.tangerine300: 2,
+        AppColors.tangerine400: 3,
         AppColors.tangerine500: 4,
         AppColors.tangerine700: 5,
       };
@@ -100,7 +100,7 @@ void main() {
           ],
         );
 
-        expect(_cellColor(tester, noActivity), AppColors.line);
+        expect(_cellColor(tester, noActivity), AppColors.slate200);
         expect(
           _cellColor(tester, lightDay),
           heatmapColorFor(minutes: 30, maxMinutes: 120),

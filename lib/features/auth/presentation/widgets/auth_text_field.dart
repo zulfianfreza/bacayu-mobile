@@ -60,8 +60,8 @@ class AuthTextField extends StatelessWidget {
             prefixIcon: icon == null
                 ? null
                 : Icon(icon, size: 20, color: AppColors.inkFaint),
-            border: _border(AppColors.line),
-            enabledBorder: _border(AppColors.line),
+            border: _border(AppColors.slate200),
+            enabledBorder: _border(AppColors.slate200),
             focusedBorder: _border(AppColors.tangerine, width: 2.5),
             errorBorder: _border(AppColors.danger),
             focusedErrorBorder: _border(AppColors.danger, width: 2.5),

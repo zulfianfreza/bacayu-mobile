@@ -5,6 +5,8 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/bordered_card.dart';
+import '../../../../core/widgets/raised_box.dart';
 import '../../../books/presentation/pages/book_detail_page.dart';
 import '../../domain/entities/user_book.dart';
 import '../cubit/shelf_cubit.dart';
@@ -24,29 +26,18 @@ class ShelfBookCard extends StatelessWidget {
   /// in — the tile takes its width from the grid column.
   static const coverAspectRatio = 2 / 3;
 
-  /// For the home "Continue reading" carousel, which hands the card a fixed
-  /// height instead of the intrinsic one a vertical list gives it.
+  /// For the home "Continue reading" carousel.
   ///
   /// It drops the status chip: every book in that row is reading by
-  /// definition, so the chip said the same word on every card and cost the
-  /// height the layout did not have.
+  /// definition, so the chip said the same word on every card and cost height
+  /// the row did not have. The card is otherwise sized by its own content —
+  /// there is no fixed slot height to keep it inside.
   const ShelfBookCard.compact({super.key, required this.userBook})
     : compact = true;
 
-  /// The height the compact variant needs at the default text size.
-  static const compactHeight = 132.0;
-
-  /// [compactHeight] scaled with the user's font size.
-  ///
-  /// The compact variant grows with its text, so a plain fixed box would
-  /// overflow again the moment someone sets a larger type size — always size
-  /// the carousel through this, never with the raw constant.
-  static double compactHeightFor(BuildContext context) =>
-      MediaQuery.textScalerOf(context).scale(compactHeight);
-
   final UserBook userBook;
 
-  /// Whether this card is laid out for a fixed-height carousel slot.
+  /// Whether this card is laid out for the carousel.
   final bool compact;
 
   void _openBookDetail(BuildContext context) {
@@ -82,82 +73,87 @@ class ShelfBookCard extends StatelessWidget {
         totalPages != null &&
         totalPages > 0;
 
-    return Card(
-      // The grid supplies its own gaps.
-      margin: EdgeInsets.zero,
-      // Clips the cover to the card's own radius, so it can bleed to the edge.
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          InkWell(
-            onTap: () => _openBookDetail(context),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AspectRatio(
-                  aspectRatio: coverAspectRatio,
-                  child: book.coverUrl == null
-                      ? const _CoverPlaceholder()
-                      : Image.network(
-                          book.coverUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const _CoverPlaceholder(),
-                        ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Deliberately uncapped: a grid of half-titles is worse
-                      // than a grid of uneven tiles.
-                      Text(book.title, style: AppTypography.subheading),
-                      if (book.authors.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          l10n.byAuthor(book.authors.join(', ')),
-                          style: AppTypography.caption,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                      if (showProgress) ...[
-                        const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(AppRadius.pill),
-                          child: LinearProgressIndicator(
-                            value: (userBook.currentPage / totalPages)
-                                .clamp(0, 1)
-                                .toDouble(),
-                            minHeight: 4,
-                            backgroundColor: AppColors.line,
-                            color: AppColors.lagoon500,
+    return RaisedBox(
+      color: AppColors.surface,
+      // A shallower edge than the stat tiles: a shelf is a grid of these, and
+      // at 4px apiece the whole page starts to look embossed.
+      edgeHeight: 3,
+      child: Material(
+        // Transparent so the white body still shows through, but the tile's
+        // own tap ripple has something to paint on.
+        type: MaterialType.transparency,
+        child: Stack(
+          children: [
+            InkWell(
+              onTap: () => _openBookDetail(context),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AspectRatio(
+                    aspectRatio: coverAspectRatio,
+                    child: book.coverUrl == null
+                        ? const _CoverPlaceholder()
+                        : Image.network(
+                            book.coverUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const _CoverPlaceholder(),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          l10n.pageProgress(userBook.currentPage, totalPages),
-                          style: AppTypography.caption,
-                        ),
-                      ],
-                    ],
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Deliberately uncapped: a grid of half-titles is worse
+                        // than a grid of uneven tiles.
+                        Text(book.title, style: AppTypography.subheading),
+                        if (book.authors.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            l10n.byAuthor(book.authors.join(', ')),
+                            style: AppTypography.caption,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        if (showProgress) ...[
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
+                            child: LinearProgressIndicator(
+                              value: (userBook.currentPage / totalPages)
+                                  .clamp(0, 1)
+                                  .toDouble(),
+                              minHeight: 4,
+                              backgroundColor: AppColors.line,
+                              color: AppColors.lagoon500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            l10n.pageProgress(userBook.currentPage, totalPages),
+                            style: AppTypography.caption,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          // Sits on the cover rather than in the text column: it is a badge,
-          // and a tile this narrow has no vertical room to spare.
-          Positioned(
-            top: 8,
-            left: 8,
-            child: _StatusChip(
-              status: userBook.status,
-              onTap: () => _openStatusPicker(context),
+            // Sits on the cover rather than in the text column: it is a badge,
+            // and a tile this narrow has no vertical room to spare.
+            Positioned(
+              top: 8,
+              left: 8,
+              child: _StatusChip(
+                status: userBook.status,
+                onTap: () => _openStatusPicker(context),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -171,13 +167,15 @@ class ShelfBookCard extends StatelessWidget {
         totalPages != null &&
         totalPages > 0;
 
-    return Card(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => _openBookDetail(context),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
+    return BorderedCard(
+      radius: AppRadius.md,
+      padding: const EdgeInsets.all(12),
+      child: Material(
+        // Transparent so the card's own colour still shows, but the tile's tap
+        // ripple has something to paint on.
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: () => _openBookDetail(context),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -201,12 +199,9 @@ class ShelfBookCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      book.title,
-                      style: AppTypography.subheading,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    // Uncapped, like the shelf tile: the card is as tall as its
+                    // own title needs, and the carousel row takes the tallest.
+                    Text(book.title, style: AppTypography.subheading),
                     if (book.authors.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
