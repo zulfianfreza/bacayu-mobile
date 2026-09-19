@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
+import '../../../badges/presentation/widgets/badge_artwork.dart';
 import '../../domain/entities/activity.dart';
 import 'activity_author_header.dart';
 import 'activity_card_footer.dart';
@@ -61,19 +62,10 @@ class BadgeActivityCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppRadius.sm),
               child: Row(
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.sunshine500,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      payload.badgeIcon,
-                      style: const TextStyle(fontSize: 24),
-                    ),
-                  ),
+                  // The feed payload carries the badge's emoji snapshot, not
+                  // its artwork — so this shows the placeholder until
+                  // `image_url` reaches the feed too.
+                  const BadgeArtwork(imageUrl: null, size: 48),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(

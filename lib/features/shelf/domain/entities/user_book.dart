@@ -21,8 +21,12 @@ class UserBook extends Equatable {
 
   final String id;
 
-  /// Resolved separately via `books`' `GetBookDetail` — the shelf API only
-  /// returns `book_id`, never a joined book object.
+  /// The book on this shelf entry.
+  ///
+  /// A shelf read embeds a *summary* of it — id, title, authors, cover and page
+  /// count (backend's `BookSummaryResponse`); the rest of [Book] is empty
+  /// because the backend never sent it. Fetch `GET /books/:id` for the full
+  /// record.
   final Book book;
 
   final ShelfStatus status;

@@ -1,3 +1,4 @@
+import '../../../books/data/models/book_model.dart';
 import '../../../books/domain/entities/book.dart';
 import '../../domain/entities/user_book.dart';
 
@@ -33,11 +34,14 @@ extension BookFormatWire on BookFormat {
       };
 }
 
-/// Mirrors `UserBookResponse` in
-/// `api/internal/features/shelf/delivery/http/response.go` — except `book`,
-/// which the backend doesn't return (only `book_id`). The repository
-/// resolves it separately via `books`' `GetBookDetail` and passes it in
-/// here, since a model built from JSON alone can't produce it.
+/// Mirrors `ShelfItemResponse` in
+/// `api/internal/features/shelf/delivery/http/response.go`: the entry's own
+/// fields, with the book embedded as a *summary* (id, title, authors, cover,
+/// page count) rather than only a `book_id`.
+///
+/// The write responses (`POST`/`PATCH /shelf`) stay flat — no embedded book —
+/// so [UserBookModel.fromJson] still takes one; [UserBookModel.fromShelfItemJson]
+/// is the list's, and needs nothing fetched.
 class UserBookModel extends UserBook {
   const UserBookModel({
     required super.id,
@@ -53,7 +57,23 @@ class UserBookModel extends UserBook {
 
   static String bookIdOf(Map<String, dynamic> json) => json['book_id'] as String;
 
-  factory UserBookModel.fromJson(Map<String, dynamic> json, {required Book book}) {
+  /// One `GET /shelf` item, whose book the backend already sent.
+  factory UserBookModel.fromShelfItemJson(Map<String, dynamic> json) {
+    return UserBookModel._fromJson(
+      json,
+      BookModel.fromSummaryJson(json['book'] as Map<String, dynamic>),
+    );
+  }
+
+  /// A write response, composed with a book the caller had to resolve.
+  factory UserBookModel.fromJson(
+    Map<String, dynamic> json, {
+    required Book book,
+  }) {
+    return UserBookModel._fromJson(json, book);
+  }
+
+  factory UserBookModel._fromJson(Map<String, dynamic> json, Book book) {
     return UserBookModel(
       id: json['id'] as String,
       book: book,

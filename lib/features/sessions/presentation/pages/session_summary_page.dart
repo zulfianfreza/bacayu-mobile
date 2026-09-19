@@ -120,7 +120,6 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
       await BadgeUnlockedModal.show(
         context,
         name: badge.name,
-        icon: badge.icon,
         description: badge.description,
       );
     }

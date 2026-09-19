@@ -385,6 +385,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get badgeGalleryTitle => 'Your badges';
 
   @override
+  String badgesCollected(int unlocked, int total) {
+    return '$unlocked of $total collected';
+  }
+
+  @override
+  String get badgeUnlocked => 'Unlocked';
+
+  @override
+  String get badgeLocked => 'Locked';
+
+  @override
   String get awesome => 'Awesome!';
 
   @override

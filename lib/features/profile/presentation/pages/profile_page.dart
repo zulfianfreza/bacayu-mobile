@@ -356,7 +356,7 @@ class _StatsRow extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: _StatTile(
-              icon: 'assets/icons/star-solid.png',
+              icon: 'assets/icons/award-stroke.png',
               value: '$badgesUnlocked/$totalBadges',
               label: l10n.profileStatsBadges,
               tint: AppColors.sunshine100,

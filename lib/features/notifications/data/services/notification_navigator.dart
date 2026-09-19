@@ -14,7 +14,6 @@ abstract class NotificationNavigator {
 
   void showBadgeUnlockedModal({
     required String name,
-    required String icon,
     required String description,
   });
 }
@@ -35,7 +34,6 @@ class AppNotificationNavigator implements NotificationNavigator {
   @override
   void showBadgeUnlockedModal({
     required String name,
-    required String icon,
     required String description,
   }) {
     // A small delay so the modal never appears mid-transition — waiting for
@@ -44,7 +42,7 @@ class AppNotificationNavigator implements NotificationNavigator {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final context = _navigatorKey.currentContext;
       if (context == null) return;
-      BadgeUnlockedModal.show(context, name: name, icon: icon, description: description);
+      BadgeUnlockedModal.show(context, name: name, description: description);
     });
   }
 }

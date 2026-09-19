@@ -4,6 +4,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import 'badge_artwork.dart';
 
 /// Reusable celebratory modal — called from more than one place (CLAUDE.md
 /// Section 6): `sessions`' summary page when a submit response carries
@@ -17,24 +18,34 @@ class BadgeUnlockedModal extends StatefulWidget {
   const BadgeUnlockedModal({
     super.key,
     required this.name,
-    required this.icon,
     required this.description,
+    this.imageUrl,
   });
 
   final String name;
-  final String icon;
   final String description;
+
+  /// The badge's artwork, when the caller has one.
+  ///
+  /// The unlock paths that reach here (the session submit's fast-path response,
+  /// or a push) don't carry `image_url` yet, so this is normally null and
+  /// [BadgeArtwork]'s placeholder stands in.
+  final String? imageUrl;
 
   /// Shows the modal as a dialog over [context].
   static Future<void> show(
     BuildContext context, {
     required String name,
-    required String icon,
     required String description,
+    String? imageUrl,
   }) {
     return showDialog<void>(
       context: context,
-      builder: (_) => BadgeUnlockedModal(name: name, icon: icon, description: description),
+      builder: (_) => BadgeUnlockedModal(
+        name: name,
+        description: description,
+        imageUrl: imageUrl,
+      ),
     );
   }
 
@@ -83,7 +94,7 @@ class _BadgeUnlockedModalState extends State<BadgeUnlockedModal>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(widget.icon, style: const TextStyle(fontSize: 48)),
+              BadgeArtwork(imageUrl: widget.imageUrl, size: 96),
               const SizedBox(height: 12),
               Text(
                 l10n.newBadge,

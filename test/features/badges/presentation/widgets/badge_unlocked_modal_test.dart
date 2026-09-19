@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile/features/badges/presentation/widgets/badge_artwork.dart';
 import 'package:mobile/features/badges/presentation/widgets/badge_unlocked_modal.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 
@@ -18,14 +19,24 @@ void main() {
       wrap(
         const BadgeUnlockedModal(
           name: 'First Step',
-          icon: '🎉',
           description: 'You started your first session',
         ),
       ),
     );
 
     expect(find.text('First Step'), findsOneWidget);
-    expect(find.text('🎉'), findsOneWidget);
+    // Badge art is an image now — the bundled placeholder stands in until the
+    // backend sends `image_url`.
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Image &&
+            widget.image is AssetImage &&
+            (widget.image as AssetImage).assetName ==
+                BadgeArtwork.placeholderAsset,
+      ),
+      findsOneWidget,
+    );
     expect(find.text('You started your first session'), findsOneWidget);
 
     // Right after the first frame, the pop-in animation (easeOutBack,
@@ -55,7 +66,6 @@ void main() {
             onPressed: () => BadgeUnlockedModal.show(
               context,
               name: 'Bookworm',
-              icon: '📚',
               description: 'Finish 10 books',
             ),
             child: const Text('trigger'),

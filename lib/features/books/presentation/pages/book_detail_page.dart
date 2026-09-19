@@ -226,6 +226,12 @@ class _GenreChip extends StatelessWidget {
 }
 
 /// Shared pill — an icon and a label, sized to its content.
+///
+/// The label is [Flexible] rather than a bare `Text`: in a `Row`, a
+/// non-flexible child is laid out with unbounded width, so a long genre (Google
+/// Books really does send "Foreign Language Study / English as a Second
+/// Language") would push the pill past the screen. Flexible lets it wrap to a
+/// second line instead.
 class _Chip extends StatelessWidget {
   const _Chip({
     required this.icon,
@@ -249,10 +255,20 @@ class _Chip extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 14, color: foreground),
+          Padding(
+            // Keeps the glyph on the first line's centre once the label wraps.
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(icon, size: 14, color: foreground),
+          ),
           const SizedBox(width: 6),
-          Text(text, style: AppTypography.caption.copyWith(color: foreground)),
+          Flexible(
+            child: Text(
+              text,
+              style: AppTypography.caption.copyWith(color: foreground),
+            ),
+          ),
         ],
       ),
     );

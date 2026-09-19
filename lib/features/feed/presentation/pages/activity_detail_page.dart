@@ -16,6 +16,7 @@ import '../../../../core/widgets/chunky_button.dart';
 import '../../../../core/widgets/error_listener.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/get_current_user.dart';
+import '../../../badges/presentation/widgets/badge_artwork.dart';
 import '../../../books/presentation/pages/book_detail_page.dart';
 import '../../../social/domain/entities/activity_comment.dart';
 import '../../../social/domain/usecases/add_comment.dart';
@@ -441,16 +442,8 @@ class _BadgeHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Container(
-          width: 96,
-          height: 96,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.sunshine500,
-          ),
-          alignment: Alignment.center,
-          child: Text(payload.badgeIcon, style: const TextStyle(fontSize: 48)),
-        ),
+        // The activity payload snapshots the badge's emoji, not its artwork.
+        const BadgeArtwork(imageUrl: null, size: 96),
         const SizedBox(height: 16),
         Text(
           l10n.newBadge,

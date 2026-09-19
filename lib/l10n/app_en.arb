@@ -485,6 +485,26 @@
   "@badgeGalleryTitle": {
     "description": "Badge gallery page app bar title"
   },
+  "badgesCollected": "{unlocked} of {total} collected",
+  "@badgesCollected": {
+    "description": "Badge gallery — collection progress at the top of the page",
+    "placeholders": {
+      "unlocked": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "badgeUnlocked": "Unlocked",
+  "@badgeUnlocked": {
+    "description": "Badge gallery — state caption under an unlocked badge"
+  },
+  "badgeLocked": "Locked",
+  "@badgeLocked": {
+    "description": "Badge gallery — state caption under a locked badge"
+  },
   "awesome": "Awesome!",
   "@awesome": {
     "description": "Dismiss button on the badge-unlocked modal"

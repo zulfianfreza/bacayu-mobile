@@ -36,4 +36,29 @@ class BookModel extends Book {
       publishedDate: json['published_date'] as String? ?? '',
     );
   }
+
+  /// The slim book a shelf read embeds — `BookSummaryResponse` on the backend:
+  /// id, title, authors, cover and page count, and nothing else.
+  ///
+  /// The fields it does not carry are left empty on purpose rather than guessed
+  /// at: a screen that needs them (a description, the genres) is a
+  /// `GET /books/:id` away, and inventing a source or an empty genre list as
+  /// fact is worse than not having one.
+  factory BookModel.fromSummaryJson(Map<String, dynamic> json) {
+    return BookModel(
+      id: json['id'] as String,
+      source: '',
+      googleBooksId: null,
+      isbn10: null,
+      isbn13: null,
+      title: json['title'] as String,
+      authors: (json['authors'] as List<dynamic>? ?? []).cast<String>(),
+      description: null,
+      coverUrl: json['cover_url'] as String?,
+      totalPages: json['total_pages'] as int?,
+      language: '',
+      genres: const [],
+      publishedDate: '',
+    );
+  }
 }

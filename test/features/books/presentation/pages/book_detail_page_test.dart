@@ -11,21 +11,22 @@ import 'package:mocktail/mocktail.dart';
 
 class _MockGetBookDetail extends Mock implements GetBookDetail {}
 
-Book _book({String? description}) => Book(
-  id: 'book-1',
-  source: 'google_books',
-  googleBooksId: 'g1',
-  isbn10: null,
-  isbn13: null,
-  title: 'Atomic Habits',
-  authors: const ['James Clear'],
-  description: description,
-  coverUrl: null,
-  totalPages: 320,
-  language: 'en',
-  genres: const ['Self-help'],
-  publishedDate: '2018',
-);
+Book _book({String? description, List<String> genres = const ['Self-help']}) =>
+    Book(
+      id: 'book-1',
+      source: 'google_books',
+      googleBooksId: 'g1',
+      isbn10: null,
+      isbn13: null,
+      title: 'Atomic Habits',
+      authors: const ['James Clear'],
+      description: description,
+      coverUrl: null,
+      totalPages: 320,
+      language: 'en',
+      genres: genres,
+      publishedDate: '2018',
+    );
 
 void main() {
   late _MockGetBookDetail getBookDetail;
@@ -79,6 +80,23 @@ void main() {
     await pumpDetail(tester, _book());
 
     expect(find.text('Sinopsis'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a genre that runs long wraps instead of overflowing', (
+    tester,
+  ) async {
+    // A phone-width viewport on purpose: at the default test size the chip
+    // might still fit on one line, which would hide the case this guards.
+    tester.view.physicalSize = const Size(390 * 2, 900 * 2);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+
+    const longGenre = 'Foreign Language Study / English as a Second Language';
+    await pumpDetail(tester, _book(genres: const [longGenre]));
+
+    // Shown in full, not truncated — and no "RenderFlex overflowed" either.
+    expect(find.text(longGenre), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

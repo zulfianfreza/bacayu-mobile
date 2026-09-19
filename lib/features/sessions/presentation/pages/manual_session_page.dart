@@ -112,7 +112,6 @@ class _ManualSessionViewState extends State<_ManualSessionView> {
       await BadgeUnlockedModal.show(
         rootContext,
         name: badge.name,
-        icon: badge.icon,
         description: badge.description,
       );
     }

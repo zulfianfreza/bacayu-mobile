@@ -240,8 +240,8 @@ class _MetricsGrid extends StatelessWidget {
       (
         summary.avgSpeedPpm.toStringAsFixed(1),
         l10n.metricAvgSpeed,
-        AppColors.tangerine100,
-        AppColors.tangerine700,
+        AppColors.blue100,
+        AppColors.blue700,
         'assets/icons/speed-stroke.png',
       ),
     ];

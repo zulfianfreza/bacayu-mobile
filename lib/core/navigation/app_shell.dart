@@ -119,13 +119,14 @@ class _AppBottomNavBar extends StatelessWidget {
       // its labels do — a hard 72 clips them the moment the text is scaled up.
       decoration: BoxDecoration(
         color: AppColors.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        border: Border(top: BorderSide(color: AppColors.slate200, width: 2)),
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: AppColors.slate200,
+        //     blurRadius: 12,
+        //     offset: const Offset(0, -2),
+        //   ),
+        // ],
       ),
       // Stretch so each slot owns the full height of the bar: a 42px-tall tap
       // target would be under the 44px minimum.

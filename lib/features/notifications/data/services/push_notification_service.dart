@@ -80,7 +80,6 @@ class PushNotificationService {
   void _showBadgeModal(RemoteMessage message) {
     _navigator.showBadgeUnlockedModal(
       name: message.data['badge_name'] ?? '',
-      icon: message.data['badge_icon'] ?? '',
       description: message.data['badge_description'] ?? '',
     );
   }

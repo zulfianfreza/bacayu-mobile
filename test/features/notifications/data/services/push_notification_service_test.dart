@@ -122,7 +122,6 @@ void main() {
       verifyNever(() => navigator.goHome());
       verify(() => navigator.showBadgeUnlockedModal(
             name: 'First Step',
-            icon: '🎉',
             description: 'Finish your first session',
           )).called(1);
     });
@@ -136,7 +135,6 @@ void main() {
       verifyNever(() => navigator.goHome());
       verifyNever(() => navigator.showBadgeUnlockedModal(
             name: any(named: 'name'),
-            icon: any(named: 'icon'),
             description: any(named: 'description'),
           ));
     });
@@ -152,7 +150,6 @@ void main() {
       verify(() => navigator.goHome()).called(1);
       verify(() => navigator.showBadgeUnlockedModal(
             name: 'First Step',
-            icon: '🎉',
             description: 'Finish your first session',
           )).called(1);
     });
@@ -166,7 +163,6 @@ void main() {
       verify(() => navigator.goHome()).called(1);
       verifyNever(() => navigator.showBadgeUnlockedModal(
             name: any(named: 'name'),
-            icon: any(named: 'icon'),
             description: any(named: 'description'),
           ));
     });
@@ -180,7 +176,6 @@ void main() {
       verify(() => navigator.goHome()).called(1);
       verify(() => navigator.showBadgeUnlockedModal(
             name: 'First Step',
-            icon: '🎉',
             description: 'Finish your first session',
           )).called(1);
     });

@@ -11,11 +11,13 @@ import '../../domain/repositories/shelf_repository.dart';
 import '../datasources/shelf_remote_datasource.dart';
 import '../models/user_book_model.dart';
 
-/// The shelf API only returns `book_id` per entry (no join) — this
-/// repository resolves each entry's [Book] via `books`' `BookRepository`
-/// (GET /books/:id) and composes the two into a display-ready [UserBook].
-/// N+1 by nature; acceptable for shelf list sizes, but a candidate for a
-/// batch endpoint later if that ever becomes a problem.
+/// The list (`GET /shelf`) embeds each entry's book, so a shelf needs one
+/// request no matter how many books are on it — it used to resolve every entry
+/// through `books`' `BookRepository` (GET /books/:id), which was N+1 by nature.
+///
+/// The *writes* still stay lean server-side (`POST`/`PATCH /shelf` return the
+/// entry alone), so those two paths resolve their single book here. One request
+/// for one edited book is not the same problem as one per row.
 @LazySingleton(as: ShelfRepository)
 class ShelfRepositoryImpl implements ShelfRepository {
   ShelfRepositoryImpl(this._remote, this._bookRepository);
@@ -54,24 +56,12 @@ class ShelfRepositoryImpl implements ShelfRepository {
         page: page,
       );
 
-      final resolved = await Future.wait(
-        items.cast<Map<String, dynamic>>().map((json) async {
-          final bookResult = await _resolveBook(UserBookModel.bookIdOf(json));
-          return bookResult
-              .map<UserBook>((book) => UserBookModel.fromJson(json, book: book));
-        }),
+      return Right(
+        items
+            .cast<Map<String, dynamic>>()
+            .map(UserBookModel.fromShelfItemJson)
+            .toList(),
       );
-
-      // If any single book failed to resolve, surface that failure rather
-      // than silently dropping the shelf entry.
-      Failure? firstFailure;
-      final userBooks = <UserBook>[];
-      for (final result in resolved) {
-        result.fold((failure) => firstFailure ??= failure, userBooks.add);
-      }
-      if (firstFailure != null) return Left(firstFailure!);
-
-      return Right(userBooks);
     } on DioException catch (e) {
       return dioExceptionToEither(e);
     }

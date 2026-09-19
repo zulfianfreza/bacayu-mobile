@@ -6,11 +6,11 @@ import '../../../../core/error/failure.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/navigation/full_screen_page.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../badges/domain/entities/badge.dart';
 import '../../../badges/domain/usecases/get_all_badges.dart';
 import '../../../badges/presentation/pages/badge_gallery_page.dart';
+import '../../../badges/presentation/widgets/badge_artwork.dart';
 
 /// Badge collection lives on the Stats tab by design (no separate tab) —
 /// shows the most recently unlocked badges; "See all" opens the full
@@ -101,16 +101,7 @@ class _BadgeMedal extends StatelessWidget {
       width: 64,
       child: Column(
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.sunshine100,
-            ),
-            alignment: Alignment.center,
-            child: Text(badge.icon, style: const TextStyle(fontSize: 20)),
-          ),
+          BadgeArtwork(imageUrl: badge.imageUrl, size: 48),
           const SizedBox(height: 4),
           Text(
             badge.name,

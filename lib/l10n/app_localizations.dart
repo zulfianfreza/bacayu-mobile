@@ -806,6 +806,24 @@ abstract class AppLocalizations {
   /// **'Your badges'**
   String get badgeGalleryTitle;
 
+  /// Badge gallery — collection progress at the top of the page
+  ///
+  /// In en, this message translates to:
+  /// **'{unlocked} of {total} collected'**
+  String badgesCollected(int unlocked, int total);
+
+  /// Badge gallery — state caption under an unlocked badge
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked'**
+  String get badgeUnlocked;
+
+  /// Badge gallery — state caption under a locked badge
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get badgeLocked;
+
   /// Dismiss button on the badge-unlocked modal
   ///
   /// In en, this message translates to:
