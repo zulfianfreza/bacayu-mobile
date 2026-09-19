@@ -78,7 +78,7 @@ import 'package:mobile/features/feed/data/datasources/feed_remote_datasource.dar
 import 'package:mobile/features/feed/data/repositories/feed_repository_impl.dart'
     as _i487;
 import 'package:mobile/features/feed/domain/repositories/feed_repository.dart'
-    as _i674;
+    as _i675;
 import 'package:mobile/features/feed/domain/usecases/get_feed.dart' as _i108;
 import 'package:mobile/features/feed/domain/usecases/get_social_feed.dart'
     as _i52;
@@ -157,6 +157,8 @@ import 'package:mobile/features/social/domain/usecases/list_followers.dart'
     as _i334;
 import 'package:mobile/features/social/domain/usecases/list_following.dart'
     as _i427;
+import 'package:mobile/features/social/domain/usecases/search_users.dart'
+    as _i674;
 import 'package:mobile/features/social/domain/usecases/unfollow_user.dart'
     as _i488;
 import 'package:mobile/features/social/domain/usecases/unlike_activity.dart'
@@ -167,6 +169,8 @@ import 'package:mobile/features/social/presentation/cubit/follow_cubit.dart'
     as _i442;
 import 'package:mobile/features/social/presentation/cubit/leaderboard_cubit.dart'
     as _i481;
+import 'package:mobile/features/social/presentation/cubit/user_search_bloc.dart'
+    as _i1068;
 import 'package:mobile/features/stats/data/datasources/stats_remote_datasource.dart'
     as _i711;
 import 'package:mobile/features/stats/data/repositories/stats_repository_impl.dart'
@@ -292,6 +296,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i427.ListFollowing>(
       () => _i427.ListFollowing(gh<_i784.SocialRepository>()),
     );
+    gh.factory<_i674.SearchUsers>(
+      () => _i674.SearchUsers(gh<_i784.SocialRepository>()),
+    );
     gh.factory<_i488.UnfollowUser>(
       () => _i488.UnfollowUser(gh<_i784.SocialRepository>()),
     );
@@ -301,7 +308,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i298.UpdateActivityVisibility>(
       () => _i298.UpdateActivityVisibility(gh<_i784.SocialRepository>()),
     );
-    gh.lazySingleton<_i674.FeedRepository>(
+    gh.lazySingleton<_i675.FeedRepository>(
       () => _i487.FeedRepositoryImpl(gh<_i932.FeedRemoteDataSource>()),
     );
     gh.lazySingleton<_i224.NotificationRepository>(
@@ -349,6 +356,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i791.SearchBooks>(
       () => _i791.SearchBooks(gh<_i223.BookRepository>()),
+    );
+    gh.factory<_i1068.UserSearchBloc>(
+      () => _i1068.UserSearchBloc(
+        gh<_i674.SearchUsers>(),
+        gh<_i242.FollowUser>(),
+        gh<_i488.UnfollowUser>(),
+      ),
     );
     gh.factory<_i442.FollowCubit>(
       () => _i442.FollowCubit(
@@ -414,9 +428,9 @@ extension GetItInjectableX on _i174.GetIt {
       () =>
           _i428.StatsCubit(gh<_i884.GetStatsSummary>(), gh<_i485.GetHeatmap>()),
     );
-    gh.factory<_i108.GetFeed>(() => _i108.GetFeed(gh<_i674.FeedRepository>()));
+    gh.factory<_i108.GetFeed>(() => _i108.GetFeed(gh<_i675.FeedRepository>()));
     gh.factory<_i52.GetSocialFeed>(
-      () => _i52.GetSocialFeed(gh<_i674.FeedRepository>()),
+      () => _i52.GetSocialFeed(gh<_i675.FeedRepository>()),
     );
     gh.lazySingleton<_i180.ShelfRepository>(
       () => _i841.ShelfRepositoryImpl(

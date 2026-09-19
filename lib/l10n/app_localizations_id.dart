@@ -438,6 +438,12 @@ class AppLocalizationsId extends AppLocalizations {
   String get findFriends => 'Cari teman';
 
   @override
+  String get userSearchHint => 'Cari nama teman';
+
+  @override
+  String get noUserSearchResults => 'Tidak ada yang cocok';
+
+  @override
   String get followersTitle => 'Pengikut';
 
   @override

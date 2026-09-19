@@ -890,11 +890,23 @@ abstract class AppLocalizations {
   /// **'Follow people to see what they\'re reading. Their activity shows up here.'**
   String get findFriendsBody;
 
-  /// Home page empty social feed — CTA button, opens the leaderboard
+  /// Home — label of the user-search entry points (the header icon and the empty-feed CTA)
   ///
   /// In en, this message translates to:
   /// **'Find friends'**
   String get findFriends;
+
+  /// User search page — search field placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name'**
+  String get userSearchHint;
+
+  /// User search page — no results for the typed query
+  ///
+  /// In en, this message translates to:
+  /// **'No one matched'**
+  String get noUserSearchResults;
 
   /// Followers page app bar title
   ///

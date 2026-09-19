@@ -133,6 +133,8 @@
   "findFriendsHeadline": "Cari teman baca",
   "findFriendsBody": "Follow teman biar aktivitas bacanya muncul di sini.",
   "findFriends": "Cari teman",
+  "userSearchHint": "Cari nama teman",
+  "noUserSearchResults": "Tidak ada yang cocok",
   "followersTitle": "Pengikut",
   "followingTitle": "Mengikuti",
   "leaderboardTitle": "Papan peringkat",

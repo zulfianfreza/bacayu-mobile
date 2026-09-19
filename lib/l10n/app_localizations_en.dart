@@ -437,6 +437,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get findFriends => 'Find friends';
 
   @override
+  String get userSearchHint => 'Search by name';
+
+  @override
+  String get noUserSearchResults => 'No one matched';
+
+  @override
   String get followersTitle => 'Followers';
 
   @override

@@ -53,6 +53,26 @@ class SocialRemoteDataSource {
     return meta['total'] as int;
   }
 
+  /// GET /social/users/search?q=&page=&limit= — name substring match,
+  /// excluding the caller. `meta.total_pages` drives paging (the backend's own
+  /// default limit is 10, so the caller sends one explicitly).
+  Future<({List<dynamic> items, int totalPages})> searchUsers({
+    required String q,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/social/users/search',
+      queryParameters: {'q': q, 'page': page, 'limit': limit},
+    );
+    final data = response.data!['data'] as Map<String, dynamic>;
+    final meta = data['meta'] as Map<String, dynamic>;
+    return (
+      items: data['items'] as List<dynamic>,
+      totalPages: (meta['total_pages'] as num?)?.toInt() ?? 1,
+    );
+  }
+
   Future<void> likeActivity(String activityId) {
     return _dio.post<void>('/feed/$activityId/like');
   }

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/router/app_router.dart';
+import '../../../../core/navigation/full_screen_page.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -21,6 +20,7 @@ import '../../../feed/presentation/widgets/badge_activity_card.dart';
 import '../../../feed/presentation/widgets/session_activity_card.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../../shelf/presentation/widgets/shelf_book_card.dart';
+import '../../../social/presentation/pages/user_search_page.dart';
 import '../../../stats/domain/entities/daily_stat.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
@@ -149,7 +149,39 @@ class _Header extends StatelessWidget {
             style: AppTypography.displaySm,
           ),
         ),
+        const SizedBox(width: 12),
+        _SearchPeopleButton(),
       ],
+    );
+  }
+}
+
+/// The way into user search: a chunky tile beside the greeting, so finding
+/// people is one tap from the top of Home — not only from the empty state.
+class _SearchPeopleButton extends StatelessWidget {
+  const _SearchPeopleButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: context.l10n.findFriends,
+      child: GestureDetector(
+        onTap: () =>
+            pushFullScreen(context, (_) => const UserSearchPage()),
+        child: RaisedBox(
+          color: AppColors.slate100,
+          radius: AppRadius.md,
+          edgeHeight: 3,
+          padding: const EdgeInsets.all(10),
+          child: Image.asset(
+            'assets/icons/search-stroke.png',
+            width: 20,
+            height: 20,
+            color: AppColors.slate700,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -418,7 +450,8 @@ class _FindFriendsCta extends StatelessWidget {
           const SizedBox(height: 20),
           ChunkyButton(
             label: l10n.findFriends,
-            onPressed: () => context.push(AppRoutes.leaderboard),
+            onPressed: () =>
+                pushFullScreen(context, (_) => const UserSearchPage()),
           ),
         ],
       ),

@@ -67,7 +67,12 @@ class _BookSearchViewState extends State<_BookSearchView> {
         title: Text(l10n.addABook),
         actions: [
           IconButton(
-            icon: const Icon(Icons.qr_code_scanner),
+            icon: Image.asset(
+              'assets/icons/barcode-scan-stroke.png',
+              width: 24,
+              height: 24,
+              color: AppColors.ink,
+            ),
             tooltip: l10n.scanBarcode,
             onPressed: () =>
                 pushFullScreen(context, (_) => const BarcodeScannerPage()),
@@ -87,10 +92,19 @@ class _BookSearchViewState extends State<_BookSearchView> {
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
                   hintText: l10n.searchBooksHint,
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    color: AppColors.slate400,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.only(left: 14, right: 10),
+                    child: Image.asset(
+                      'assets/icons/search-stroke.png',
+                      width: 20,
+                      height: 20,
+                      color: AppColors.slate400,
+                    ),
                   ),
+                  // The decorator's default minimum here is 48x48 — a tap
+                  // target, which would stretch this decorative glyph to the
+                  // field's full height.
+                  prefixIconConstraints: const BoxConstraints(),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 16,

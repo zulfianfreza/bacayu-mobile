@@ -16,6 +16,12 @@ import 'package:mobile/features/home/presentation/pages/home_page.dart';
 import 'package:mobile/features/shelf/domain/entities/user_book.dart';
 import 'package:mobile/features/shelf/domain/repositories/shelf_repository.dart';
 import 'package:mobile/features/shelf/domain/usecases/list_shelf.dart';
+import 'package:mobile/features/social/domain/repositories/social_repository.dart';
+import 'package:mobile/features/social/domain/usecases/follow_user.dart';
+import 'package:mobile/features/social/domain/usecases/search_users.dart';
+import 'package:mobile/features/social/domain/usecases/unfollow_user.dart';
+import 'package:mobile/features/social/presentation/cubit/user_search_bloc.dart';
+import 'package:mobile/features/social/presentation/pages/user_search_page.dart';
 import 'package:mobile/features/stats/domain/entities/daily_stat.dart';
 import 'package:mobile/features/stats/domain/repositories/stats_repository.dart';
 import 'package:mobile/features/stats/domain/usecases/get_heatmap.dart';
@@ -29,6 +35,8 @@ class _MockStatsRepository extends Mock implements StatsRepository {}
 class _MockShelfRepository extends Mock implements ShelfRepository {}
 
 class _MockFeedRepository extends Mock implements FeedRepository {}
+
+class _MockSocialRepository extends Mock implements SocialRepository {}
 
 /// The signed-in user. Deliberately *not* the author of the activities below —
 /// the whole point is that Home shows each poster's own name now.
@@ -86,6 +94,7 @@ void main() {
   late _MockStatsRepository statsRepository;
   late _MockShelfRepository shelfRepository;
   late _MockFeedRepository feedRepository;
+  late _MockSocialRepository socialRepository;
 
   setUpAll(() {
     registerFallbackValue(ShelfStatus.reading);
@@ -96,6 +105,7 @@ void main() {
     statsRepository = _MockStatsRepository();
     shelfRepository = _MockShelfRepository();
     feedRepository = _MockFeedRepository();
+    socialRepository = _MockSocialRepository();
 
     when(
       () => authRepository.getCurrentUser(),
@@ -121,6 +131,13 @@ void main() {
       () => FeedCubit(
         GetSocialFeed(feedRepository),
         GetCurrentUser(authRepository),
+      ),
+    );
+    getIt.registerFactory<UserSearchBloc>(
+      () => UserSearchBloc(
+        SearchUsers(socialRepository),
+        FollowUser(socialRepository),
+        UnfollowUser(socialRepository),
       ),
     );
   });
@@ -189,6 +206,27 @@ void main() {
     expect(find.text('Cari teman baca'), findsOneWidget);
     expect(find.text('Cari teman'), findsOneWidget);
     expect(find.byType(ActivityAuthorHeader), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the header opens user search', (tester) async {
+    stubFeed(const []);
+    await pumpHome(tester);
+
+    // The search glyph, distinct from the other assets Home loads.
+    final searchGlyph = find.byWidgetPredicate(
+      (widget) =>
+          widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName ==
+              'assets/icons/search-stroke.png',
+    );
+    expect(searchGlyph, findsOneWidget);
+
+    await tester.tap(searchGlyph);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(UserSearchPage), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

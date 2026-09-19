@@ -5,6 +5,7 @@ import '../entities/activity_comment.dart';
 import '../entities/activity_visibility.dart';
 import '../entities/followed_user.dart';
 import '../entities/leaderboard_entry.dart';
+import '../entities/user_search_results.dart';
 
 abstract class SocialRepository {
   Future<Either<Failure, Unit>> followUser(String userId);
@@ -16,6 +17,12 @@ abstract class SocialRepository {
   /// the full list just to count it.
   Future<Either<Failure, int>> getFollowersCount();
   Future<Either<Failure, int>> getFollowingCount();
+
+  /// `GET /social/users/search` — name substring match, excluding the caller.
+  Future<Either<Failure, UserSearchResults>> searchUsers({
+    required String query,
+    int page,
+  });
 
   Future<Either<Failure, Unit>> likeActivity(String activityId);
   Future<Either<Failure, Unit>> unlikeActivity(String activityId);

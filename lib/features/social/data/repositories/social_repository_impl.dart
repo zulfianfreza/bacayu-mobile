@@ -8,6 +8,7 @@ import '../../domain/entities/activity_comment.dart';
 import '../../domain/entities/activity_visibility.dart';
 import '../../domain/entities/followed_user.dart';
 import '../../domain/entities/leaderboard_entry.dart';
+import '../../domain/entities/user_search_results.dart';
 import '../../domain/repositories/social_repository.dart';
 import '../datasources/social_remote_datasource.dart';
 import '../models/activity_comment_model.dart';
@@ -82,6 +83,32 @@ class SocialRepositoryImpl implements SocialRepository {
   Future<Either<Failure, int>> getFollowingCount() async {
     try {
       return Right(await _remote.getFollowingCount());
+    } on DioException catch (e) {
+      return dioExceptionToEither(e);
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserSearchResults>> searchUsers({
+    required String query,
+    int page = 1,
+  }) async {
+    try {
+      final result = await _remote.searchUsers(q: query, page: page);
+      // The search item is the same shape as a followers/following item, so
+      // one model parses both; `is_followed_by` is simply absent here and
+      // falls back to false.
+      final users = result.items
+          .cast<Map<String, dynamic>>()
+          .map(FollowedUserModel.fromJson)
+          .toList();
+      return Right(
+        UserSearchResults(
+          users: users,
+          page: page,
+          totalPages: result.totalPages,
+        ),
+      );
     } on DioException catch (e) {
       return dioExceptionToEither(e);
     }

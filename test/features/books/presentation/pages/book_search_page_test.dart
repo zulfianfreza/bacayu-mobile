@@ -16,6 +16,14 @@ class _MockSearchBooks extends Mock implements SearchBooks {}
 
 class _MockImportBookFromGoogle extends Mock implements ImportBookFromGoogle {}
 
+/// An `Image` drawing [path] from the asset bundle.
+Finder _assetImage(String path) => find.byWidgetPredicate(
+  (widget) =>
+      widget is Image &&
+      widget.image is AssetImage &&
+      (widget.image as AssetImage).assetName == path,
+);
+
 Book _book() => const Book(
   id: 'book-1',
   source: 'google_books',
@@ -77,6 +85,12 @@ void main() {
     expect(find.text('Tambah buku'), findsOneWidget);
     expect(find.text('Cari judul, penulis, atau ISBN'), findsOneWidget);
     expect(find.byTooltip('Scan barcode'), findsOneWidget);
+    // Both glyphs are the app's own artwork, not Material icons.
+    expect(_assetImage('assets/icons/search-stroke.png'), findsOneWidget);
+    expect(
+      _assetImage('assets/icons/barcode-scan-stroke.png'),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
 

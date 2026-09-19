@@ -558,7 +558,15 @@
   },
   "findFriends": "Find friends",
   "@findFriends": {
-    "description": "Home page empty social feed — CTA button, opens the leaderboard"
+    "description": "Home — label of the user-search entry points (the header icon and the empty-feed CTA)"
+  },
+  "userSearchHint": "Search by name",
+  "@userSearchHint": {
+    "description": "User search page — search field placeholder"
+  },
+  "noUserSearchResults": "No one matched",
+  "@noUserSearchResults": {
+    "description": "User search page — no results for the typed query"
   },
   "followersTitle": "Followers",
   "@followersTitle": {
