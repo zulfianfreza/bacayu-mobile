@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../localization/build_context_extension.dart';
 import '../../theme/app_colors.dart';
-import '../../theme/app_radius.dart';
 import '../../theme/app_typography.dart';
 import '../../utils/duration_formatter.dart';
 import '../models/session_share_data.dart';
@@ -20,11 +18,7 @@ import '../models/share_card_theme.dart';
 /// people already know from activity-sharing apps, and it survives any cover
 /// art rather than only the light ones.
 class SessionShareCard extends StatelessWidget {
-  const SessionShareCard({
-    super.key,
-    required this.data,
-    required this.theme,
-  });
+  const SessionShareCard({super.key, required this.data, required this.theme});
 
   final SessionShareData data;
   final ShareCardTheme theme;
@@ -32,11 +26,15 @@ class SessionShareCard extends StatelessWidget {
   /// The card always lays out at this fixed logical size and is scaled to
   /// whatever box it's given, so the design can never reflow or overflow on a
   /// small screen — and every user gets an identically proportioned PNG.
-  static const designWidth = 320.0;
-  static const designHeight = 400.0;
+  ///
+  /// 360x640 is 9:16, and `ShareCardService` rasterizes at 3x — so the exported
+  /// PNG lands on exactly 1080x1920, the resolution a story is authored at.
+  static const designWidth = 360.0;
+  static const designHeight = 640.0;
 
-  /// Portrait 4:5 — the tallest ratio an Instagram feed post accepts, and a
-  /// comfortable size for the sticker preset on a story.
+  /// Portrait 9:16 — a story, which is the surface the PRD asks this card for
+  /// ("share activity card ke Instagram/WhatsApp Story"), rather than a feed
+  /// post, and tall enough to leave the sticker preset somewhere to sit.
   static const aspectRatio = designWidth / designHeight;
 
   static const _padding = 20.0;
@@ -66,10 +64,6 @@ class SessionShareCard extends StatelessWidget {
 
   Widget _buildCard(BuildContext context) {
     final l10n = context.l10n;
-    final streakDays = data.streakDays;
-    final dateLabel = DateFormat.yMMMMd(
-      Localizations.localeOf(context).toLanguageTag(),
-    ).format(data.sessionDate);
     final titleStyle = _overlayTextStyle(
       theme,
       AppTypography.displaySm,
@@ -80,91 +74,80 @@ class SessionShareCard extends StatelessWidget {
     // A captured card is a fixed design artifact rather than app chrome: the
     // device's font scale must not reflow it, or the PNG changes shape per user.
     return MediaQuery.withNoTextScaling(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            _BackgroundLayer(
-              key: backgroundKey,
-              theme: theme,
-              coverUrl: data.bookCoverUrl,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(_padding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Expanded rather than a Flexible next to a Spacer: two
-                      // flex children split the row evenly, which clipped the
-                      // date to "March 14, 2…".
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: _DateChip(theme: theme, label: dateLabel),
-                        ),
-                      ),
-                      if (theme.showWatermark) _Watermark(theme: theme),
-                    ],
-                  ),
-                  const Spacer(),
-                  if (streakDays != null) ...[
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: _StreakChip(theme: theme, streakDays: streakDays),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
+      // No rounded frame: this is exported as a full-bleed story image, so the
+      // corners have to be square in the PNG rather than transparent.
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          _BackgroundLayer(
+            key: backgroundKey,
+            theme: theme,
+            coverUrl: data.bookCoverUrl,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(_padding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // At 9:16 the slack above the text block is most of the card, so
+                // it is split rather than dropped in one place: 6 above the
+                // block to 1 below it. That keeps the block in the lower third —
+                // where a story puts its subject — without letting it touch the
+                // bottom edge, which is where the platform's own reply bar sits.
+                const Spacer(flex: 6),
+                if (theme.showWatermark) ...[
+                  // The brand opens the block instead of sitting in the top
+                  // corner: the top of the frame is what a story's own chrome
+                  // and the user's photo already compete for.
+                  _Watermark(theme: theme),
+                  const SizedBox(height: 10),
+                ],
+                Text(
+                  data.bookTitle,
+                  // Never truncated: a half-finished book title is worse than
+                  // a smaller one, and the card has no page to continue on.
+                  style: titleStyle.copyWith(fontSize: titleSize),
+                ),
+                if (data.bookAuthors.isNotEmpty) ...[
+                  const SizedBox(height: 4),
                   Text(
-                    data.bookTitle,
-                    // Never truncated: a half-finished book title is worse
-                    // than a smaller one, and the card has no page to
-                    // continue on.
-                    style: titleStyle.copyWith(fontSize: titleSize),
-                  ),
-                  if (data.bookAuthors.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      l10n.byAuthor(data.bookAuthors.join(', ')),
-                      style: _overlayTextStyle(
-                        theme,
-                        AppTypography.caption,
-                        _overlaySecondary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    l10n.byAuthor(data.bookAuthors.join(', ')),
+                    style: _overlayTextStyle(
+                      theme,
+                      AppTypography.caption,
+                      _overlaySecondary,
                     ),
-                  ],
-                  const SizedBox(height: 16),
-                  _Stats(
-                    theme: theme,
-                    stats: [
-                      (
-                        value: formatSessionDuration(
-                          Duration(seconds: data.durationSeconds),
-                        ),
-                        label: l10n.shareStatTime,
-                      ),
-                      (
-                        value: data.pagesRead.toString(),
-                        label: l10n.shareStatPages,
-                      ),
-                      (
-                        value: l10n.speedPpmValue(
-                          data.speedPpm.toStringAsFixed(1),
-                        ),
-                        label: l10n.shareStatSpeed,
-                      ),
-                    ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
-              ),
+                const SizedBox(height: 16),
+                _Stats(
+                  theme: theme,
+                  stats: [
+                    (
+                      value: formatSessionDurationWords(
+                        Duration(seconds: data.durationSeconds),
+                      ),
+                      label: l10n.shareStatTime,
+                    ),
+                    (
+                      value: data.pagesRead.toString(),
+                      label: l10n.shareStatPages,
+                    ),
+                    (
+                      value: l10n.speedPpmValue(
+                        data.speedPpm.toStringAsFixed(1),
+                      ),
+                      label: l10n.shareStatSpeed,
+                    ),
+                  ],
+                ),
+                const Spacer(),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -187,19 +170,22 @@ const _overlaySecondary = Color(0xCCFFFFFF);
 /// lies about itself, or stats pushed off the bottom of the card.
 double _fittedTitleSize(BuildContext context, String title, TextStyle style) {
   final baseSize = style.fontSize!;
-  final maxHeight =
-      baseSize * style.height! * SessionShareCard._maxTitleLines;
+  final maxHeight = baseSize * style.height! * SessionShareCard._maxTitleLines;
 
   // A guard against a non-terminating loop, not a design decision.
   const loopGuard = 2.0;
 
   for (var size = baseSize; size > loopGuard; size -= 0.5) {
     final painter = TextPainter(
-      text: TextSpan(text: title, style: style.copyWith(fontSize: size)),
+      text: TextSpan(
+        text: title,
+        style: style.copyWith(fontSize: size),
+      ),
       textDirection: Directionality.of(context),
     )..layout(maxWidth: SessionShareCard._contentWidth);
 
-    final fits = painter.height <= maxHeight &&
+    final fits =
+        painter.height <= maxHeight &&
         painter.width <= SessionShareCard._contentWidth;
     painter.dispose();
 
@@ -213,11 +199,7 @@ double _fittedTitleSize(BuildContext context, String title, TextStyle style) {
 ///
 /// Every preset ends up white-on-dark underneath, so this only applies the
 /// preset's face and color — the scrim is what buys the contrast.
-TextStyle _overlayTextStyle(
-  ShareCardTheme theme,
-  TextStyle base,
-  Color color,
-) {
+TextStyle _overlayTextStyle(ShareCardTheme theme, TextStyle base, Color color) {
   return theme.textStyle(base).copyWith(color: color);
 }
 
@@ -334,118 +316,54 @@ class _Stats extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < stats.length; i++) ...[
-          if (i > 0) const _StatDivider(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  stats[i].value,
-                  // A notch under the `heading` token: the widest value is
-                  // "0.8 ppm", and at 20px it ellipsized to "0.8 pp…" inside a
-                  // third of a 320px card.
-                  style: _overlayTextStyle(
-                    theme,
-                    AppTypography.heading.copyWith(fontSize: 18),
-                    Colors.white,
+                // Scaled down rather than ellipsized: the time value runs to
+                // "1h 46m 7s" inside a third of the card, and a stat that reads
+                // as a half-said number is worse than a slightly smaller one.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    stats[i].value,
+                    // A notch under the `heading` token: the widest value is
+                    // "0.8 ppm", and at 20px it ellipsized to "0.8 pp…" inside
+                    // a third of a 320px card. At 18px the row carries the
+                    // common values at their own size, and only the long time
+                    // values get scaled above.
+                    style: _overlayTextStyle(
+                      theme,
+                      AppTypography.heading.copyWith(fontSize: 18),
+                      Colors.white,
+                    ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  stats[i].label.toUpperCase(),
-                  style: _overlayTextStyle(
-                    theme,
-                    AppTypography.caption.copyWith(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    stats[i].label.toUpperCase(),
+                    style: _overlayTextStyle(
+                      theme,
+                      AppTypography.caption.copyWith(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1,
+                      ),
+                      // The same white as the value above it: the label names
+                      // the number, it doesn't whisper under it.
+                      Colors.white,
                     ),
-                    _overlaySecondary,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
         ],
       ],
-    );
-  }
-}
-
-class _StatDivider extends StatelessWidget {
-  const _StatDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 32,
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      color: Colors.white.withValues(alpha: 0.24),
-    );
-  }
-}
-
-class _DateChip extends StatelessWidget {
-  const _DateChip({required this.theme, required this.label});
-
-  final ShareCardTheme theme;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        // The date is the one small run of type that doesn't sit above the
-        // heavy base of the scrim, so it carries its own backdrop rather than
-        // asking the whole top of the cover to be dark.
-        color: AppColors.ink.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Text(
-        label,
-        style: _overlayTextStyle(
-          theme,
-          AppTypography.caption.copyWith(
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.4,
-          ),
-          Colors.white,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-}
-
-class _StreakChip extends StatelessWidget {
-  const _StreakChip({required this.theme, required this.streakDays});
-
-  final ShareCardTheme theme;
-  final int streakDays;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: theme.accentColor,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Text(
-        context.l10n.streakDaysChip(streakDays),
-        // Ink, not white: tangerine is light enough that white type on it
-        // never clears 4.5:1, and this is a 15px label.
-        style: theme.textStyle(
-          AppTypography.bodyStrong.copyWith(color: AppColors.ink),
-        ),
-      ),
     );
   }
 }

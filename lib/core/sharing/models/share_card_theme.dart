@@ -24,13 +24,12 @@ enum ShareCardBackground {
 /// object instead of hardcoding colors/transparency inside the card widget.
 ///
 /// A future paid "custom style" feature can add more instances (custom font,
-/// accent, watermark on/off) and the card widget + preview carousel pick them
-/// up without a rewrite.
+/// watermark on/off) and the card widget + preview carousel pick them up
+/// without a rewrite.
 class ShareCardTheme extends Equatable {
   const ShareCardTheme({
     required this.background,
     required this.backgroundColor,
-    required this.accentColor,
     required this.fontFamily,
     required this.showWatermark,
   });
@@ -41,9 +40,6 @@ class ShareCardTheme extends Equatable {
   /// [ShareCardBackground.solid] — the cover preset paints the book cover
   /// instead, and the transparent preset paints nothing at all.
   final Color backgroundColor;
-
-  /// Highlights inside the card (the streak chip).
-  final Color accentColor;
 
   /// `null` keeps the app's default face (Nunito, via `AppTypography`) —
   /// only set this once a bundled custom font actually exists.
@@ -62,7 +58,6 @@ class ShareCardTheme extends Equatable {
   static const photo = ShareCardTheme(
     background: ShareCardBackground.cover,
     backgroundColor: AppColors.ink,
-    accentColor: AppColors.tangerine500,
     fontFamily: null,
     showWatermark: true,
   );
@@ -71,7 +66,6 @@ class ShareCardTheme extends Equatable {
   static const solid = ShareCardTheme(
     background: ShareCardBackground.solid,
     backgroundColor: AppColors.ink,
-    accentColor: AppColors.tangerine500,
     fontFamily: null,
     showWatermark: true,
   );
@@ -80,7 +74,6 @@ class ShareCardTheme extends Equatable {
   static const sticker = ShareCardTheme(
     background: ShareCardBackground.scrimOnly,
     backgroundColor: AppColors.ink,
-    accentColor: AppColors.tangerine500,
     fontFamily: null,
     showWatermark: true,
   );
@@ -98,7 +91,6 @@ class ShareCardTheme extends Equatable {
   List<Object?> get props => [
         background,
         backgroundColor,
-        accentColor,
         fontFamily,
         showWatermark,
       ];

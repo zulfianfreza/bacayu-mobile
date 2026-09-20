@@ -8,16 +8,17 @@ import 'package:mobile/core/theme/app_typography.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 
 void main() {
-  SessionShareData buildData({String title = 'The Hobbit', int? streakDays}) =>
+  SessionShareData buildData({
+    String title = 'The Hobbit',
+    int durationSeconds = 1800,
+  }) =>
       SessionShareData(
         bookTitle: title,
         bookAuthors: const ['J.R.R. Tolkien'],
         bookCoverUrl: null,
         pagesRead: 24,
-        durationSeconds: 1800,
+        durationSeconds: durationSeconds,
         speedPpm: 0.8,
-        sessionDate: DateTime(2026, 3, 14),
-        streakDays: streakDays,
       );
 
   Widget wrap(SessionShareData data, ShareCardTheme theme) {
@@ -27,8 +28,8 @@ void main() {
       home: Scaffold(
         body: Center(
           child: SizedBox(
-            width: 320,
-            height: 400,
+            width: SessionShareCard.designWidth,
+            height: SessionShareCard.designHeight,
             child: SessionShareCard(data: data, theme: theme),
           ),
         ),
@@ -39,17 +40,48 @@ void main() {
   /// Everything the card paints behind its text.
   Finder backgroundLayer() => find.byKey(SessionShareCard.backgroundKey);
 
-  testWidgets('renders date, title, author, stats and watermark without a '
-      'streak chip', (tester) async {
+  test('the canvas is 9:16, so the 3x export lands on 1080x1920', () {
+    expect(SessionShareCard.aspectRatio, closeTo(9 / 16, 0.0001));
+    expect(SessionShareCard.designWidth * 3, 1080);
+    expect(SessionShareCard.designHeight * 3, 1920);
+  });
+
+  testWidgets('the text block stops short of the bottom of the story frame',
+      (tester) async {
+    await tester.pumpWidget(wrap(buildData(), ShareCardTheme.photo));
+
+    // The platform's reply bar covers the last strip of a story, so the block
+    // keeps a margin there instead of sitting on the card's own padding.
+    final card = tester.getRect(backgroundLayer());
+    final block = tester.getRect(find.text('TIME'));
+    expect(card.bottom - block.bottom, greaterThan(card.height * 0.05));
+  });
+
+  testWidgets('has no rounded frame, so the export is a full-bleed rectangle', (
+    tester,
+  ) async {
+    await tester.pumpWidget(wrap(buildData(), ShareCardTheme.photo));
+
+    expect(
+      find.descendant(
+        of: find.byType(SessionShareCard),
+        matching: find.byType(ClipRRect),
+      ),
+      findsNothing,
+    );
+  });
+
+  testWidgets('renders date, title, author, stats and watermark', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap(buildData(), ShareCardTheme.photo));
 
     expect(find.text('The Hobbit'), findsOneWidget);
     expect(find.text('by J.R.R. Tolkien'), findsOneWidget);
-    expect(find.textContaining('2026'), findsOneWidget);
 
     // Each stat is a bare value with its unit on the label underneath, the
     // way an activity card reads.
-    expect(find.text('30:00'), findsOneWidget);
+    expect(find.text('30m'), findsOneWidget);
     expect(find.text('24'), findsOneWidget);
     expect(find.text('0.8 ppm'), findsOneWidget);
     expect(find.text('TIME'), findsOneWidget);
@@ -58,16 +90,32 @@ void main() {
 
     // Watermark on every preset — it's the growth loop.
     expect(find.text('BacaYu'), findsOneWidget);
-    expect(find.textContaining('day streak'), findsNothing);
   });
 
-  testWidgets('renders the streak chip when streakDays is provided',
-      (tester) async {
+  testWidgets('carries no date, and the brand sits above the title', (
+    tester,
+  ) async {
+    await tester.pumpWidget(wrap(buildData(), ShareCardTheme.photo));
+
+    expect(find.textContaining('2026'), findsNothing);
+
+    // The brand opens the text block rather than floating in the top corner.
+    expect(
+      tester.getRect(find.text('BacaYu')).bottom,
+      lessThan(tester.getRect(find.text('The Hobbit')).top),
+    );
+  });
+
+  testWidgets('states the duration in units, the way Strava does', (
+    tester,
+  ) async {
     await tester.pumpWidget(
-      wrap(buildData(streakDays: 12), ShareCardTheme.photo),
+      wrap(buildData(durationSeconds: 6367), ShareCardTheme.photo),
     );
 
-    expect(find.text('🔥 12 day streak'), findsOneWidget);
+    // 1h 46m 7s — the whole value, inside a third of the card.
+    expect(find.text('1h 46m 7s'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('photo preset paints the cover behind the text',
@@ -102,7 +150,7 @@ void main() {
       'sticker preset drops the cover and keeps a translucent scrim, so the '
       'user\'s own photo shows through', (tester) async {
     await tester.pumpWidget(
-      wrap(buildData(streakDays: 3), ShareCardTheme.sticker),
+      wrap(buildData(), ShareCardTheme.sticker),
     );
 
     expect(

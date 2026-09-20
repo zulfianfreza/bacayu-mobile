@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../../core/widgets/sheet_header.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/get_current_user.dart';
 import '../../domain/entities/activity_comment.dart';
@@ -122,11 +123,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(l10n.commentsTitle, style: AppTypography.heading),
-                ),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+                child: SheetHeader(title: l10n.commentsTitle),
               ),
               Expanded(
                 child: FutureBuilder<Either<Failure, List<ActivityComment>>>(

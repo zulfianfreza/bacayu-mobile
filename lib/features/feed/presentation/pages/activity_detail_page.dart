@@ -6,8 +6,6 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/sharing/models/session_share_data.dart';
-import '../../../../core/sharing/widgets/share_card_preview_sheet.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -28,6 +26,7 @@ import '../../domain/entities/activity.dart';
 import '../../domain/entities/activity_detail.dart';
 import '../../domain/usecases/get_activity_detail.dart';
 import '../widgets/activity_author_header.dart';
+import '../widgets/activity_share.dart';
 
 /// Full-page counterpart to [CommentsBottomSheet] — reached by tapping an
 /// activity card's main body (cover/title/badge, NOT the comment icon,
@@ -151,13 +150,14 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
   final _controller = TextEditingController();
   final List<ActivityComment> _newComments = [];
   User? _currentUser;
-  late final Future<User?> _currentUserFuture;
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    _currentUserFuture = _loadCurrentUser();
+    // Fire-and-forget: this only feeds the comment box's own avatar, and
+    // nothing on the page blocks on it.
+    _loadCurrentUser();
   }
 
   Future<User?> _loadCurrentUser() async {
@@ -167,35 +167,6 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
       setState(() => _currentUser = user);
       return user;
     });
-  }
-
-  /// A past session's streak is already settled, so this reuses the user this
-  /// page loaded for the comment box instead of re-fetching — and awaits that
-  /// in-flight load rather than risking a `null` badge on a fast tap.
-  Future<void> _shareSession(Activity activity) async {
-    final payload = activity.payload;
-    if (payload is! SessionActivityPayload) return;
-
-    final user = await _currentUserFuture;
-    if (!mounted) return;
-
-    final streak = user?.currentStreak;
-
-    await ShareCardPreviewSheet.show(
-      context,
-      data: SessionShareData(
-        bookTitle: payload.bookTitle,
-        // The denormalized feed payload has no book authors — the card drops
-        // that line rather than inventing one.
-        bookAuthors: const [],
-        bookCoverUrl: payload.bookCoverUrl,
-        pagesRead: payload.pagesRead,
-        durationSeconds: payload.activeDurationSeconds,
-        speedPpm: payload.speedPpm,
-        sessionDate: activity.occurredAt,
-        streakDays: streak != null && streak > 0 ? streak : null,
-      ),
-    );
   }
 
   @override
@@ -243,8 +214,7 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
     // to your own posts only. Until the viewer is known this stays false, which
     // hides the button rather than showing it on someone else's activity.
     final isOwner = _currentUser?.id == activity.author.id;
-    final canShare =
-        activity.payload is SessionActivityPayload && isOwner;
+    final canShare = canShareActivity(activity, isOwnActivity: isOwner);
 
     return Column(
       children: [
@@ -297,8 +267,16 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                                 ? ChunkyButton(
                                     label: l10n.share,
                                     variant: ChunkyButtonVariant.secondary,
-                                    icon: const Icon(Icons.ios_share, size: 18),
-                                    onPressed: () => _shareSession(activity),
+                                    icon: Image.asset(
+                                      'assets/icons/share-stroke.png',
+                                      width: 18,
+                                      height: 18,
+                                      // Matches the variant's foreground, which
+                                      // a bundled PNG can't inherit.
+                                      color: AppColors.ink,
+                                    ),
+                                    onPressed: () =>
+                                        shareActivity(context, activity),
                                   )
                                 : const SizedBox.shrink(),
                           ),

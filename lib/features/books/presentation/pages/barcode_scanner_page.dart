@@ -6,6 +6,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../../core/widgets/sheet_header.dart';
 import '../../../shelf/domain/usecases/add_to_shelf.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/usecases/lookup_book_by_isbn.dart';
@@ -144,10 +145,13 @@ class _ScanResultSheet extends StatelessWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // No title: the card below already names the book it found.
+            const SheetHeader(),
+            const SizedBox(height: 16),
             BookResultCard(book: book),
             const SizedBox(height: 16),
             SizedBox(

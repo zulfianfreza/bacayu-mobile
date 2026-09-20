@@ -27,7 +27,8 @@
       "Shell(git:*)",
       "Shell(cd /Users/julian/Code/Projects/bacayu/mobile && grep -A 3 '^ go_router:' pubspec.lock; V=$(grep -A 3 '^ go_router:' pubspec.lock | grep version | tr -d ' \"' | cut -d: -f2); echo \"version=$V\"; grep -rn \"Navigator(\" ~/.pub-cache/hosted/pub.dev/go_router-$V/lib/src/*.dart | head)",
       "Shell(cat:*)",
-      "Shell(cd /Users/julian/Code/Projects/bacayu/mobile && python3 - <<'EOF' import re p = 'lib/core/theme/app_theme.dart' s = open(p).read() start = s.index(' // TEMP-CHECK\\n') end = s.index(' elevatedButtonTheme') s = s[:start] + s[end:] open(p, 'w').write(s) EOF flutter test test/core/theme/app_theme_test.dart 2>&1 | grep -E \"app bar|Expected|Actual|passed|failed\" | head -12)"
+      "Shell(cd /Users/julian/Code/Projects/bacayu/mobile && python3 - <<'EOF' import re p = 'lib/core/theme/app_theme.dart' s = open(p).read() start = s.index(' // TEMP-CHECK\\n') end = s.index(' elevatedButtonTheme') s = s[:start] + s[end:] open(p, 'w').write(s) EOF flutter test test/core/theme/app_theme_test.dart 2>&1 | grep -E \"app bar|Expected|Actual|passed|failed\" | head -12)",
+      "Shell(cd /Users/julian/Code/Projects/bacayu/mobile && git show HEAD:lib/core/sharing/widgets/session_share_card.dart | dart format --output=none --set-exit-if-changed - ; echo \"HEAD exit=$?\"; git show HEAD:lib/core/sharing/widgets/session_share_card.dart > /tmp/head_card.dart && dart format --output=show /tmp/head_card.dart | diff /tmp/head_card.dart - | head -30)"
     ],
     "deny": [],
     "defaultMode": "default"

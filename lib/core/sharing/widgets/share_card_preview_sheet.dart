@@ -7,6 +7,8 @@ import '../../localization/build_context_extension.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_typography.dart';
+import '../../widgets/chunky_button.dart';
+import '../../widgets/sheet_header.dart';
 import '../models/session_share_data.dart';
 import '../models/share_card_theme.dart';
 import '../services/share_card_service.dart';
@@ -155,122 +157,158 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final carouselHeight =
-        (MediaQuery.sizeOf(context).height * 0.5).clamp(280.0, 520.0);
+    // The card is the point of the sheet, so it takes the biggest slice that
+    // still leaves room for the picker and the two actions on a short phone.
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final carouselHeight = (screenHeight * 0.45).clamp(220.0, 460.0);
     final isBusy = _busyAction != null;
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.slate200,
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(l10n.shareSession, style: AppTypography.heading),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: carouselHeight,
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: widget.themes.length,
-                onPageChanged: _onPageChanged,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Center(
-                      child: AspectRatio(
-                        aspectRatio: SessionShareCard.aspectRatio,
-                        // The backdrop stands in for the user's own photo and
-                        // sits OUTSIDE the boundary, so it is never captured
-                        // into the exported sticker.
-                        child: _PreviewBackdrop(
-                          theme: widget.themes[index],
-                          child: RepaintBoundary(
-                            key: _cardKeys[index],
-                            child: SessionShareCard(
-                              data: widget.data,
-                              theme: widget.themes[index],
+      // Scrollable rather than overflowing: a landscape phone is shorter than
+      // the card's floor height plus the chrome around it.
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SheetHeader(title: l10n.shareSession),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: carouselHeight,
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: widget.themes.length,
+                  onPageChanged: _onPageChanged,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Center(
+                        child: AspectRatio(
+                          aspectRatio: SessionShareCard.aspectRatio,
+                          // The backdrop stands in for the user's own photo and
+                          // sits OUTSIDE the boundary, so it is never captured
+                          // into the exported sticker.
+                          child: _PreviewBackdrop(
+                            theme: widget.themes[index],
+                            child: RepaintBoundary(
+                              key: _cardKeys[index],
+                              child: SessionShareCard(
+                                data: widget.data,
+                                theme: widget.themes[index],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (var i = 0; i < widget.themes.length; i++)
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: i == _pageIndex ? 20 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: i == _pageIndex
-                          ? AppColors.tangerine500
-                          : AppColors.slate200,
-                      borderRadius: BorderRadius.circular(AppRadius.pill),
+              const SizedBox(height: 12),
+              _StyleDots(count: widget.themes.length, index: _pageIndex),
+              if (widget.themes[_pageIndex].isSticker) ...[
+                const SizedBox(height: 12),
+                _SheetNote(text: l10n.shareStickerHint),
+              ],
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: ChunkyButton(
+                      label: l10n.share,
+                      // Swaps the label for a spinner in place, so neither
+                      // button moves when the other one is working.
+                      isLoading: _busyAction == _Action.share,
+                      onPressed: isBusy ? null : _share,
+                      icon: Image.asset(
+                        'assets/icons/share-stroke.png',
+                        width: 18,
+                        height: 18,
+                        // The primary variant's foreground, which a bundled PNG
+                        // can't inherit.
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-              ],
-            ),
-            if (widget.themes[_pageIndex].isSticker) ...[
-              const SizedBox(height: 12),
-              Text(
-                l10n.shareStickerHint,
-                textAlign: TextAlign.center,
-                style: AppTypography.caption,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ChunkyButton(
+                      label: l10n.download,
+                      variant: ChunkyButtonVariant.secondary,
+                      isLoading: _busyAction == _Action.download,
+                      onPressed: isBusy ? null : _download,
+                      // No bundled download glyph exists yet; the platform's own
+                      // is clearer than a borrowed icon that means something
+                      // else.
+                      icon: const Icon(
+                        Icons.download,
+                        size: 18,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: isBusy ? null : _share,
-                    icon: _busyAction == _Action.share
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.ios_share, size: 18),
-                    label: Text(l10n.share),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: isBusy ? null : _download,
-                    icon: _busyAction == _Action.download
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.download, size: 18),
-                    label: Text(l10n.download),
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+/// Carousel indicator, in the app's pill language: the style on screen is a
+/// wide tangerine pill, the rest are slate dots — the same marks the onboarding
+/// progress uses.
+class _StyleDots extends StatelessWidget {
+  const _StyleDots({required this.count, required this.index});
+
+  final int count;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (var i = 0; i < count; i++)
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: i == index ? 28 : 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: i == index ? AppColors.tangerine500 : AppColors.slate200,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// The one line of guidance a preset needs — on a soft fill rather than as a
+/// bare caption, so it reads as part of the sheet's chrome instead of as
+/// content the user has to parse.
+class _SheetNote extends StatelessWidget {
+  const _SheetNote({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.slate100,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: AppTypography.caption,
       ),
     );
   }
@@ -281,6 +319,9 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
 /// The sticker's scrim is translucent and its top is nearly clear, so a
 /// preview on the sheet's own flat surface would misrepresent it — the whole
 /// point is how it sits on media. This stands in for that media.
+///
+/// Square-edged, like the card itself: the export has no rounded frame, and a
+/// preview that draws one would not be showing what gets shared.
 class _PreviewBackdrop extends StatelessWidget {
   const _PreviewBackdrop({required this.theme, required this.child});
 
@@ -291,18 +332,15 @@ class _PreviewBackdrop extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!theme.isSticker) return child;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF9AAEC4), Color(0xFFE7D3B8)],
-          ),
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF9AAEC4), Color(0xFFE7D3B8)],
         ),
-        child: child,
       ),
+      child: child,
     );
   }
 }

@@ -11,10 +11,12 @@ import '../../../social/domain/usecases/update_activity_visibility.dart';
 import '../../../social/presentation/widgets/comments_bottom_sheet.dart';
 import '../../../social/presentation/widgets/like_button.dart';
 import '../../domain/entities/activity.dart';
+import 'activity_share.dart';
 
 /// Bottom row shared by [SessionActivityCard]/[BadgeActivityCard] — like
-/// count, comment count (tap opens [CommentsBottomSheet]), and — only for
-/// the requester's own activity — a small "..." menu to change visibility.
+/// count, comment count (tap opens [CommentsBottomSheet]), a share button on
+/// the viewer's own session activities, and — only for the viewer's own
+/// activity — a small "..." menu to change visibility.
 ///
 /// [isOwnActivity] is caller-supplied rather than derived here: the caller
 /// knows who is viewing (the social feed keeps the viewer's id alongside the
@@ -55,6 +57,7 @@ class ActivityCardFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final canShare = canShareActivity(activity, isOwnActivity: isOwnActivity);
 
     return Row(
       children: [
@@ -83,6 +86,31 @@ class ActivityCardFooter extends StatelessWidget {
             ),
           ),
         ),
+        // Sharing is offered on the card itself, not only inside the detail
+        // page: posting the session is what the card is for, and on your own
+        // activity this is the action you came back for.
+        if (canShare) ...[
+          const SizedBox(width: 4),
+          Semantics(
+            label: l10n.share,
+            button: true,
+            child: InkWell(
+              onTap: () => shareActivity(context, activity),
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+              child: Padding(
+                // Same padding as the comment action so the two read as one
+                // row of equally weighted controls.
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Image.asset(
+                  'assets/icons/share-stroke.png',
+                  width: 24,
+                  height: 24,
+                  color: AppColors.slate600,
+                ),
+              ),
+            ),
+          ),
+        ],
         const Spacer(),
         if (isOwnActivity)
           PopupMenuButton<ActivityVisibility>(

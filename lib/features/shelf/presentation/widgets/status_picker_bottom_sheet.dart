@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/option_tile.dart';
+import '../../../../core/widgets/sheet_header.dart';
 import '../../domain/entities/user_book.dart';
 
 /// Bottom sheet listing the 4 [ShelfStatus] options — the current status is
@@ -45,12 +45,12 @@ class StatusPickerBottomSheet extends StatelessWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l10n.changeStatus, style: AppTypography.heading),
+            SheetHeader(title: l10n.changeStatus),
             const SizedBox(height: 16),
             for (var i = 0; i < options.length; i++) ...[
               if (i > 0) const SizedBox(height: 8),

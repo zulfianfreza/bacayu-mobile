@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/sharing/models/session_share_data.dart';
 import '../../../../core/sharing/widgets/share_card_preview_sheet.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../../core/widgets/error_listener.dart';
-import '../../../auth/domain/usecases/get_current_user.dart';
 import '../../../badges/presentation/widgets/badge_unlocked_modal.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../cubit/session_timer_cubit.dart';
@@ -81,22 +80,8 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
     return pagesRead / (_activeDurationSeconds / 60);
   }
 
-  /// Re-fetched (not read off `AuthCubit`'s cached user) right before opening
-  /// the sheet: `current_streak` is updated by an ASYNC stats→auth path after
-  /// a session is recorded, so a stale cached user would show yesterday's
-  /// streak. A failed fetch just drops the badge — never blocks sharing.
-  Future<int?> _freshStreakDays() async {
-    final result = await getIt<GetCurrentUser>().call();
-    return result.fold((_) => null, (user) {
-      return user.currentStreak > 0 ? user.currentStreak : null;
-    });
-  }
-
   Future<void> _shareSession(BuildContext context) async {
     final pagesRead = _pagesRead;
-    final streakDays = await _freshStreakDays();
-
-    if (!context.mounted) return;
 
     await ShareCardPreviewSheet.show(
       context,
@@ -107,8 +92,6 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
         pagesRead: pagesRead,
         durationSeconds: _activeDurationSeconds,
         speedPpm: _speedPpm(pagesRead),
-        sessionDate: DateTime.now(),
-        streakDays: streakDays,
       ),
     );
   }
@@ -209,7 +192,14 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
                     onPressed: () => _shareSession(context),
-                    icon: const Icon(Icons.ios_share, size: 18),
+                    icon: Image.asset(
+                      'assets/icons/share-stroke.png',
+                      width: 18,
+                      height: 18,
+                      // Matches the outlined button's foreground, which a
+                      // bundled PNG can't inherit.
+                      color: AppColors.tangerine700,
+                    ),
                     label: Text(l10n.share),
                   ),
                 ],

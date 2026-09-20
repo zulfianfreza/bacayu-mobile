@@ -1232,12 +1232,6 @@ abstract class AppLocalizations {
   /// **'Couldn\'t save the image.'**
   String get saveImageFailed;
 
-  /// Streak badge on a shareable session card
-  ///
-  /// In en, this message translates to:
-  /// **'🔥 {count} day streak'**
-  String streakDaysChip(int count);
-
   /// Label above the session duration on a shareable session card
   ///
   /// In en, this message translates to:

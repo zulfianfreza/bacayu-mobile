@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/sharing/models/session_share_data.dart';
 import 'package:mobile/core/sharing/services/share_card_service.dart';
 import 'package:mobile/core/sharing/widgets/share_card_preview_sheet.dart';
+import 'package:mobile/core/widgets/chunky_button.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -23,8 +24,6 @@ void main() {
     pagesRead: 24,
     durationSeconds: 1800,
     speedPpm: 0.8,
-    sessionDate: DateTime(2026, 3, 14),
-    streakDays: 5,
   );
 
   setUpAll(() {
@@ -85,7 +84,7 @@ void main() {
   }
 
   Future<void> tapShare(WidgetTester tester) async {
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Share'));
+    await tester.tap(find.widgetWithText(ChunkyButton, 'Share'));
     await tester.pumpAndSettle();
   }
 
@@ -98,7 +97,7 @@ void main() {
     expect(captureCount, 1);
     expect(shared, hasLength(1));
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Download'));
+    await tester.tap(find.widgetWithText(ChunkyButton, 'Download'));
     await tester.pumpAndSettle();
 
     // No second capture — the style on screen hasn't changed.
@@ -165,8 +164,8 @@ void main() {
 
     expect(find.text("Couldn't share. Please try again."), findsOneWidget);
 
-    final shareButton = tester.widget<ElevatedButton>(
-      find.widgetWithText(ElevatedButton, 'Share'),
+    final shareButton = tester.widget<ChunkyButton>(
+      find.widgetWithText(ChunkyButton, 'Share'),
     );
     expect(shareButton.onPressed, isNotNull);
   });

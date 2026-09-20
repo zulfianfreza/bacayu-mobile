@@ -617,11 +617,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveImageFailed => 'Couldn\'t save the image.';
 
   @override
-  String streakDaysChip(int count) {
-    return '🔥 $count day streak';
-  }
-
-  @override
   String get shareStatTime => 'Time';
 
   @override

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../../core/widgets/sheet_header.dart';
 import '../../domain/entities/book_input.dart';
 import '../../domain/usecases/add_manual_book.dart';
 
@@ -72,7 +72,7 @@ class _AddManualBookSheetState extends State<AddManualBookSheet> {
         padding: EdgeInsets.only(
           left: 16,
           right: 16,
-          top: 16,
+          top: 12,
           bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
         ),
         child: Form(
@@ -81,7 +81,7 @@ class _AddManualBookSheetState extends State<AddManualBookSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l10n.addManually, style: AppTypography.heading),
+              SheetHeader(title: l10n.addManually),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _titleController,

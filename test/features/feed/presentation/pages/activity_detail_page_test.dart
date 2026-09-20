@@ -387,6 +387,17 @@ void main() {
     await tester.pump();
 
     expect(find.text('Share'), findsOneWidget);
+    // The app's own artwork, not a Material glyph.
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Image &&
+            widget.image is AssetImage &&
+            (widget.image as AssetImage).assetName ==
+                'assets/icons/share-stroke.png',
+      ),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
 

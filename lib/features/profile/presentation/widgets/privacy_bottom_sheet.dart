@@ -4,8 +4,8 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/option_tile.dart';
+import '../../../../core/widgets/sheet_header.dart';
 import '../../../auth/domain/usecases/update_profile.dart';
 
 const _options = ['private', 'followers', 'public'];
@@ -72,12 +72,12 @@ class _PrivacyBottomSheetState extends State<PrivacyBottomSheet> {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l10n.privacy, style: AppTypography.heading),
+            SheetHeader(title: l10n.privacy),
             const SizedBox(height: 16),
             for (var i = 0; i < _options.length; i++) ...[
               if (i > 0) const SizedBox(height: 8),

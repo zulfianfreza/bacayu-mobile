@@ -5,8 +5,8 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/localization/locale_cubit.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/option_tile.dart';
+import '../../../../core/widgets/sheet_header.dart';
 
 /// Bottom sheet to switch the app's active locale — reads/writes
 /// [LocaleCubit] directly (already provided at the app root in `app.dart`).
@@ -34,12 +34,12 @@ class LanguageBottomSheet extends StatelessWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l10n.language, style: AppTypography.heading),
+            SheetHeader(title: l10n.language),
             const SizedBox(height: 16),
             OptionTile(
               label: l10n.languageEnglish,

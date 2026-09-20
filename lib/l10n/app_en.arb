@@ -814,15 +814,6 @@
   "@saveImageFailed": {
     "description": "Snackbar when saving the shareable card to the gallery fails"
   },
-  "streakDaysChip": "🔥 {count} day streak",
-  "@streakDaysChip": {
-    "description": "Streak badge on a shareable session card",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "shareStatTime": "Time",
   "@shareStatTime": {
     "description": "Label above the session duration on a shareable session card"

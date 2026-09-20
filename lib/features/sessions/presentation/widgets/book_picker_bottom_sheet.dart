@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
+import '../../../../core/widgets/sheet_header.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../../shelf/domain/usecases/list_shelf.dart';
 
@@ -31,14 +32,15 @@ class _BookPickerBottomSheetState extends State<BookPickerBottomSheet> {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.whatAreYouReading, style: AppTypography.heading),
-            const SizedBox(height: 4),
-            Text(l10n.bookPickerSubtitle, style: AppTypography.caption),
+            SheetHeader(
+              title: l10n.whatAreYouReading,
+              subtitle: l10n.bookPickerSubtitle,
+            ),
             const SizedBox(height: 16),
             ConstrainedBox(
               constraints: BoxConstraints(

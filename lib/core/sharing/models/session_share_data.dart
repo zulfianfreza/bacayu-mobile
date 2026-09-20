@@ -15,8 +15,6 @@ class SessionShareData extends Equatable {
     required this.pagesRead,
     required this.durationSeconds,
     required this.speedPpm,
-    required this.sessionDate,
-    this.streakDays,
   });
 
   final String bookTitle;
@@ -25,12 +23,6 @@ class SessionShareData extends Equatable {
   final int pagesRead;
   final int durationSeconds;
   final double speedPpm;
-  final DateTime sessionDate;
-
-  /// `null` renders the card without the streak chip — never a blocker for
-  /// sharing (the fresh `GetCurrentUser` that feeds this can fail, and that's
-  /// fine).
-  final int? streakDays;
 
   @override
   List<Object?> get props => [
@@ -40,7 +32,5 @@ class SessionShareData extends Equatable {
         pagesRead,
         durationSeconds,
         speedPpm,
-        sessionDate,
-        streakDays,
       ];
 }
