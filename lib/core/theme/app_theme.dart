@@ -62,6 +62,17 @@ class AppTheme {
         backgroundColor: AppColors.surface,
         headerBackgroundColor: AppColors.surface,
       ),
+      // And once more for app bars: Material 3 keeps them `surface` at rest but
+      // paints `colorScheme.surfaceTint` over the top as soon as content
+      // scrolls underneath, which is the seeded tangerine — so every page
+      // turned warm somewhere between the top and the bottom of its list.
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.surface,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: AppColors.ink,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.tangerine,

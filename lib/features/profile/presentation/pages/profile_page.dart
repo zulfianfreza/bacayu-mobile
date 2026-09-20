@@ -15,6 +15,12 @@ import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/raised_box.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/logout.dart';
+import '../../../feed/domain/entities/activity.dart';
+import '../../../feed/presentation/cubit/feed_cubit.dart';
+import '../../../feed/presentation/cubit/feed_state.dart';
+import '../../../feed/presentation/widgets/activity_author_header.dart';
+import '../../../feed/presentation/widgets/badge_activity_card.dart';
+import '../../../feed/presentation/widgets/session_activity_card.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 import '../widgets/language_bottom_sheet.dart';
@@ -38,7 +44,212 @@ class ProfilePage extends StatelessWidget {
 class _ProfileView extends StatelessWidget {
   const _ProfileView();
 
-  Future<void> _openReadingGoals(BuildContext context, User user) async {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: BlocBuilder<ProfileCubit, ProfileState>(
+          builder: (context, state) {
+            return switch (state) {
+              ProfileInitial() || ProfileLoading() => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              ProfileError(:final failure) => Center(
+                child: Text(
+                  failure.localizedMessage(context),
+                  style: AppTypography.body,
+                ),
+              ),
+              ProfileLoaded() => _ProfileTabs(state: state),
+            };
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// Who you are, then two tabs: your own activity and your settings.
+///
+/// The identity block scrolls away and the tab bar stays put — the header is
+/// tall enough that pinning it would leave a list almost no room.
+class _ProfileTabs extends StatelessWidget {
+  const _ProfileTabs({required this.state});
+
+  final ProfileLoaded state;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    // Provided above the tab view on purpose: switching tabs must not throw the
+    // loaded activity away and fetch it again.
+    return BlocProvider(
+      create: (_) => getIt<MyActivityCubit>()..refresh(),
+      child: DefaultTabController(
+        length: 2,
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                child: Column(
+                  children: [
+                    _ProfileHeader(
+                      user: state.user,
+                      followersCount: state.followersCount,
+                      followingCount: state.followingCount,
+                    ),
+                    const SizedBox(height: 24),
+                    _StatsRow(
+                      booksFinished: state.booksFinished,
+                      currentStreak: state.user.currentStreak,
+                      badgesUnlocked: state.badgesUnlocked,
+                      totalBadges: state.totalBadges,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _PinnedTabBar(
+                TabBar(
+                  labelColor: AppColors.tangerine600,
+                  unselectedLabelColor: AppColors.slate500,
+                  labelStyle: AppTypography.button,
+                  unselectedLabelStyle: AppTypography.button,
+                  indicatorColor: AppColors.tangerine500,
+                  indicatorWeight: 3,
+                  dividerColor: AppColors.slate200,
+                  tabs: [
+                    Tab(text: l10n.profileActivityTab),
+                    Tab(text: l10n.profileSettingsTab),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          body: TabBarView(
+            children: [
+              const _ActivityTab(),
+              _SettingsTab(user: state.user),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Holds the tab bar on screen once the identity block has scrolled past.
+class _PinnedTabBar extends SliverPersistentHeaderDelegate {
+  const _PinnedTabBar(this.tabBar);
+
+  final TabBar tabBar;
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    // Opaque: cards scroll underneath this bar.
+    return ColoredBox(color: AppColors.surface, child: tabBar);
+  }
+
+  @override
+  bool shouldRebuild(_PinnedTabBar oldDelegate) => oldDelegate.tabBar != tabBar;
+}
+
+/// The reader's own activity, newest first.
+///
+/// Every item here is theirs, so the cards keep their default `isOwnActivity`
+/// — which is also what keeps the visibility menu on their own posts. The
+/// author line stays because it is the only place a card says *when* something
+/// happened.
+class _ActivityTab extends StatelessWidget {
+  const _ActivityTab();
+
+  ActivityAuthorHeader _authorOf(Activity activity) => ActivityAuthorHeader(
+    name: activity.author.name,
+    avatarUrl: activity.author.avatarUrl,
+    occurredAt: activity.occurredAt,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return BlocBuilder<MyActivityCubit, FeedState>(
+      builder: (context, state) => switch (state) {
+        FeedInitial() || FeedLoading() => const Center(
+          child: CircularProgressIndicator(),
+        ),
+        FeedError(:final failure) => _ActivityMessage(
+          icon: Icons.cloud_off,
+          text: failure.localizedMessage(context),
+        ),
+        FeedLoaded(:final activities, :final isLoadingMore) => activities.isEmpty
+            ? _ActivityMessage(
+                icon: Icons.auto_stories_outlined,
+                text: l10n.noActivityYet,
+              )
+            : NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  final metrics = notification.metrics;
+                  if (metrics.pixels >= metrics.maxScrollExtent - 300) {
+                    context.read<MyActivityCubit>().loadMore();
+                  }
+                  return false;
+                },
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: activities.length + (isLoadingMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index >= activities.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    final activity = activities[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: switch (activity.payload) {
+                        SessionActivityPayload() => SessionActivityCard(
+                          activity: activity,
+                          author: _authorOf(activity),
+                        ),
+                        BadgeActivityPayload() => BadgeActivityCard(
+                          activity: activity,
+                          author: _authorOf(activity),
+                        ),
+                      },
+                    );
+                  },
+                ),
+              ),
+      },
+    );
+  }
+}
+
+/// Everything that used to sit under the profile header — same groups, same
+/// order, just behind its own tab.
+class _SettingsTab extends StatelessWidget {
+  const _SettingsTab({required this.user});
+
+  final User user;
+
+  Future<void> _openReadingGoals(BuildContext context) async {
     final changed = await pushFullScreen<bool>(
       context,
       (_) => ReadingGoalsPage(user: user),
@@ -48,7 +259,7 @@ class _ProfileView extends StatelessWidget {
     }
   }
 
-  Future<void> _openPrivacyPicker(BuildContext context, User user) async {
+  Future<void> _openPrivacyPicker(BuildContext context) async {
     final changed = await PrivacyBottomSheet.show(
       context,
       currentValue: user.privacyDefault,
@@ -87,81 +298,70 @@ class _ProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Scaffold(
-      body: SafeArea(
-        child: BlocBuilder<ProfileCubit, ProfileState>(
-          builder: (context, state) {
-            return switch (state) {
-              ProfileInitial() || ProfileLoading() => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              ProfileError(:final failure) => Center(
-                child: Text(
-                  failure.localizedMessage(context),
-                  style: AppTypography.body,
-                ),
-              ),
-              ProfileLoaded() => RefreshIndicator(
-                onRefresh: () => context.read<ProfileCubit>().load(),
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                  children: [
-                    _ProfileHeader(
-                      user: state.user,
-                      followersCount: state.followersCount,
-                      followingCount: state.followingCount,
-                    ),
-                    const SizedBox(height: 24),
-                    _StatsRow(
-                      booksFinished: state.booksFinished,
-                      currentStreak: state.user.currentStreak,
-                      badgesUnlocked: state.badgesUnlocked,
-                      totalBadges: state.totalBadges,
-                    ),
-                    const SizedBox(height: 24),
-                    SettingsListGroup(
-                      children: [
-                        SettingsListTile(
-                          icon: "assets/icons/flag-stroke.png",
-                          label: l10n.readingGoals,
-                          onTap: () => _openReadingGoals(context, state.user),
-                        ),
-                        SettingsListTile(
-                          icon: "assets/icons/globe-stroke.png",
-                          label: l10n.language,
-                          onTap: () => LanguageBottomSheet.show(context),
-                        ),
-                        SettingsListTile(
-                          icon: "assets/icons/lock-stroke.png",
-                          label: l10n.privacy,
-                          onTap: () => _openPrivacyPicker(context, state.user),
-                        ),
-                        SettingsListTile(
-                          icon: "assets/icons/question-mark-stroke.png",
-                          label: l10n.helpAndSupport,
-                          onTap: () => pushFullScreen(
-                            context,
-                            (_) => const HelpSupportPage(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    SettingsListGroup(
-                      children: [
-                        SettingsListTile(
-                          icon: "assets/icons/logout-stroke.png",
-                          label: l10n.logOut,
-                          destructive: true,
-                          onTap: () => _confirmLogOut(context),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            };
-          },
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        SettingsListGroup(
+          children: [
+            SettingsListTile(
+              icon: "assets/icons/flag-stroke.png",
+              label: l10n.readingGoals,
+              onTap: () => _openReadingGoals(context),
+            ),
+            SettingsListTile(
+              icon: "assets/icons/globe-stroke.png",
+              label: l10n.language,
+              onTap: () => LanguageBottomSheet.show(context),
+            ),
+            SettingsListTile(
+              icon: "assets/icons/lock-stroke.png",
+              label: l10n.privacy,
+              onTap: () => _openPrivacyPicker(context),
+            ),
+            SettingsListTile(
+              icon: "assets/icons/question-mark-stroke.png",
+              label: l10n.helpAndSupport,
+              onTap: () =>
+                  pushFullScreen(context, (_) => const HelpSupportPage()),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SettingsListGroup(
+          children: [
+            SettingsListTile(
+              icon: "assets/icons/logout-stroke.png",
+              label: l10n.logOut,
+              destructive: true,
+              onTap: () => _confirmLogOut(context),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Nothing to show, or the list failed to load — the quiet icon-and-line the
+/// app uses wherever a screen can come up empty.
+class _ActivityMessage extends StatelessWidget {
+  const _ActivityMessage({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 40, color: AppColors.tangerine300),
+            const SizedBox(height: 12),
+            Text(text, style: AppTypography.body, textAlign: TextAlign.center),
+          ],
         ),
       ),
     );
@@ -193,7 +393,7 @@ class _ProfileHeader extends StatelessWidget {
     final locale = Localizations.localeOf(context).toLanguageTag();
 
     return BorderedCard(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -206,7 +406,7 @@ class _ProfileHeader extends StatelessWidget {
                   border: Border.all(color: AppColors.slate200, width: 2),
                 ),
                 child: CircleAvatar(
-                  radius: 32,
+                  radius: 26,
                   backgroundColor: AppColors.tangerine100,
                   backgroundImage: hasAvatar
                       ? NetworkImage(user.avatarUrl)
@@ -242,8 +442,11 @@ class _ProfileHeader extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          // A rule rather than the 20 + 12 of blank that used to separate the
+          // two bands: it does the same job in half the height.
           const SizedBox(height: 12),
+          const Divider(height: 1, color: AppColors.slate200),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -290,15 +493,13 @@ class _FollowStat extends StatelessWidget {
         onTap: onTap,
         // Opaque so the gap either side of the column is part of the target.
         behavior: HitTestBehavior.opaque,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            children: [
-              Text('$count', style: AppTypography.heading),
-              const SizedBox(height: 2),
-              Text(label, style: AppTypography.caption),
-            ],
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('$count', style: AppTypography.heading),
+            const SizedBox(height: 2),
+            Text(label, style: AppTypography.caption),
+          ],
         ),
       ),
     );

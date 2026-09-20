@@ -6,6 +6,7 @@ import 'package:mobile/features/auth/domain/usecases/get_current_user.dart';
 import 'package:mobile/features/feed/domain/entities/activity.dart';
 import 'package:mobile/features/feed/domain/entities/activity_page.dart';
 import 'package:mobile/features/feed/domain/repositories/feed_repository.dart';
+import 'package:mobile/features/feed/domain/usecases/get_feed.dart';
 import 'package:mobile/features/feed/domain/usecases/get_social_feed.dart';
 import 'package:mobile/features/feed/presentation/cubit/feed_cubit.dart';
 import 'package:mobile/features/feed/presentation/cubit/feed_state.dart';
@@ -59,7 +60,7 @@ List<Activity> _items(int count, DateTime start) => [
 void main() {
   late _MockFeedRepository repository;
   late _MockAuthRepository authRepository;
-  late FeedCubit cubit;
+  late SocialFeedCubit cubit;
 
   setUp(() {
     repository = _MockFeedRepository();
@@ -67,7 +68,7 @@ void main() {
     when(
       () => authRepository.getCurrentUser(),
     ).thenAnswer((_) async => Right(_user()));
-    cubit = FeedCubit(
+    cubit = SocialFeedCubit(
       GetSocialFeed(repository),
       GetCurrentUser(authRepository),
     );
@@ -169,5 +170,34 @@ void main() {
       ),
     );
     expect((cubit.state as FeedLoaded).activities, shortPage);
+  });
+
+  // The paging itself is shared, so all that needs proving here is that the
+  // personal list walks the personal endpoint.
+  test('MyActivityCubit pages the personal feed, not the social one', () async {
+    final page1 = _items(20, DateTime(2026, 1, 10));
+    final page2 = _items(3, DateTime(2026, 1, 9));
+    when(() => repository.getFeed(cursor: null)).thenAnswer(
+      (_) async => Right(ActivityPage(items: page1, nextCursor: 'c1')),
+    );
+    when(() => repository.getFeed(cursor: 'c1')).thenAnswer(
+      (_) async => Right(ActivityPage(items: page2, nextCursor: null)),
+    );
+
+    final mine = MyActivityCubit(
+      GetFeed(repository),
+      GetCurrentUser(authRepository),
+    );
+    addTearDown(mine.close);
+
+    await mine.refresh();
+    expect((mine.state as FeedLoaded).activities, page1);
+    expect((mine.state as FeedLoaded).hasMore, isTrue);
+
+    await mine.loadMore();
+    expect((mine.state as FeedLoaded).activities, [...page1, ...page2]);
+    expect((mine.state as FeedLoaded).hasMore, isFalse);
+
+    verifyNever(() => repository.getSocialFeed(cursor: any(named: 'cursor')));
   });
 }

@@ -30,13 +30,13 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Two cubits, one page: HomeCubit owns the dashboard data, FeedCubit owns
-    // the social feed. The feed is paged on scroll, which is a whole state
+    // Two cubits, one page: HomeCubit owns the dashboard data, SocialFeedCubit
+    // owns the social feed. The feed is paged on scroll, which is a whole state
     // machine of its own — folding it into HomeCubit would just hide it.
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => getIt<HomeCubit>()..load()),
-        BlocProvider(create: (_) => getIt<FeedCubit>()..refresh()),
+        BlocProvider(create: (_) => getIt<SocialFeedCubit>()..refresh()),
       ],
       child: const _HomeView(),
     );
@@ -73,14 +73,14 @@ class _HomeViewState extends State<_HomeView> {
     if (!_scrollController.hasClients) return;
     final threshold = _scrollController.position.maxScrollExtent - 300;
     if (_scrollController.position.pixels >= threshold) {
-      context.read<FeedCubit>().loadMore();
+      context.read<SocialFeedCubit>().loadMore();
     }
   }
 
   Future<void> _refresh() async {
     await Future.wait([
       context.read<HomeCubit>().load(),
-      context.read<FeedCubit>().refresh(),
+      context.read<SocialFeedCubit>().refresh(),
     ]);
   }
 
@@ -350,7 +350,7 @@ class _ActivityFeed extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return BlocBuilder<FeedCubit, FeedState>(
+    return BlocBuilder<SocialFeedCubit, FeedState>(
       builder: (context, state) {
         return switch (state) {
           FeedInitial() || FeedLoading() => const Padding(

@@ -437,6 +437,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i52.GetSocialFeed>(
       () => _i52.GetSocialFeed(gh<_i675.FeedRepository>()),
     );
+    gh.factory<_i498.SocialFeedCubit>(
+      () => _i498.SocialFeedCubit(
+        gh<_i52.GetSocialFeed>(),
+        gh<_i1052.GetCurrentUser>(),
+      ),
+    );
     gh.lazySingleton<_i180.ShelfRepository>(
       () => _i841.ShelfRepositoryImpl(
         gh<_i192.ShelfRemoteDataSource>(),
@@ -456,17 +462,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i567.NotificationNavigator>(),
       ),
     );
-    gh.factory<_i498.FeedCubit>(
-      () => _i498.FeedCubit(
-        gh<_i52.GetSocialFeed>(),
-        gh<_i1052.GetCurrentUser>(),
-      ),
-    );
     gh.factory<_i452.ManualSessionCubit>(
       () => _i452.ManualSessionCubit(gh<_i621.SubmitSession>()),
     );
     gh.factory<_i928.SessionTimerCubit>(
       () => _i928.SessionTimerCubit(gh<_i621.SubmitSession>()),
+    );
+    gh.factory<_i498.MyActivityCubit>(
+      () => _i498.MyActivityCubit(
+        gh<_i108.GetFeed>(),
+        gh<_i1052.GetCurrentUser>(),
+      ),
     );
     gh.lazySingleton<_i948.AuthCubit>(
       () => _i948.AuthCubit(

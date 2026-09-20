@@ -44,10 +44,10 @@ class BadgeActivityCard extends StatelessWidget {
     final payload = activity.payload as BadgeActivityPayload;
 
     return BorderedCard(
-      color: AppColors.sunshine50,
+      color: AppColors.lagoon50,
       // Tinted border rather than the neutral hairline: on a yellow card, the
       // warm grey edge reads as a mistake.
-      borderColor: AppColors.sunshine300,
+      borderColor: AppColors.lagoon300,
       radius: AppRadius.md,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,7 +91,7 @@ class BadgeActivityCard extends StatelessWidget {
                   // The feed payload carries the badge's emoji snapshot, not
                   // its artwork — so this shows the placeholder until
                   // `image_url` reaches the feed too.
-                  const BadgeArtwork(imageUrl: null, size: 48),
+                  const BadgeArtwork(imageUrl: null, size: 60),
                 ],
               ),
             ),

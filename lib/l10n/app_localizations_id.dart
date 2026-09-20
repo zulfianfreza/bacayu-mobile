@@ -548,6 +548,16 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String get profileActivityTab => 'Aktivitas';
+
+  @override
+  String get profileSettingsTab => 'Pengaturan';
+
+  @override
+  String get noActivityYet =>
+      'Belum ada aktivitas — mulai sesi baca buat lihat di sini.';
+
+  @override
   String get readingGoals => 'Target membaca';
 
   @override

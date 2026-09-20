@@ -127,8 +127,8 @@ void main() {
         ListShelf(shelfRepository),
       ),
     );
-    getIt.registerFactory<FeedCubit>(
-      () => FeedCubit(
+    getIt.registerFactory<SocialFeedCubit>(
+      () => SocialFeedCubit(
         GetSocialFeed(feedRepository),
         GetCurrentUser(authRepository),
       ),

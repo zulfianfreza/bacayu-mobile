@@ -547,6 +547,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get profileActivityTab => 'Activity';
+
+  @override
+  String get profileSettingsTab => 'Settings';
+
+  @override
+  String get noActivityYet =>
+      'No activity yet — start a reading session to see it here.';
+
+  @override
   String get readingGoals => 'Reading goals';
 
   @override

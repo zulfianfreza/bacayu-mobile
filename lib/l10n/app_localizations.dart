@@ -1100,6 +1100,24 @@ abstract class AppLocalizations {
   /// **'Reading since {date}'**
   String memberSince(String date);
 
+  /// Profile tab — the reader's own activity log
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get profileActivityTab;
+
+  /// Profile tab — the settings list
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get profileSettingsTab;
+
+  /// Profile activity tab empty state
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet — start a reading session to see it here.'**
+  String get noActivityYet;
+
   /// Profile settings list item — navigates to ReadingGoalsPage
   ///
   /// In en, this message translates to:

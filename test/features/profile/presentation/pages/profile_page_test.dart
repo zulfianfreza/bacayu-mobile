@@ -8,6 +8,12 @@ import 'package:mobile/features/auth/domain/usecases/get_current_user.dart';
 import 'package:mobile/features/badges/domain/entities/badge.dart';
 import 'package:mobile/features/badges/domain/repositories/badge_repository.dart';
 import 'package:mobile/features/badges/domain/usecases/get_all_badges.dart';
+import 'package:mobile/features/feed/domain/entities/activity.dart';
+import 'package:mobile/features/feed/domain/entities/activity_page.dart';
+import 'package:mobile/features/feed/domain/repositories/feed_repository.dart';
+import 'package:mobile/features/feed/domain/usecases/get_feed.dart';
+import 'package:mobile/features/feed/presentation/cubit/feed_cubit.dart';
+import 'package:mobile/features/feed/presentation/widgets/session_activity_card.dart';
 import 'package:mobile/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:mobile/features/profile/presentation/pages/profile_page.dart';
 import 'package:mobile/features/social/domain/repositories/social_repository.dart';
@@ -25,6 +31,8 @@ class _MockStatsRepository extends Mock implements StatsRepository {}
 class _MockBadgeRepository extends Mock implements BadgeRepository {}
 
 class _MockSocialRepository extends Mock implements SocialRepository {}
+
+class _MockFeedRepository extends Mock implements FeedRepository {}
 
 User _user() => User(
       id: 'u1',
@@ -54,11 +62,29 @@ Badge _badge(String id, {required bool unlocked}) => Badge(
       unlockedAt: unlocked ? DateTime(2026, 1, 1) : null,
     );
 
+Activity _activity(String bookTitle) => Activity(
+      id: 'act-1',
+      author: const ActivityAuthor(id: 'u1', name: 'Julian', avatarUrl: null),
+      occurredAt: DateTime(2026, 1, 1),
+      payload: SessionActivityPayload(
+        bookId: 'book-1',
+        bookTitle: bookTitle,
+        bookCoverUrl: null,
+        pagesRead: 20,
+        speedPpm: 1.2,
+        activeDurationSeconds: 600,
+      ),
+      likeCount: 2,
+      commentCount: 3,
+      isLiked: false,
+    );
+
 void main() {
   late _MockAuthRepository authRepository;
   late _MockStatsRepository statsRepository;
   late _MockBadgeRepository badgeRepository;
   late _MockSocialRepository socialRepository;
+  late _MockFeedRepository feedRepository;
 
   setUpAll(() => registerFallbackValue(StatsRange.all));
 
@@ -67,6 +93,7 @@ void main() {
     statsRepository = _MockStatsRepository();
     badgeRepository = _MockBadgeRepository();
     socialRepository = _MockSocialRepository();
+    feedRepository = _MockFeedRepository();
 
     when(() => authRepository.getCurrentUser())
         .thenAnswer((_) async => Right(_user()));
@@ -92,6 +119,13 @@ void main() {
         .thenAnswer((_) async => const Right(21));
     when(() => socialRepository.getFollowingCount())
         .thenAnswer((_) async => const Right(30));
+    // The activity tab opens with the profile, so this has to answer from the
+    // start — empty is the quiet default.
+    when(
+      () => feedRepository.getFeed(cursor: any(named: 'cursor')),
+    ).thenAnswer(
+      (_) async => const Right(ActivityPage(items: [], nextCursor: null)),
+    );
 
     getIt.registerFactory<ProfileCubit>(
       () => ProfileCubit(
@@ -99,6 +133,12 @@ void main() {
         GetStatsSummary(statsRepository),
         GetAllBadges(badgeRepository),
         GetFollowCounts(socialRepository),
+      ),
+    );
+    getIt.registerFactory<MyActivityCubit>(
+      () => MyActivityCubit(
+        GetFeed(feedRepository),
+        GetCurrentUser(authRepository),
       ),
     );
   });
@@ -154,5 +194,75 @@ void main() {
     expect(find.text('2/3'), findsOneWidget);
     expect(find.text('Lencana'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the identity block carries the two tabs', (tester) async {
+    await pumpProfile(tester);
+
+    expect(find.text('Aktivitas'), findsOneWidget);
+    expect(find.text('Pengaturan'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the activity tab lists what the reader read', (tester) async {
+    when(() => feedRepository.getFeed(cursor: any(named: 'cursor'))).thenAnswer(
+      (_) async => Right(
+        ActivityPage(items: [_activity('Atomic Habits')], nextCursor: null),
+      ),
+    );
+
+    await pumpProfile(tester);
+
+    expect(find.byType(SessionActivityCard), findsOneWidget);
+    expect(find.text('Atomic Habits'), findsOneWidget);
+  });
+
+  testWidgets('an empty activity list says so', (tester) async {
+    await pumpProfile(tester);
+
+    expect(find.textContaining('Belum ada aktivitas'), findsOneWidget);
+  });
+
+  testWidgets('settings live behind their own tab', (tester) async {
+    await pumpProfile(tester);
+
+    // Nothing of the settings list shows on the activity tab.
+    expect(find.text('Target membaca'), findsNothing);
+
+    await tester.tap(find.text('Pengaturan'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Target membaca'), findsOneWidget);
+    expect(find.text('Bahasa'), findsOneWidget);
+    expect(find.text('Privasi'), findsOneWidget);
+    expect(find.text('Bantuan'), findsOneWidget);
+    expect(find.text('Keluar'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('scrolling the activity takes the identity block with it', (
+    tester,
+  ) async {
+    when(() => feedRepository.getFeed(cursor: any(named: 'cursor'))).thenAnswer(
+      (_) async => Right(
+        ActivityPage(
+          items: [for (var i = 0; i < 10; i++) _activity('Buku $i')],
+          nextCursor: null,
+        ),
+      ),
+    );
+
+    await pumpProfile(tester);
+    expect(find.textContaining('Membaca sejak'), findsOneWidget);
+
+    await tester.drag(
+      find.byType(SessionActivityCard).first,
+      const Offset(0, -600),
+    );
+    await tester.pumpAndSettle();
+
+    // The header is gone, but the tab bar stayed put.
+    expect(find.textContaining('Membaca sejak'), findsNothing);
+    expect(find.text('Aktivitas'), findsOneWidget);
   });
 }

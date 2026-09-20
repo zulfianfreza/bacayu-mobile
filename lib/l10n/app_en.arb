@@ -721,6 +721,18 @@
       }
     }
   },
+  "profileActivityTab": "Activity",
+  "@profileActivityTab": {
+    "description": "Profile tab — the reader's own activity log"
+  },
+  "profileSettingsTab": "Settings",
+  "@profileSettingsTab": {
+    "description": "Profile tab — the settings list"
+  },
+  "noActivityYet": "No activity yet — start a reading session to see it here.",
+  "@noActivityYet": {
+    "description": "Profile activity tab empty state"
+  },
   "readingGoals": "Reading goals",
   "@readingGoals": {
     "description": "Profile settings list item — navigates to ReadingGoalsPage"
