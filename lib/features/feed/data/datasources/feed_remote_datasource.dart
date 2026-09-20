@@ -22,6 +22,14 @@ class FeedRemoteDataSource {
     return _list('/feed/social', cursor: cursor);
   }
 
+  /// GET /feed/:activityId — one activity with its type-specific detail.
+  Future<Map<String, dynamic>> getActivityDetail(String activityId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/feed/$activityId',
+    );
+    return response.data!['data'] as Map<String, dynamic>;
+  }
+
   /// Both feeds share one envelope: `data` is `{items, meta}`, and `meta`
   /// carries the explicit `next_cursor` (`null` on the last page).
   Future<({List<dynamic> items, String? nextCursor})> _list(

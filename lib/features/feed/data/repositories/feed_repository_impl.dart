@@ -4,9 +4,11 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../domain/entities/activity_detail.dart';
 import '../../domain/entities/activity_page.dart';
 import '../../domain/repositories/feed_repository.dart';
 import '../datasources/feed_remote_datasource.dart';
+import '../models/activity_detail_model.dart';
 import '../models/activity_model.dart';
 
 @LazySingleton(as: FeedRepository)
@@ -23,6 +25,18 @@ class FeedRepositoryImpl implements FeedRepository {
   @override
   Future<Either<Failure, ActivityPage>> getSocialFeed({String? cursor}) {
     return _fetch((cursor) => _remote.getSocialFeed(cursor: cursor), cursor);
+  }
+
+  @override
+  Future<Either<Failure, ActivityDetail>> getActivityDetail(
+    String activityId,
+  ) async {
+    try {
+      final json = await _remote.getActivityDetail(activityId);
+      return Right(ActivityDetailModel.fromJson(json));
+    } on DioException catch (e) {
+      return dioExceptionToEither(e);
+    }
   }
 
   /// Both endpoints share one page shape, so they share one mapper — and one

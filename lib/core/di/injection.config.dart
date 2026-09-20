@@ -79,6 +79,8 @@ import 'package:mobile/features/feed/data/repositories/feed_repository_impl.dart
     as _i487;
 import 'package:mobile/features/feed/domain/repositories/feed_repository.dart'
     as _i675;
+import 'package:mobile/features/feed/domain/usecases/get_activity_detail.dart'
+    as _i1051;
 import 'package:mobile/features/feed/domain/usecases/get_feed.dart' as _i108;
 import 'package:mobile/features/feed/domain/usecases/get_social_feed.dart'
     as _i52;
@@ -427,6 +429,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i428.StatsCubit>(
       () =>
           _i428.StatsCubit(gh<_i884.GetStatsSummary>(), gh<_i485.GetHeatmap>()),
+    );
+    gh.factory<_i1051.GetActivityDetail>(
+      () => _i1051.GetActivityDetail(gh<_i675.FeedRepository>()),
     );
     gh.factory<_i108.GetFeed>(() => _i108.GetFeed(gh<_i675.FeedRepository>()));
     gh.factory<_i52.GetSocialFeed>(

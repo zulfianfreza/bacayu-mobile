@@ -325,6 +325,29 @@
       }
     }
   },
+  "sessionPauses": "{count} pauses",
+  "@sessionPauses": {
+    "description": "Activity detail — heading of the pause breakdown for a finished session",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pausedTotal": "total {duration}",
+  "@pausedTotal": {
+    "description": "Activity detail — every pause added up, next to the pause heading",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "08:00"
+      }
+    }
+  },
+  "sessionBadgesTitle": "Badges from this session",
+  "@sessionBadgesTitle": {
+    "description": "Activity detail — section heading for the badges a session unlocked"
+  },
   "sessionSummary": "Session summary",
   "@sessionSummary": {
     "description": "Session summary page app bar title"

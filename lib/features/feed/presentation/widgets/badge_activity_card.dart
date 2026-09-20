@@ -62,11 +62,6 @@ class BadgeActivityCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppRadius.sm),
               child: Row(
                 children: [
-                  // The feed payload carries the badge's emoji snapshot, not
-                  // its artwork — so this shows the placeholder until
-                  // `image_url` reaches the feed too.
-                  const BadgeArtwork(imageUrl: null, size: 48),
-                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,15 +77,21 @@ class BadgeActivityCard extends StatelessWidget {
                           style: AppTypography.subheading,
                         ),
                         const SizedBox(height: 2),
+                        // Shown in full: a badge description is one or two
+                        // sentences, and cutting it mid-sentence reads worse
+                        // than a slightly taller card.
                         Text(
                           payload.badgeDescription,
                           style: AppTypography.caption,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(width: 12),
+                  // The feed payload carries the badge's emoji snapshot, not
+                  // its artwork — so this shows the placeholder until
+                  // `image_url` reaches the feed too.
+                  const BadgeArtwork(imageUrl: null, size: 48),
                 ],
               ),
             ),

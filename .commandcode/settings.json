@@ -25,7 +25,8 @@
       "Shell(cd /Users/julian/Code/Projects/bacayu/mobile && flutter test test/core/navigation/gen_nav_icons_test.dart 2>&1 | tail -4 && ls -la assets/icons/ && cd \"$COMMANDCODE_SCRATCHPAD\" && for f in nav_home nav_shelf nav_stats nav_profile nav_session; do cp \"/Users/julian/Code/Projects/bacayu/mobile/assets/icons/$f.png\" \"/tmp/$f.png\" 2>/dev/null; done; echo done)",
       "Shell(sed:*)",
       "Shell(git:*)",
-      "Shell(cd /Users/julian/Code/Projects/bacayu/mobile && grep -A 3 '^ go_router:' pubspec.lock; V=$(grep -A 3 '^ go_router:' pubspec.lock | grep version | tr -d ' \"' | cut -d: -f2); echo \"version=$V\"; grep -rn \"Navigator(\" ~/.pub-cache/hosted/pub.dev/go_router-$V/lib/src/*.dart | head)"
+      "Shell(cd /Users/julian/Code/Projects/bacayu/mobile && grep -A 3 '^ go_router:' pubspec.lock; V=$(grep -A 3 '^ go_router:' pubspec.lock | grep version | tr -d ' \"' | cut -d: -f2); echo \"version=$V\"; grep -rn \"Navigator(\" ~/.pub-cache/hosted/pub.dev/go_router-$V/lib/src/*.dart | head)",
+      "Shell(cat:*)"
     ],
     "deny": [],
     "defaultMode": "default"

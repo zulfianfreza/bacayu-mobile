@@ -566,6 +566,24 @@ abstract class AppLocalizations {
   /// **'{count} pauses so far'**
   String pausesSoFar(int count);
 
+  /// Activity detail — heading of the pause breakdown for a finished session
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pauses'**
+  String sessionPauses(int count);
+
+  /// Activity detail — every pause added up, next to the pause heading
+  ///
+  /// In en, this message translates to:
+  /// **'total {duration}'**
+  String pausedTotal(String duration);
+
+  /// Activity detail — section heading for the badges a session unlocked
+  ///
+  /// In en, this message translates to:
+  /// **'Badges from this session'**
+  String get sessionBadgesTitle;
+
   /// Session summary page app bar title
   ///
   /// In en, this message translates to:

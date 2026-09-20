@@ -60,22 +60,6 @@ class SessionActivityCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    child: SizedBox(
-                      width: 48,
-                      height: 68,
-                      child: payload.bookCoverUrl == null
-                          ? Container(color: AppColors.tangerine50)
-                          : Image.network(
-                              payload.bookCoverUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(color: AppColors.tangerine50),
-                            ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,6 +85,26 @@ class SessionActivityCard extends StatelessWidget {
                           style: AppTypography.caption,
                         ),
                       ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    child: SizedBox(
+                      // Bigger than the list-row thumbnail it started as: the
+                      // book is what the eye should land on in a feed, and it
+                      // stays on the right so the author's name, the title and
+                      // the stats above and below it keep one left edge.
+                      width: 56,
+                      height: 80,
+                      child: payload.bookCoverUrl == null
+                          ? Container(color: AppColors.tangerine50)
+                          : Image.network(
+                              payload.bookCoverUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(color: AppColors.tangerine50),
+                            ),
                     ),
                   ),
                 ],

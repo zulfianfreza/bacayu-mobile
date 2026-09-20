@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart' hide State;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure.dart';
@@ -24,6 +25,8 @@ import '../../../social/domain/usecases/list_comments.dart';
 import '../../../social/presentation/widgets/comment_tile.dart';
 import '../../../social/presentation/widgets/like_button.dart';
 import '../../domain/entities/activity.dart';
+import '../../domain/entities/activity_detail.dart';
+import '../../domain/usecases/get_activity_detail.dart';
 import '../widgets/activity_author_header.dart';
 
 /// Full-page counterpart to [CommentsBottomSheet] — reached by tapping an
@@ -31,11 +34,11 @@ import '../widgets/activity_author_header.dart';
 /// which still opens the quick-access bottom sheet). Shows the activity at
 /// full size plus the complete, inline (not modal) comment thread.
 ///
-/// [activity] is nullable because the `/feed/:activityId` route can in
-/// principle be reached without one (a future deep link) — there's no
-/// fetch-a-single-activity usecase yet, only the feed list. When null,
-/// renders a simple "not available" state instead of guessing.
-class ActivityDetailPage extends StatelessWidget {
+/// [activity] is the copy the card already had. It renders straight away so
+/// opening a detail never flashes a spinner, while `GET /feed/:activityId`
+/// fills in what only that endpoint knows: a session's pauses and the badges it
+/// unlocked. Reached without one (a deep link), the page waits for the fetch.
+class ActivityDetailPage extends StatefulWidget {
   const ActivityDetailPage({
     super.key,
     required this.activityId,
@@ -46,22 +49,51 @@ class ActivityDetailPage extends StatelessWidget {
   final Activity? activity;
 
   @override
-  Widget build(BuildContext context) {
-    final activity = this.activity;
+  State<ActivityDetailPage> createState() => _ActivityDetailPageState();
+}
 
+class _ActivityDetailPageState extends State<ActivityDetailPage> {
+  late final Future<Either<Failure, ActivityDetail>> _detailFuture =
+      getIt<GetActivityDetail>().call(widget.activityId);
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
-        child: activity == null
-            ? const _NotAvailable()
-            : _ActivityDetailBody(activity: activity),
+        child: FutureBuilder<Either<Failure, ActivityDetail>>(
+          future: _detailFuture,
+          builder: (context, snapshot) {
+            final loaded = snapshot.connectionState == ConnectionState.done;
+            // A failed fetch is not loud on purpose: with the card's copy in
+            // hand there is still a perfectly good page to show, just without
+            // the detail. Without one, "not available" is the honest answer.
+            final detail = loaded && snapshot.data != null
+                ? snapshot.data!.fold((_) => null, (value) => value)
+                : null;
+
+            final activity = detail?.activity ?? widget.activity;
+            if (activity == null) {
+              return loaded
+                  ? const _NotAvailable()
+                  : const Center(child: CircularProgressIndicator());
+            }
+
+            return _ActivityDetailBody(
+              activity: activity,
+              session: detail?.session,
+              badgeImageUrl: detail?.badge?.imageUrl,
+            );
+          },
+        ),
       ),
     );
   }
 }
 
-/// Reached without an Activity in memory (a deep link, before there is a
-/// fetch-by-id usecase) — says so plainly instead of guessing.
+/// Reached when there is nothing to show: no activity came with the tap and the
+/// fetch did not produce one either — either the id is gone or the viewer may
+/// not see it.
 class _NotAvailable extends StatelessWidget {
   const _NotAvailable();
 
@@ -92,9 +124,21 @@ class _NotAvailable extends StatelessWidget {
 }
 
 class _ActivityDetailBody extends StatefulWidget {
-  const _ActivityDetailBody({required this.activity});
+  const _ActivityDetailBody({
+    required this.activity,
+    this.session,
+    this.badgeImageUrl,
+  });
 
   final Activity activity;
+
+  /// Present for a reading session once the detail has loaded — the pauses and
+  /// the badges it unlocked, neither of which the feed item carries.
+  final SessionDetail? session;
+
+  /// A badge unlock's artwork, from the detail. Null until then (and for the
+  /// feed's own badge payload, which only snapshots the emoji).
+  final String? badgeImageUrl;
 
   @override
   State<_ActivityDetailBody> createState() => _ActivityDetailBodyState();
@@ -195,7 +239,12 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final activity = widget.activity;
-    final canShare = activity.payload is SessionActivityPayload;
+    // The share card paints the session as *your* reading card, so it belongs
+    // to your own posts only. Until the viewer is known this stays false, which
+    // hides the button rather than showing it on someone else's activity.
+    final isOwner = _currentUser?.id == activity.author.id;
+    final canShare =
+        activity.payload is SessionActivityPayload && isOwner;
 
     return Column(
       children: [
@@ -216,7 +265,17 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                       occurredAt: activity.occurredAt,
                     ),
                     const SizedBox(height: 16),
-                    _ActivityHeader(activity: activity),
+                    _ActivityHeader(
+                      activity: activity,
+                      badgeImageUrl: widget.badgeImageUrl,
+                    ),
+                    if (widget.session != null &&
+                        widget.session!.pauses.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      const Divider(height: 1, color: AppColors.slate200),
+                      const SizedBox(height: 12),
+                      _PausesBlock(session: widget.session!),
+                    ],
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -232,7 +291,8 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                           child: Align(
                             alignment: Alignment.centerRight,
                             // Badge unlocks have nothing to render as a
-                            // reading card — only sessions can be shared.
+                            // reading card, and someone else's session is not
+                            // yours to share.
                             child: canShare
                                 ? ChunkyButton(
                                     label: l10n.share,
@@ -249,6 +309,11 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                 ),
               ),
               const SizedBox(height: 24),
+              if (widget.session != null &&
+                  widget.session!.badges.isNotEmpty) ...[
+                _SessionBadges(badges: widget.session!.badges),
+                const SizedBox(height: 24),
+              ],
               FutureBuilder<Either<Failure, List<ActivityComment>>>(
                 future: _commentsFuture,
                 builder: (context, snapshot) {
@@ -345,15 +410,22 @@ OutlineInputBorder _fieldBorder(Color color, {double width = 2}) {
 }
 
 class _ActivityHeader extends StatelessWidget {
-  const _ActivityHeader({required this.activity});
+  const _ActivityHeader({required this.activity, this.badgeImageUrl});
 
   final Activity activity;
+
+  /// Only the detail endpoint carries a badge's artwork; a feed item snapshots
+  /// the emoji alone.
+  final String? badgeImageUrl;
 
   @override
   Widget build(BuildContext context) {
     return switch (activity.payload) {
       final SessionActivityPayload payload => _SessionHeader(payload: payload),
-      final BadgeActivityPayload payload => _BadgeHeader(payload: payload),
+      final BadgeActivityPayload payload => _BadgeHeader(
+        payload: payload,
+        imageUrl: badgeImageUrl,
+      ),
     };
   }
 }
@@ -431,9 +503,13 @@ class _SessionHeader extends StatelessWidget {
 }
 
 class _BadgeHeader extends StatelessWidget {
-  const _BadgeHeader({required this.payload});
+  const _BadgeHeader({required this.payload, this.imageUrl});
 
   final BadgeActivityPayload payload;
+
+  /// `image_url` from the detail — null while the detail is still loading, and
+  /// for the feed payload, which never carries one.
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -442,8 +518,7 @@ class _BadgeHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // The activity payload snapshots the badge's emoji, not its artwork.
-        const BadgeArtwork(imageUrl: null, size: 96),
+        BadgeArtwork(imageUrl: imageUrl, size: 96),
         const SizedBox(height: 16),
         Text(
           l10n.newBadge,
@@ -497,6 +572,114 @@ class _CoverPlaceholder extends StatelessWidget {
         size: 40,
         color: AppColors.tangerine300,
       ),
+    );
+  }
+}
+
+/// The pauses a session took: the count and the total, then each one with the
+/// clock times it spanned — the part of a finished session a feed item cannot
+/// show, because the payload only carries the net reading time.
+class _PausesBlock extends StatelessWidget {
+  const _PausesBlock({required this.session});
+
+  final SessionDetail session;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final clock = DateFormat.Hm(
+      Localizations.localeOf(context).toLanguageTag(),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.sessionPauses(session.pauseCount),
+                style: AppTypography.bodyStrong,
+              ),
+            ),
+            Text(
+              l10n.pausedTotal(formatSessionDuration(session.pausedFor)),
+              style: AppTypography.caption,
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        for (final pause in session.pauses)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    // Local time: the timestamps come back in UTC, and the
+                    // reader remembers when *their* afternoon was interrupted.
+                    '${clock.format(pause.pausedAt.toLocal())} – '
+                    '${clock.format(pause.resumedAt.toLocal())}',
+                    style: AppTypography.caption,
+                  ),
+                ),
+                Text(
+                  formatSessionDuration(pause.duration),
+                  style: AppTypography.caption,
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// The badges this session unlocked — they also exist as their own activities,
+/// but seeing them on the session that earned them is the point.
+class _SessionBadges extends StatelessWidget {
+  const _SessionBadges({required this.badges});
+
+  final List<SessionBadge> badges;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.l10n.sessionBadgesTitle,
+          style: AppTypography.heading,
+        ),
+        const SizedBox(height: 12),
+        for (final badge in badges)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: BorderedCard(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(badge.name, style: AppTypography.subheading),
+                        const SizedBox(height: 2),
+                        // In full, like every other badge description.
+                        Text(
+                          badge.description,
+                          style: AppTypography.caption,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  BadgeArtwork(imageUrl: badge.imageUrl, size: 48),
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

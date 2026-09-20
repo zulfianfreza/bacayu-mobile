@@ -264,6 +264,19 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String sessionPauses(int count) {
+    return '$count jeda';
+  }
+
+  @override
+  String pausedTotal(String duration) {
+    return 'total $duration';
+  }
+
+  @override
+  String get sessionBadgesTitle => 'Badge dari sesi ini';
+
+  @override
   String get sessionSummary => 'Ringkasan sesi';
 
   @override

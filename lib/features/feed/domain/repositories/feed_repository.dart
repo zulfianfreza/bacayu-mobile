@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failure.dart';
+import '../entities/activity_detail.dart';
 import '../entities/activity_page.dart';
 
 abstract class FeedRepository {
@@ -14,4 +15,11 @@ abstract class FeedRepository {
   /// restricted server-side to `visibility` `followers`/`public`, newest
   /// first. Same cursor contract as [getFeed].
   Future<Either<Failure, ActivityPage>> getSocialFeed({String? cursor});
+
+  /// `GET /feed/:activityId` — a single activity, plus the detail behind it
+  /// (a session's pauses and unlocked badges, or a badge unlock's artwork).
+  ///
+  /// The server enforces visibility before returning anything: an activity the
+  /// viewer may not see comes back as not-found.
+  Future<Either<Failure, ActivityDetail>> getActivityDetail(String activityId);
 }
