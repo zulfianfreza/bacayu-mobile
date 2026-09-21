@@ -555,9 +555,9 @@ class _CoverPlaceholder extends StatelessWidget {
   }
 }
 
-/// The pauses a session took: the count and the total, then each one with the
-/// clock times it spanned — the part of a finished session a feed item cannot
-/// show, because the payload only carries the net reading time.
+/// A finished session's timeline: the pause summary, then the stretches the
+/// reader actually spent reading — the part a feed item cannot show, because
+/// the payload only carries the net reading time.
 class _PausesBlock extends StatelessWidget {
   const _PausesBlock({required this.session});
 
@@ -588,7 +588,9 @@ class _PausesBlock extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        for (final pause in session.pauses)
+        Text(l10n.readingTime, style: context.captionStyle),
+        const SizedBox(height: 4),
+        for (final interval in session.readingIntervals)
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
             child: Row(
@@ -597,13 +599,13 @@ class _PausesBlock extends StatelessWidget {
                   child: Text(
                     // Local time: the timestamps come back in UTC, and the
                     // reader remembers when *their* afternoon was interrupted.
-                    '${clock.format(pause.pausedAt.toLocal())} – '
-                    '${clock.format(pause.resumedAt.toLocal())}',
+                    '${clock.format(interval.start.toLocal())} – '
+                    '${clock.format(interval.end.toLocal())}',
                     style: AppTypography.caption,
                   ),
                 ),
                 Text(
-                  formatSessionDuration(pause.duration),
+                  formatSessionDuration(interval.duration),
                   style: AppTypography.caption,
                 ),
               ],

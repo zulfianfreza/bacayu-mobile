@@ -28,6 +28,8 @@ class ActivityDetailModel extends ActivityDetail {
 
 class SessionDetailModel extends SessionDetail {
   const SessionDetailModel({
+    required super.startTime,
+    required super.endTime,
     required super.pauseCount,
     required super.pauses,
     required super.badges,
@@ -35,6 +37,8 @@ class SessionDetailModel extends SessionDetail {
 
   factory SessionDetailModel.fromJson(Map<String, dynamic> json) {
     return SessionDetailModel(
+      startTime: DateTime.parse(json['start_time'] as String),
+      endTime: DateTime.parse(json['end_time'] as String),
       pauseCount: (json['pause_count'] as num?)?.toInt() ?? 0,
       pauses: (json['pause_intervals'] as List<dynamic>? ?? [])
           .cast<Map<String, dynamic>>()

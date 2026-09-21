@@ -269,6 +269,9 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String get readingTime => 'Waktu membaca';
+
+  @override
   String pausedTotal(String duration) {
     return 'total $duration';
   }

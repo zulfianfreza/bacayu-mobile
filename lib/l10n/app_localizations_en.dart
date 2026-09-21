@@ -269,6 +269,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get readingTime => 'Reading time';
+
+  @override
   String pausedTotal(String duration) {
     return 'total $duration';
   }

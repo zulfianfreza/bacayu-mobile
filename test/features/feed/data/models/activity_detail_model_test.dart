@@ -24,6 +24,8 @@ Map<String, dynamic> _sessionJson({
   },
   'session': {
     'id': 'sess-1',
+    'start_time': '2026-01-10T09:30:00Z',
+    'end_time': '2026-01-10T10:05:00Z',
     'pause_count': 2,
     'pause_intervals': [
       {'paused_at': '2026-01-10T09:35:00Z', 'resumed_at': '2026-01-10T09:40:00Z'},
@@ -85,6 +87,19 @@ void main() {
       );
       // 5 minutes + 3 minutes.
       expect(session.pausedFor, const Duration(minutes: 8));
+
+      // Reading intervals are the pauses' complement: 09:30–09:35,
+      // 09:40–09:50, 09:53–10:05.
+      expect(session.readingIntervals, hasLength(3));
+      expect(
+        session.readingIntervals.first.start,
+        DateTime.parse('2026-01-10T09:30:00Z'),
+      );
+      expect(session.readingIntervals.first.duration, const Duration(minutes: 5));
+      expect(
+        session.readingIntervals.last.end,
+        DateTime.parse('2026-01-10T10:05:00Z'),
+      );
     });
 
     test('reads the badges the session unlocked', () {

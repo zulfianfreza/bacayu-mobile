@@ -334,6 +334,10 @@
       }
     }
   },
+  "readingTime": "Reading time",
+  "@readingTime": {
+    "description": "Activity detail — label above the reading intervals of a finished session"
+  },
   "pausedTotal": "total {duration}",
   "@pausedTotal": {
     "description": "Activity detail — every pause added up, next to the pause heading",

@@ -199,6 +199,8 @@ void main() {
         activity: _sessionActivity,
         visibility: 'public',
         session: SessionDetail(
+          startTime: DateTime(2026, 1, 1, 13, 0),
+          endTime: DateTime(2026, 1, 1, 14, 20),
           pauseCount: 2,
           pauses: [
             SessionPause(
@@ -240,11 +242,17 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    // The summary, then each interval with the clock times it spanned.
+    // The pause summary, then each reading interval with the clock times it
+    // spanned and how long it lasted.
     expect(find.text('2 pauses'), findsOneWidget);
     expect(find.text('total 08:00'), findsOneWidget);
-    expect(find.textContaining('13:30'), findsOneWidget);
-    expect(find.text('05:00'), findsOneWidget);
+    expect(find.text('Reading time'), findsOneWidget);
+    expect(find.text('13:00 – 13:30'), findsOneWidget);
+    expect(find.text('30:00'), findsOneWidget);
+    expect(find.text('13:35 – 14:10'), findsOneWidget);
+    expect(find.text('35:00'), findsOneWidget);
+    expect(find.text('14:13 – 14:20'), findsOneWidget);
+    expect(find.text('07:00'), findsOneWidget);
 
     // And the badges the session earned.
     expect(find.text('Badges from this session'), findsOneWidget);

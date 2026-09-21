@@ -572,6 +572,12 @@ abstract class AppLocalizations {
   /// **'{count} pauses'**
   String sessionPauses(int count);
 
+  /// Activity detail — label above the reading intervals of a finished session
+  ///
+  /// In en, this message translates to:
+  /// **'Reading time'**
+  String get readingTime;
+
   /// Activity detail — every pause added up, next to the pause heading
   ///
   /// In en, this message translates to:

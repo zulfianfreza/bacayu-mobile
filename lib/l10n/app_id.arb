@@ -79,6 +79,7 @@
   "timeDaysAgo": "{count} hari lalu",
   "pausesSoFar": "{count} kali jeda",
   "sessionPauses": "{count} jeda",
+  "readingTime": "Waktu membaca",
   "pausedTotal": "total {duration}",
   "sessionBadgesTitle": "Badge dari sesi ini",
   "sessionSummary": "Ringkasan sesi",
