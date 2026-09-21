@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/relative_time.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Who posted an activity, and when: an avatar, a name, and a relative time —
 /// the way a feed introduces a post before showing what was read or unlocked.
@@ -39,14 +39,14 @@ class ActivityAuthorHeader extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundColor: AppColors.tangerine100,
+          backgroundColor: context.colors.tangerineTint,
           backgroundImage: hasAvatar ? NetworkImage(url) : null,
           child: hasAvatar
               ? null
               : Text(
                   name.isEmpty ? '?' : name[0].toUpperCase(),
                   style: AppTypography.caption.copyWith(
-                    color: AppColors.tangerine700,
+                    color: context.colors.tangerineAccent,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

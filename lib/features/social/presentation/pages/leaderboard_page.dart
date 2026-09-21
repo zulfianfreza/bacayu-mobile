@@ -10,6 +10,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/leaderboard_entry.dart';
 import '../cubit/leaderboard_cubit.dart';
 import '../cubit/leaderboard_state.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 class LeaderboardPage extends StatelessWidget {
   const LeaderboardPage({super.key});
@@ -83,7 +84,7 @@ class _RangeToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.slate200,
+        color: context.colors.hairline,
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Row(
@@ -105,7 +106,7 @@ class _RangeToggle extends StatelessWidget {
                   child: Text(
                     label,
                     style: AppTypography.button.copyWith(
-                      color: range == activeRange ? Colors.white : AppColors.slate600,
+                      color: range == activeRange ? Colors.white : context.colors.textSecondary,
                     ),
                   ),
                 ),
@@ -160,7 +161,7 @@ class _LeaderboardRow extends StatelessWidget {
     final avatarUrl = entry.avatarUrl;
 
     return Container(
-      color: isSelf ? AppColors.tangerine50 : Colors.transparent,
+      color: isSelf ? context.colors.tangerineWash : Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
@@ -175,13 +176,13 @@ class _LeaderboardRow extends StatelessWidget {
           const SizedBox(width: 8),
           CircleAvatar(
             radius: 18,
-            backgroundColor: AppColors.tangerine100,
+            backgroundColor: context.colors.tangerineTint,
             backgroundImage:
                 avatarUrl == null || avatarUrl.isEmpty ? null : NetworkImage(avatarUrl),
             child: avatarUrl == null || avatarUrl.isEmpty
                 ? Text(
                     entry.name.isEmpty ? '?' : entry.name[0].toUpperCase(),
-                    style: AppTypography.caption.copyWith(color: AppColors.tangerine700),
+                    style: AppTypography.caption.copyWith(color: context.colors.tangerineAccent),
                   )
                 : null,
           ),

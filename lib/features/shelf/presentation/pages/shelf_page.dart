@@ -16,6 +16,7 @@ import '../../domain/entities/user_book.dart';
 import '../cubit/shelf_cubit.dart';
 import '../cubit/shelf_state.dart';
 import '../widgets/shelf_book_card.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 class ShelfPage extends StatelessWidget {
   const ShelfPage({super.key});
@@ -237,14 +238,14 @@ class _FilterTab extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: RaisedBox(
-        color: isActive ? AppColors.tangerine : AppColors.surface,
+        color: isActive ? AppColors.tangerine : context.colors.surface,
         radius: AppRadius.pill,
         edgeHeight: 3,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Text(
           label,
           style: AppTypography.button.copyWith(
-            color: isActive ? Colors.white : AppColors.slate600,
+            color: isActive ? Colors.white : context.colors.textSecondary,
           ),
         ),
       ),

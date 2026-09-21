@@ -6,10 +6,10 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/storage/secure_token_storage.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../notifications/data/services/push_notification_service.dart';
 import '../../domain/usecases/get_current_user.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Checks for an auth token, then (if present) fetches the current user to
 /// decide onboarding vs. home — mirroring [User.hasOnboarded].
@@ -60,7 +60,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: Center(
         child: Text('BacaYu', style: AppTypography.displaySm),
       ),

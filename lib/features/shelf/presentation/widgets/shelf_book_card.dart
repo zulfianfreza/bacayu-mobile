@@ -5,6 +5,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/navigation/full_screen_page.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
+import '../../../../core/theme/build_context_extension.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/raised_box.dart';
@@ -71,10 +72,12 @@ class ShelfBookCard extends StatelessWidget {
         totalPages > 0;
 
     return RaisedBox(
-      color: AppColors.surface,
+      color: context.colors.surface,
+      outlineColor: context.colors.hairline,
       // A shallower edge than the stat tiles: a shelf is a grid of these, and
-      // at 4px apiece the whole page starts to look embossed.
-      edgeHeight: 3,
+      // at 4px apiece the whole page starts to look embossed. Still thicker
+      // than the hairline sides/top, so the base reads as the base.
+      edgeHeight: 4,
       child: Material(
         // Transparent so the white body still shows through, but the tile's
         // own tap ripple has something to paint on.
@@ -123,7 +126,7 @@ class ShelfBookCard extends StatelessWidget {
                                   .clamp(0, 1)
                                   .toDouble(),
                               minHeight: 4,
-                              backgroundColor: AppColors.slate200,
+                              backgroundColor: context.colors.hairline,
                               color: AppColors.lagoon500,
                             ),
                           ),
@@ -217,7 +220,7 @@ class ShelfBookCard extends StatelessWidget {
                               .clamp(0, 1)
                               .toDouble(),
                           minHeight: 4,
-                          backgroundColor: AppColors.slate200,
+                          backgroundColor: context.colors.hairline,
                           color: AppColors.lagoon500,
                         ),
                       ),
@@ -250,20 +253,24 @@ class _StatusChip extends StatelessWidget {
     final (label, background, foreground) = switch (status) {
       ShelfStatus.wantToRead => (
         l10n.statusWantToRead,
-        AppColors.slate200,
-        AppColors.slate600,
+        context.colors.hairline,
+        context.colors.textSecondary,
       ),
       ShelfStatus.reading => (
         l10n.statusReading,
-        AppColors.lagoon100,
-        AppColors.lagoon700,
+        context.colors.lagoonTint,
+        context.colors.lagoonAccent,
       ),
       ShelfStatus.finished => (
         l10n.statusFinished,
-        AppColors.sunshine100,
-        AppColors.sunshine700,
+        context.colors.sunshineTint,
+        context.colors.sunshineAccent,
       ),
-      ShelfStatus.dnf => (l10n.statusDnf, AppColors.slate200, AppColors.slate600),
+      ShelfStatus.dnf => (
+        l10n.statusDnf,
+        context.colors.hairline,
+        context.colors.textSecondary,
+      ),
     };
 
     return ClipRRect(
@@ -292,7 +299,7 @@ class _CoverPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.tangerine50,
+      color: context.colors.tangerineWash,
       alignment: Alignment.center,
       child: const Icon(
         Icons.menu_book,

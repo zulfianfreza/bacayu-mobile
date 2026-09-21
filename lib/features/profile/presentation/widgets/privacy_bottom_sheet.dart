@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/widgets/option_tile.dart';
 import '../../../../core/widgets/sheet_header.dart';
 import '../../../auth/domain/usecases/update_profile.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 const _options = ['private', 'followers', 'public'];
 
@@ -27,7 +27,7 @@ class PrivacyBottomSheet extends StatefulWidget {
     return showModalBottomSheet<bool>(
       context: context,
       useRootNavigator: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),

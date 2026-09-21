@@ -9,6 +9,7 @@ import '../../../../core/widgets/chunky_button.dart';
 import '../../../../core/widgets/number_stepper.dart';
 import '../../../../core/widgets/raised_box.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 const _genreSlugs = [
   'fiction',
@@ -140,14 +141,14 @@ class _GenreChip extends StatelessWidget {
       child: GestureDetector(
         onTap: () => onSelected(!selected),
         child: RaisedBox(
-          color: selected ? AppColors.tangerine : AppColors.surface,
+          color: selected ? AppColors.tangerine : context.colors.surface,
           radius: AppRadius.pill,
           edgeHeight: 3,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Text(
             label,
             style: AppTypography.button.copyWith(
-              color: selected ? Colors.white : AppColors.slate600,
+              color: selected ? Colors.white : context.colors.textSecondary,
             ),
           ),
         ),

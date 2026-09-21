@@ -1097,7 +1097,7 @@ abstract class AppLocalizations {
   /// Profile header — when the account was created, month and year
   ///
   /// In en, this message translates to:
-  /// **'Reading since {date}'**
+  /// **'Joined {date}'**
   String memberSince(String date);
 
   /// Profile tab — the reader's own activity log
@@ -1159,6 +1159,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bahasa Indonesia'**
   String get languageIndonesian;
+
+  /// Profile settings list item — opens the light/dark/system picker
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// Appearance picker option — track the device's light/dark setting
+  ///
+  /// In en, this message translates to:
+  /// **'Follow system'**
+  String get appearanceSystem;
+
+  /// Appearance picker option — always use the light theme
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get appearanceLight;
+
+  /// Appearance picker option — always use the dark theme
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get appearanceDark;
 
   /// Profile settings list item — opens the default activity privacy picker
   ///

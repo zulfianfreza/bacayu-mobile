@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/widgets/chunky_button.dart';
+import 'package:mobile/core/widgets/raised_box.dart';
 
 void main() {
   Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
@@ -62,5 +63,52 @@ void main() {
     await gesture.up();
     await tester.pump();
     expect(tester.getRect(find.byType(ChunkyButton)), resting);
+  });
+
+  testWidgets('the secondary variant is outlined, not slabbed', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        ChunkyButton(
+          label: 'Download',
+          variant: ChunkyButtonVariant.secondary,
+          onPressed: () {},
+        ),
+      ),
+    );
+
+    final border = (tester
+            .widget<Container>(
+              find
+                  .descendant(
+                    of: find.byType(RaisedBox),
+                    matching: find.byType(Container),
+                  )
+                  .last,
+            )
+            .decoration! as BoxDecoration)
+        .border! as Border;
+
+    // A neutral body on a same-coloured surface needs all sides drawn, or it
+    // reads as a stray line under a label.
+    expect(border.top.width, RaisedBox.outlineWidth);
+    expect(border.left.width, RaisedBox.outlineWidth);
+    expect(border.right.width, RaisedBox.outlineWidth);
+  });
+
+  testWidgets('the primary variant keeps its solid slab', (tester) async {
+    await tester.pumpWidget(
+      wrap(ChunkyButton(label: 'Share', onPressed: () {})),
+    );
+
+    final body = tester.widget<Container>(
+      find
+          .descendant(
+            of: find.byType(RaisedBox),
+            matching: find.byType(Container),
+          )
+          .last,
+    );
+
+    expect((body.decoration! as BoxDecoration).border, isNull);
   });
 }

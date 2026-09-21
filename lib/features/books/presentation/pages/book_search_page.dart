@@ -17,6 +17,7 @@ import '../bloc/book_search_event.dart';
 import '../bloc/book_search_state.dart';
 import '../widgets/book_result_card.dart';
 import 'barcode_scanner_page.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 class BookSearchPage extends StatelessWidget {
   const BookSearchPage({super.key});
@@ -71,7 +72,7 @@ class _BookSearchViewState extends State<_BookSearchView> {
               'assets/icons/barcode-scan-stroke.png',
               width: 24,
               height: 24,
-              color: AppColors.ink,
+              color: context.colors.ink,
             ),
             tooltip: l10n.scanBarcode,
             onPressed: () =>
@@ -98,7 +99,7 @@ class _BookSearchViewState extends State<_BookSearchView> {
                       'assets/icons/search-stroke.png',
                       width: 20,
                       height: 20,
-                      color: AppColors.slate400,
+                      color: context.colors.textFaint,
                     ),
                   ),
                   // The decorator's default minimum here is 48x48 — a tap
@@ -109,8 +110,8 @@ class _BookSearchViewState extends State<_BookSearchView> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  border: _fieldBorder(AppColors.slate200),
-                  enabledBorder: _fieldBorder(AppColors.slate200),
+                  border: _fieldBorder(context.colors.hairline),
+                  enabledBorder: _fieldBorder(context.colors.hairline),
                   focusedBorder: _fieldBorder(
                     AppColors.tangerine,
                     width: 2.5,

@@ -16,6 +16,7 @@ import '../../domain/entities/activity_comment.dart';
 import '../../domain/usecases/add_comment.dart';
 import '../../domain/usecases/list_comments.dart';
 import 'comment_tile.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Quick-access comment thread for one activity — opened by the comment icon on
 /// an activity card. The full-size counterpart is the inline thread on
@@ -176,8 +177,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                             horizontal: 16,
                             vertical: 14,
                           ),
-                          border: _fieldBorder(AppColors.slate200),
-                          enabledBorder: _fieldBorder(AppColors.slate200),
+                          border: _fieldBorder(context.colors.hairline),
+                          enabledBorder: _fieldBorder(context.colors.hairline),
                           focusedBorder: _fieldBorder(
                             AppColors.tangerine,
                             width: 2.5,

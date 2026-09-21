@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/sharing/models/session_share_data.dart';
 import '../../../../core/sharing/widgets/share_card_preview_sheet.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../../core/widgets/error_listener.dart';
@@ -12,6 +11,7 @@ import '../../../badges/presentation/widgets/badge_unlocked_modal.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../cubit/session_timer_cubit.dart';
 import '../cubit/session_timer_state.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Expects a `SessionTimerCubit` already provided by the caller (same
 /// instance as `SessionTimerPage`, passed via `BlocProvider.value`) — this
@@ -198,7 +198,7 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
                       height: 18,
                       // Matches the outlined button's foreground, which a
                       // bundled PNG can't inherit.
-                      color: AppColors.tangerine700,
+                      color: context.colors.tangerineAccent,
                     ),
                     label: Text(l10n.share),
                   ),

@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
@@ -11,6 +10,7 @@ import '../../../../core/widgets/bordered_card.dart';
 import '../../domain/entities/activity.dart';
 import 'activity_author_header.dart';
 import 'activity_card_footer.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Same visual language as `ShelfBookCard`. The cover/title/stats block
 /// navigates to [ActivityDetailPage] — kept as a plain sibling of
@@ -98,12 +98,12 @@ class SessionActivityCard extends StatelessWidget {
                       width: 56,
                       height: 80,
                       child: payload.bookCoverUrl == null
-                          ? Container(color: AppColors.tangerine50)
+                          ? Container(color: context.colors.tangerineWash)
                           : Image.network(
                               payload.bookCoverUrl!,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
-                                  Container(color: AppColors.tangerine50),
+                                  Container(color: context.colors.tangerineWash),
                             ),
                     ),
                   ),

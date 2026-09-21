@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/localization/locale_cubit.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/widgets/option_tile.dart';
 import '../../../../core/widgets/sheet_header.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Bottom sheet to switch the app's active locale — reads/writes
 /// [LocaleCubit] directly (already provided at the app root in `app.dart`).
@@ -17,7 +17,7 @@ class LanguageBottomSheet extends StatelessWidget {
     return showModalBottomSheet<void>(
       context: context,
       useRootNavigator: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),

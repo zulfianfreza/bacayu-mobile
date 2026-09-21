@@ -78,6 +78,20 @@ class AppColors {
   // respectively, matched on darkness.
   static const surface = Color(0xFFFFFFFF);
 
+  // Dark anchors (Style Guide 2.4). The only hand-picked dark values in the
+  // app: the page background and the card surface the guide names, the warm
+  // off-white that replaces Ink as text, and the warm hairline that replaces
+  // slate200 on those surfaces. Everything else dark derives from these plus
+  // the ramps above (see `AppSemanticColors`) — do not hand-tune hex values
+  // here either.
+  //
+  // Warm, never neutral black: the light theme's surfaces are warm, so the
+  // dark ones stay in the same hue family.
+  static const darkBackground = Color(0xFF241A12);
+  static const darkSurface = Color(0xFF332619);
+  static const darkInk = Color(0xFFF7EFE5);
+  static const darkHairline = Color(0xFF4A3826);
+
   // Semantic roles (Style Guide 2.5) — the state, not the hue. Each points at
   // a family above: success and danger wear the brand's own positive and
   // negative colors, and warning deliberately avoids Sunshine (the guide

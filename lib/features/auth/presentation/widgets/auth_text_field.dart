@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// A labelled field in the app's auth surfaces.
 ///
@@ -42,7 +43,7 @@ class AuthTextField extends StatelessWidget {
         Text(
           label,
           style: AppTypography.caption.copyWith(
-            color: AppColors.ink,
+            color: context.colors.ink,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -66,7 +67,7 @@ class AuthTextField extends StatelessWidget {
                       icon!,
                       width: 20,
                       height: 20,
-                      color: AppColors.slate400,
+                      color: context.colors.textFaint,
                     ),
                   ),
             // The decorator's default minimum here is 48x48 — a tap target,
@@ -74,8 +75,8 @@ class AuthTextField extends StatelessWidget {
             // nearly the field's full height. This is a label for the field,
             // not a button, so the box is allowed to be the glyph's own size.
             prefixIconConstraints: const BoxConstraints(),
-            border: _border(AppColors.slate200),
-            enabledBorder: _border(AppColors.slate200),
+            border: _border(context.colors.hairline),
+            enabledBorder: _border(context.colors.hairline),
             focusedBorder: _border(AppColors.tangerine, width: 2.5),
             errorBorder: _border(AppColors.danger),
             focusedErrorBorder: _border(AppColors.danger, width: 2.5),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/chunky_button.dart';
 import '../../domain/entities/followed_user.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// One person in a follow list: who they are, and the button that changes
 /// whether you follow them. Reused by `FollowersPage` and `FollowingPage`.
@@ -39,14 +39,14 @@ class UserListTile extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 22,
-            backgroundColor: AppColors.tangerine100,
+            backgroundColor: context.colors.tangerineTint,
             backgroundImage: hasAvatar ? NetworkImage(avatarUrl) : null,
             child: hasAvatar
                 ? null
                 : Text(
                     user.name.isEmpty ? '?' : user.name[0].toUpperCase(),
                     style: AppTypography.bodyStrong.copyWith(
-                      color: AppColors.tangerine700,
+                      color: context.colors.tangerineAccent,
                     ),
                   ),
           ),

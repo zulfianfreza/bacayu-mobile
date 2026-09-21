@@ -7,6 +7,7 @@ import '../../localization/build_context_extension.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_typography.dart';
+import '../../theme/build_context_extension.dart';
 import '../../widgets/chunky_button.dart';
 import '../../widgets/sheet_header.dart';
 import '../models/session_share_data.dart';
@@ -53,7 +54,7 @@ class ShareCardPreviewSheet extends StatefulWidget {
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
@@ -186,7 +187,7 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SheetHeader(title: l10n.shareSession),
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
               SizedBox(
                 height: carouselHeight,
                 child: PageView.builder(
@@ -254,10 +255,10 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
                       // No bundled download glyph exists yet; the platform's own
                       // is clearer than a borrowed icon that means something
                       // else.
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.download,
                         size: 18,
-                        color: AppColors.ink,
+                        color: context.colors.ink,
                       ),
                     ),
                   ),
@@ -292,7 +293,9 @@ class _StyleDots extends StatelessWidget {
             width: i == index ? 28 : 8,
             height: 8,
             decoration: BoxDecoration(
-              color: i == index ? AppColors.tangerine500 : AppColors.slate200,
+              color: i == index
+                  ? AppColors.tangerine500
+                  : context.colors.hairline,
               borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
           ),
@@ -314,7 +317,7 @@ class _SheetNote extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.slate100,
+        color: context.colors.hairline,
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Text(

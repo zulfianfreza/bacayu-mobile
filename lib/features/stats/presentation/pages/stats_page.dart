@@ -16,6 +16,7 @@ import '../cubit/stats_state.dart';
 import '../widgets/badge_preview_row.dart';
 import '../widgets/heatmap_calendar.dart';
 import '../widgets/metric_card.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 class StatsPage extends StatelessWidget {
   const StatsPage({super.key});
@@ -178,7 +179,7 @@ class _RangeSegment extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: RaisedBox(
-        color: isActive ? AppColors.tangerine : AppColors.surface,
+        color: isActive ? AppColors.tangerine : context.colors.surface,
         radius: AppRadius.sm,
         edgeHeight: 3,
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -191,7 +192,7 @@ class _RangeSegment extends StatelessWidget {
             child: Text(
               label,
               style: AppTypography.button.copyWith(
-                color: isActive ? Colors.white : AppColors.slate600,
+                color: isActive ? Colors.white : context.colors.textSecondary,
               ),
             ),
           ),
@@ -219,29 +220,29 @@ class _MetricsGrid extends StatelessWidget {
       (
         summary.booksFinished.toString(),
         l10n.metricBooksFinished,
-        AppColors.lagoon100,
-        AppColors.lagoon700,
+        context.colors.lagoonTint,
+        context.colors.lagoonAccent,
         'assets/icons/book-open-02-stroke.png',
       ),
       (
         summary.totalPages.toString(),
         l10n.metricPagesRead,
-        AppColors.tangerine100,
-        AppColors.tangerine700,
+        context.colors.tangerineTint,
+        context.colors.tangerineAccent,
         'assets/icons/document-stroke.png',
       ),
       (
         '${hours}h ${minutes}m',
         l10n.metricTimeReading,
-        AppColors.sunshine100,
-        AppColors.sunshine700,
+        context.colors.sunshineTint,
+        context.colors.sunshineAccent,
         'assets/icons/clock-stroke.png',
       ),
       (
         summary.avgSpeedPpm.toStringAsFixed(1),
         l10n.metricAvgSpeed,
-        AppColors.blue100,
-        AppColors.blue700,
+        context.colors.infoTint,
+        context.colors.infoAccent,
         'assets/icons/speed-stroke.png',
       ),
     ];

@@ -12,6 +12,7 @@ import '../cubit/user_search_bloc.dart';
 import '../cubit/user_search_event.dart';
 import '../cubit/user_search_state.dart';
 import '../widgets/user_list_tile.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Find people by name, and follow them without leaving the page.
 class UserSearchPage extends StatelessWidget {
@@ -83,7 +84,7 @@ class _UserSearchViewState extends State<_UserSearchView> {
                       'assets/icons/search-stroke.png',
                       width: 20,
                       height: 20,
-                      color: AppColors.slate400,
+                      color: context.colors.textFaint,
                     ),
                   ),
                   // The decorator's default minimum here is 48x48 — a tap
@@ -94,8 +95,8 @@ class _UserSearchViewState extends State<_UserSearchView> {
                     horizontal: 16,
                     vertical: 16,
                   ),
-                  border: _fieldBorder(AppColors.slate200),
-                  enabledBorder: _fieldBorder(AppColors.slate200),
+                  border: _fieldBorder(context.colors.hairline),
+                  enabledBorder: _fieldBorder(context.colors.hairline),
                   focusedBorder: _fieldBorder(
                     AppColors.tangerine,
                     width: 2.5,

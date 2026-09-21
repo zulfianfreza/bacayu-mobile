@@ -4,6 +4,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
 import 'raised_box.dart';
+import '../theme/build_context_extension.dart';
 
 /// A minus / value / plus row, built as one chunky control.
 ///
@@ -62,14 +63,14 @@ class _StepTile extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: RaisedBox(
-          color: enabled ? AppColors.tangerine : AppColors.slate200,
+          color: enabled ? AppColors.tangerine : context.colors.hairline,
           radius: AppRadius.md,
           edgeHeight: 3,
           padding: const EdgeInsets.all(12),
           child: Icon(
             icon,
             size: 22,
-            color: enabled ? Colors.white : AppColors.slate400,
+            color: enabled ? Colors.white : context.colors.textFaint,
           ),
         ),
       ),

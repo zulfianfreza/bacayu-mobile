@@ -12,6 +12,7 @@ import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/sheet_header.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../../shelf/domain/usecases/list_shelf.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Reuses `shelf`'s `ListShelf` usecase (filtered to `reading`) — no
 /// separate query/logic here.
@@ -194,7 +195,7 @@ class _BookOption extends StatelessWidget {
                               .clamp(0, 1)
                               .toDouble(),
                           minHeight: 4,
-                          backgroundColor: AppColors.slate200,
+                          backgroundColor: context.colors.hairline,
                           color: AppColors.lagoon500,
                         ),
                       ),
@@ -220,6 +221,6 @@ class _CoverPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(color: AppColors.tangerine50);
+    return ColoredBox(color: context.colors.tangerineWash);
   }
 }

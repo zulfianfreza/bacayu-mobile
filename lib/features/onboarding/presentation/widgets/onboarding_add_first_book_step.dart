@@ -16,6 +16,7 @@ import '../../../books/presentation/pages/barcode_scanner_page.dart';
 import '../../../books/presentation/widgets/add_manual_book_sheet.dart';
 import '../../../books/presentation/widgets/book_result_card.dart';
 import '../../../shelf/domain/usecases/add_to_shelf.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Reuses `books` (search/scan/manual) and `shelf` (AddToShelf) as-is — no
 /// duplicated add-to-shelf logic. This widget's own job stops at wiring
@@ -105,13 +106,13 @@ class _AddFirstBookViewState extends State<_AddFirstBookView> {
             controller: _queryController,
             decoration: InputDecoration(
               hintText: l10n.searchTitleOrAuthorHint,
-              prefixIcon: const Icon(Icons.search, color: AppColors.slate400),
+              prefixIcon: Icon(Icons.search, color: context.colors.textFaint),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 16,
               ),
-              border: _searchBorder(AppColors.slate200),
-              enabledBorder: _searchBorder(AppColors.slate200),
+              border: _searchBorder(context.colors.hairline),
+              enabledBorder: _searchBorder(context.colors.hairline),
               focusedBorder: _searchBorder(AppColors.tangerine, width: 2.5),
             ),
             onChanged: (query) =>
@@ -232,7 +233,7 @@ class _ChoiceTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: RaisedBox(
-        color: AppColors.surface,
+        color: context.colors.surface,
         radius: AppRadius.md,
         edgeHeight: 3,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),

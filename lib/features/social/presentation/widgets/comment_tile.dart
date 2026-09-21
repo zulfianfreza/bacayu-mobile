@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../domain/entities/activity_comment.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// One comment, as its own chunky card so a thread reads as a stack of posts
 /// rather than loose lines of text.
@@ -28,7 +29,7 @@ class CommentTile extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: AppColors.tangerine100,
+            backgroundColor: context.colors.tangerineTint,
             backgroundImage: hasAvatar ? NetworkImage(avatarUrl) : null,
             child: hasAvatar
                 ? null
@@ -37,7 +38,7 @@ class CommentTile extends StatelessWidget {
                         ? '?'
                         : comment.userName[0].toUpperCase(),
                     style: AppTypography.caption.copyWith(
-                      color: AppColors.tangerine700,
+                      color: context.colors.tangerineAccent,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

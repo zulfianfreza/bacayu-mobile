@@ -543,7 +543,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String memberSince(String date) {
-    return 'Reading since $date';
+    return 'Joined $date';
   }
 
   @override
@@ -578,6 +578,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageIndonesian => 'Bahasa Indonesia';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get appearanceSystem => 'Follow system';
+
+  @override
+  String get appearanceLight => 'Light';
+
+  @override
+  String get appearanceDark => 'Dark';
 
   @override
   String get privacy => 'Privacy';

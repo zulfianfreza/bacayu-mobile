@@ -179,7 +179,7 @@ void main() {
     expect(find.text('30'), findsOneWidget);
     expect(find.text('Mengikuti'), findsOneWidget);
     // From the account's createdAt, month and year only.
-    expect(find.textContaining('Membaca sejak'), findsOneWidget);
+    expect(find.textContaining('Bergabung sejak'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -253,7 +253,7 @@ void main() {
     );
 
     await pumpProfile(tester);
-    expect(find.textContaining('Membaca sejak'), findsOneWidget);
+    expect(find.textContaining('Bergabung sejak'), findsOneWidget);
 
     await tester.drag(
       find.byType(SessionActivityCard).first,
@@ -262,7 +262,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // The header is gone, but the tab bar stayed put.
-    expect(find.textContaining('Membaca sejak'), findsNothing);
+    expect(find.textContaining('Bergabung sejak'), findsNothing);
     expect(find.text('Aktivitas'), findsOneWidget);
   });
 }

@@ -27,6 +27,7 @@ import '../../domain/entities/activity_detail.dart';
 import '../../domain/usecases/get_activity_detail.dart';
 import '../widgets/activity_author_header.dart';
 import '../widgets/activity_share.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Full-page counterpart to [CommentsBottomSheet] — reached by tapping an
 /// activity card's main body (cover/title/badge, NOT the comment icon,
@@ -242,7 +243,7 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                     if (widget.session != null &&
                         widget.session!.pauses.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      const Divider(height: 1, color: AppColors.slate200),
+                      Divider(height: 1, color: context.colors.hairline),
                       const SizedBox(height: 12),
                       _PausesBlock(session: widget.session!),
                     ],
@@ -273,7 +274,7 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                                       height: 18,
                                       // Matches the variant's foreground, which
                                       // a bundled PNG can't inherit.
-                                      color: AppColors.ink,
+                                      color: context.colors.ink,
                                     ),
                                     onPressed: () =>
                                         shareActivity(context, activity),
@@ -345,8 +346,8 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                         horizontal: 16,
                         vertical: 14,
                       ),
-                      border: _fieldBorder(AppColors.slate200),
-                      enabledBorder: _fieldBorder(AppColors.slate200),
+                      border: _fieldBorder(context.colors.hairline),
+                      enabledBorder: _fieldBorder(context.colors.hairline),
                       focusedBorder: _fieldBorder(
                         AppColors.tangerine,
                         width: 2.5,
@@ -500,7 +501,7 @@ class _BadgeHeader extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           l10n.newBadge,
-          style: AppTypography.caption.copyWith(color: AppColors.sunshine700),
+          style: AppTypography.caption.copyWith(color: context.colors.sunshineAccent),
         ),
         const SizedBox(height: 4),
         Text(
@@ -529,7 +530,7 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.slate200,
+        color: context.colors.hairline,
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(text, style: AppTypography.bodyStrong),
@@ -543,7 +544,7 @@ class _CoverPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.tangerine50,
+      color: context.colors.tangerineWash,
       alignment: Alignment.center,
       child: const Icon(
         Icons.menu_book,

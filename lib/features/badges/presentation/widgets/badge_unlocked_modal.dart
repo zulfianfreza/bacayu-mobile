@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart' hide Badge;
 
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'badge_artwork.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Reusable celebratory modal — called from more than one place (CLAUDE.md
 /// Section 6): `sessions`' summary page when a submit response carries
@@ -88,7 +88,7 @@ class _BadgeUnlockedModalState extends State<BadgeUnlockedModal>
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.sunshine100,
+            color: context.colors.sunshineTint,
             borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
           child: Column(
@@ -98,7 +98,7 @@ class _BadgeUnlockedModalState extends State<BadgeUnlockedModal>
               const SizedBox(height: 12),
               Text(
                 l10n.newBadge,
-                style: AppTypography.caption.copyWith(color: AppColors.sunshine700),
+                style: AppTypography.caption.copyWith(color: context.colors.sunshineAccent),
               ),
               const SizedBox(height: 4),
               Text(

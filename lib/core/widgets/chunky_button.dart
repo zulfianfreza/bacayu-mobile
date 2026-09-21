@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
+import '../theme/build_context_extension.dart';
 import 'raised_box.dart';
 
 enum ChunkyButtonVariant {
@@ -57,15 +58,23 @@ class _ChunkyButtonState extends State<ChunkyButton> {
 
   @override
   Widget build(BuildContext context) {
-    final (fill, foreground) = switch (widget.variant) {
-      ChunkyButtonVariant.primary => (AppColors.tangerine, Colors.white),
-      ChunkyButtonVariant.secondary => (AppColors.surface, AppColors.ink),
+    final colors = context.colors;
+    final (fill, foreground, outline) = switch (widget.variant) {
+      ChunkyButtonVariant.primary => (AppColors.tangerine, Colors.white, null),
+      // A neutral body needs an outline: on a surface of its own colour a
+      // bottom-only slab leaves the sides invisible. The coloured variant
+      // keeps its slab — the body carries the contrast there.
+      ChunkyButtonVariant.secondary => (
+        colors.surface,
+        colors.ink,
+        colors.hairline,
+      ),
     };
     // Disabled keeps the shape but drops the colour, so a form never reflows
     // the moment its submit starts.
-    final (body, label) = _enabled
-        ? (fill, foreground)
-        : (AppColors.slate200, AppColors.slate400);
+    final (body, label, border) = _enabled
+        ? (fill, foreground, outline)
+        : (colors.hairline, colors.textFaint, null);
 
     return GestureDetector(
       onTap: _enabled ? widget.onPressed : null,
@@ -74,6 +83,7 @@ class _ChunkyButtonState extends State<ChunkyButton> {
       onTapCancel: _enabled ? () => _setPressed(false) : null,
       child: RaisedBox(
         color: body,
+        outlineColor: border,
         radius: AppRadius.md,
         edgeHeight: _edge,
         // The whole 4px edge while held would leave nothing to sink into, so

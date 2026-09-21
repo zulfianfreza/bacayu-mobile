@@ -12,6 +12,7 @@ import '../cubit/session_timer_cubit.dart';
 import '../cubit/session_timer_state.dart';
 import '../widgets/book_picker_bottom_sheet.dart';
 import 'session_summary_page.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 class SessionTimerPage extends StatelessWidget {
   const SessionTimerPage({super.key, this.initialUserBook});
@@ -98,7 +99,7 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.tangerine50,
+      backgroundColor: context.colors.tangerineWash,
       body: SafeArea(
         child: BlocConsumer<SessionTimerCubit, SessionTimerState>(
           listener: (context, state) {
@@ -131,12 +132,12 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
                           width: 40,
                           height: 56,
                           child: book.book.coverUrl == null
-                              ? Container(color: AppColors.surface)
+                              ? Container(color: context.colors.surface)
                               : Image.network(
                                   book.book.coverUrl!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
-                                      Container(color: AppColors.surface),
+                                      Container(color: context.colors.surface),
                                 ),
                         ),
                       ),
@@ -155,9 +156,9 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
                   Container(
                     width: 240,
                     height: 240,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.surface,
+                      color: context.colors.surface,
                     ),
                     alignment: Alignment.center,
                     child: Text(
@@ -186,9 +187,9 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
                       const SizedBox(width: 24),
                       _CircularIconButton(
                         icon: Icons.stop,
-                        backgroundColor: AppColors.surface,
-                        iconColor: AppColors.ink,
-                        borderColor: AppColors.slate200,
+                        backgroundColor: context.colors.surface,
+                        iconColor: context.colors.ink,
+                        borderColor: context.colors.hairline,
                         onPressed: () => context.read<SessionTimerCubit>().stop(),
                       ),
                     ],

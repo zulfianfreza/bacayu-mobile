@@ -13,6 +13,7 @@ import '../../../../core/widgets/chunky_button.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_text_field.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -162,8 +163,8 @@ class _LoginViewState extends State<_LoginView> {
                         const SizedBox(height: 24),
                         Row(
                           children: [
-                            const Expanded(
-                              child: Divider(color: AppColors.slate200),
+                            Expanded(
+                              child: Divider(color: context.colors.hairline),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
@@ -174,8 +175,8 @@ class _LoginViewState extends State<_LoginView> {
                                 style: AppTypography.caption,
                               ),
                             ),
-                            const Expanded(
-                              child: Divider(color: AppColors.slate200),
+                            Expanded(
+                              child: Divider(color: context.colors.hairline),
                             ),
                           ],
                         ),

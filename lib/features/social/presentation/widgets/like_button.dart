@@ -6,6 +6,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/error_listener.dart';
 import '../../domain/usecases/like_activity.dart';
 import '../../domain/usecases/unlike_activity.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Optimistic: the icon/count flip the instant it's tapped, before the
 /// network call resolves. Only rolled back if the request actually fails —
@@ -76,7 +77,7 @@ class _LikeButtonState extends State<LikeButton> {
                   : 'assets/icons/like-stroke.png',
               width: 24,
               height: 24,
-              color: _isLiked ? AppColors.berry : AppColors.slate600,
+              color: _isLiked ? AppColors.berry : context.colors.textSecondary,
             ),
             const SizedBox(width: 4),
             Text('$_likeCount', style: AppTypography.caption),

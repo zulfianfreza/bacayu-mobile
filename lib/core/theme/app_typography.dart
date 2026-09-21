@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'app_colors.dart';
-
 /// Type scale from BacaYu Style Guide Section 3. Font is Nunito, weights
 /// 400/600/700/800 only — do not introduce other weights or families here.
+///
+/// The styles carry no colour on purpose. A `Text` given a colourless style
+/// inherits the enclosing `DefaultTextStyle`, which the theme sets from its
+/// text colours — Ink in light, the warm off-white in dark — so one type scale
+/// serves both modes without every call site knowing which is active. Pin a
+/// colour only where the text sits on a tint or on an image.
+///
+/// The one exception is [caption], which is a *role* (quieter than the text
+/// around it) rather than just a size: reach for `context.captionStyle`, not
+/// the bare getter, when a caption should read muted.
 class AppTypography {
   AppTypography._();
 
@@ -12,13 +20,11 @@ class AppTypography {
     required double fontSize,
     required FontWeight fontWeight,
     required double height,
-    Color color = AppColors.ink,
   }) {
     return GoogleFonts.nunito(
       fontSize: fontSize,
       fontWeight: fontWeight,
       height: height,
-      color: color,
     );
   }
 
@@ -64,12 +70,13 @@ class AppTypography {
         height: 1.5,
       );
 
-  /// 13px Medium — metadata, timestamps, helper text.
+  /// 13px Medium — metadata, timestamps, helper text. Muted by role: pair it
+  /// with the secondary text colour (`context.captionStyle`) unless the
+  /// surrounding copy is already that quiet.
   static TextStyle get caption => _nunito(
         fontSize: 13,
         fontWeight: FontWeight.w500,
         height: 1.4,
-        color: AppColors.slate600,
       );
 
   /// 15px SemiBold — button and nav labels.

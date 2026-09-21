@@ -4,6 +4,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/chunky_button.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Screen 1: the promise, the illustration, and one way forward.
 class OnboardingWelcomeStep extends StatelessWidget {
@@ -26,8 +27,8 @@ class OnboardingWelcomeStep extends StatelessWidget {
                 width: 216,
                 height: 216,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: AppColors.tangerine100,
+                decoration: BoxDecoration(
+                  color: context.colors.tangerineTint,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

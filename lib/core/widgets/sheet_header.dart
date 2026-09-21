@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
+import '../theme/build_context_extension.dart';
 
 /// What every sheet in the app opens with: the drag indicator, and the title
 /// centred under it.
@@ -38,7 +38,7 @@ class SheetHeader extends StatelessWidget {
             width: handleWidth,
             height: handleHeight,
             decoration: BoxDecoration(
-              color: AppColors.slate200,
+              color: context.colors.hairline,
               borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
           ),

@@ -9,6 +9,12 @@ import '../theme/app_radius.dart';
 /// derived from [color] — same hue, one step darker — so a caller only ever
 /// passes one palette colour.
 ///
+/// That recipe needs the body to contrast with what it sits on. When it does
+/// not — a white body on a white sheet — pass [outlineColor] instead: the box
+/// is then drawn as an outlined surface, the same recipe as `BorderedCard`
+/// (hairline on top and sides, a thicker base), which is what keeps the sides
+/// from disappearing while keeping the pressable base.
+///
 /// The body clips, so a cover image can bleed to its rounded corners.
 class RaisedBox extends StatelessWidget {
   const RaisedBox({
@@ -19,9 +25,11 @@ class RaisedBox extends StatelessWidget {
     this.edgeHeight = 4,
     this.padding = EdgeInsets.zero,
     this.sink = 0,
+    this.outlineColor,
   });
 
-  /// The body colour. The edge is [edgeShadeOf] this.
+  /// The body colour. The edge is [edgeShadeOf] this — unless [outlineColor]
+  /// is set, in which case that colour is the whole edge.
   final Color color;
 
   final Widget child;
@@ -38,12 +46,31 @@ class RaisedBox extends StatelessWidget {
   /// put, or everything below the button jumps by [sink] on every tap.
   final double sink;
 
+  /// Optional outline colour. When set, the box is drawn as an outlined
+  /// surface — top and sides at [outlineWidth], base at [edgeHeight], all in
+  /// this colour — instead of a slab derived from [color].
+  ///
+  /// For a body that would otherwise blend into its backing (the secondary
+  /// button on a white sheet, either mode's neutral button on a matching
+  /// surface).
+  final Color? outlineColor;
+
+  /// Hairline around the sides and top in outline mode. Matches
+  /// `BorderedCard.sideWidth` so the two read as one family.
+  static const outlineWidth = 2.0;
+
   @override
   Widget build(BuildContext context) {
     final shape = BorderRadius.circular(radius);
+    final outline = outlineColor;
 
     return Container(
-      decoration: BoxDecoration(color: edgeShadeOf(color), borderRadius: shape),
+      // The edge: the whole outline colour in outline mode (only its bottom
+      // strip stays visible), a shade of the body otherwise.
+      decoration: BoxDecoration(
+        color: outline ?? edgeShadeOf(color),
+        borderRadius: shape,
+      ),
       // Reveals the edge: the outer colour only shows below the body.
       padding: EdgeInsets.only(bottom: edgeHeight),
       child: Transform.translate(
@@ -52,7 +79,19 @@ class RaisedBox extends StatelessWidget {
           borderRadius: shape,
           child: Container(
             padding: padding,
-            decoration: BoxDecoration(color: color, borderRadius: shape),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: shape,
+              // Sides and top only: the base is the strip the outer colour
+              // shows through, and drawing it twice would double the line.
+              border: outline == null
+                  ? null
+                  : Border(
+                      top: BorderSide(color: outline, width: outlineWidth),
+                      left: BorderSide(color: outline, width: outlineWidth),
+                      right: BorderSide(color: outline, width: outlineWidth),
+                    ),
+            ),
             child: child,
           ),
         ),

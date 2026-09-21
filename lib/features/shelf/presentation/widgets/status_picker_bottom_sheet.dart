@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/widgets/option_tile.dart';
 import '../../../../core/widgets/sheet_header.dart';
 import '../../domain/entities/user_book.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Bottom sheet listing the 4 [ShelfStatus] options — the current status is
 /// highlighted and dead (already selected, nothing to do). Picking a different
@@ -25,7 +25,7 @@ class StatusPickerBottomSheet extends StatelessWidget {
     return showModalBottomSheet<ShelfStatus>(
       context: context,
       useRootNavigator: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),

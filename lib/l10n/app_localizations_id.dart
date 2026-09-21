@@ -544,7 +544,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String memberSince(String date) {
-    return 'Membaca sejak $date';
+    return 'Bergabung sejak $date';
   }
 
   @override
@@ -579,6 +579,18 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get languageIndonesian => 'Bahasa Indonesia';
+
+  @override
+  String get appearance => 'Tampilan';
+
+  @override
+  String get appearanceSystem => 'Ikuti sistem';
+
+  @override
+  String get appearanceLight => 'Terang';
+
+  @override
+  String get appearanceDark => 'Gelap';
 
   @override
   String get privacy => 'Privasi';

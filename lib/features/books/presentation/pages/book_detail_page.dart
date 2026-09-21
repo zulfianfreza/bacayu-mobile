@@ -12,6 +12,7 @@ import '../../../../core/widgets/bordered_card.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/usecases/get_book_detail.dart';
 import '../widgets/book_description.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Read-only book detail — reached from a shelf card tap (reuses `books`'
 /// `GetBookDetail`) or a search result. Plain `FutureBuilder` + `getIt`, no
@@ -199,8 +200,8 @@ class _FactChip extends StatelessWidget {
     return _Chip(
       icon: icon,
       text: text,
-      background: AppColors.slate200,
-      foreground: AppColors.slate600,
+      background: context.colors.hairline,
+      foreground: context.colors.textSecondary,
     );
   }
 }
@@ -217,10 +218,10 @@ class _GenreChip extends StatelessWidget {
     return _Chip(
       icon: Icons.local_offer_outlined,
       text: text,
-      background: AppColors.tangerine50,
+      background: context.colors.tangerineWash,
       // The 900 shade, not 700: 700 on this tint only reaches 3.9:1, and this
       // is caption-sized type.
-      foreground: AppColors.tangerine900,
+      foreground: context.colors.tangerineAccent,
     );
   }
 }
@@ -281,7 +282,7 @@ class _CoverPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.tangerine50,
+      color: context.colors.tangerineWash,
       alignment: Alignment.center,
       child: const Icon(
         Icons.menu_book,

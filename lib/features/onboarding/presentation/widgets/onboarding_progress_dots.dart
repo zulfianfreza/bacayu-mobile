@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../cubit/onboarding_state.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// How far along the flow is: one pill per step, the current one stretched and
 /// filled. The rest are slate rather than the warm hairline — a white page
@@ -26,7 +27,7 @@ class OnboardingProgressDots extends StatelessWidget {
             width: s == step ? 28 : 8,
             height: _height,
             decoration: BoxDecoration(
-              color: s == step ? AppColors.tangerine : AppColors.slate200,
+              color: s == step ? AppColors.tangerine : context.colors.hairline,
               borderRadius: BorderRadius.circular(AppRadius.pill),
             ),
           ),

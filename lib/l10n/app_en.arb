@@ -711,7 +711,7 @@
   "@profileFollowingLabel": {
     "description": "Profile header — label under the following number, tap opens FollowingPage"
   },
-  "memberSince": "Reading since {date}",
+  "memberSince": "Joined {date}",
   "@memberSince": {
     "description": "Profile header — when the account was created, month and year",
     "placeholders": {
@@ -765,6 +765,22 @@
   "languageIndonesian": "Bahasa Indonesia",
   "@languageIndonesian": {
     "description": "Language picker option"
+  },
+  "appearance": "Appearance",
+  "@appearance": {
+    "description": "Profile settings list item — opens the light/dark/system picker"
+  },
+  "appearanceSystem": "Follow system",
+  "@appearanceSystem": {
+    "description": "Appearance picker option — track the device's light/dark setting"
+  },
+  "appearanceLight": "Light",
+  "@appearanceLight": {
+    "description": "Appearance picker option — always use the light theme"
+  },
+  "appearanceDark": "Dark",
+  "@appearanceDark": {
+    "description": "Appearance picker option — always use the dark theme"
   },
   "privacy": "Privacy",
   "@privacy": {

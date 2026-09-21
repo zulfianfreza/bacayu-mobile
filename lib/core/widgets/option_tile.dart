@@ -4,6 +4,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
 import 'bordered_card.dart';
+import '../theme/build_context_extension.dart';
 
 /// One choice in a picker sheet: a chunky border row that tints itself, and
 /// shows its own tick, when it is the selected one.
@@ -35,8 +36,8 @@ class OptionTile extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: BorderedCard(
-          color: selected ? AppColors.tangerine100 : AppColors.surface,
-          borderColor: selected ? AppColors.tangerine300 : AppColors.slate200,
+          color: selected ? context.colors.tangerineTint : context.colors.surface,
+          borderColor: selected ? AppColors.tangerine300 : context.colors.hairline,
           radius: AppRadius.md,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
@@ -45,7 +46,7 @@ class OptionTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: AppTypography.bodyStrong.copyWith(
-                    color: selected ? AppColors.tangerine700 : AppColors.ink,
+                    color: selected ? context.colors.tangerineAccent : context.colors.ink,
                   ),
                 ),
               ),

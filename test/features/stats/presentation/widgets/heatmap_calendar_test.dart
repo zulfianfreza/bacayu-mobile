@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/theme/app_colors.dart';
+import 'package:mobile/core/theme/app_semantic_colors.dart';
 import 'package:mobile/features/stats/domain/entities/daily_stat.dart';
 import 'package:mobile/features/stats/presentation/widgets/heatmap_calendar.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+
+/// The light ramp, so the pure-function tests keep asserting the exact
+/// light-mode steps the grid painted before dark mode existed.
+final _ramp = AppSemanticColors.light.heatmapRamp;
 
 Color _cellColor(WidgetTester tester, DateTime date) {
   final container = tester.widget<Container>(
@@ -18,8 +23,14 @@ Color _cellColor(WidgetTester tester, DateTime date) {
 void main() {
   group('heatmapColorFor (pure)', () {
     test('no activity, or an all-zero dataset, is the slate neutral', () {
-      expect(heatmapColorFor(minutes: 0, maxMinutes: 100), AppColors.slate200);
-      expect(heatmapColorFor(minutes: 50, maxMinutes: 0), AppColors.slate200);
+      expect(
+        heatmapColorFor(minutes: 0, maxMinutes: 100, ramp: _ramp),
+        AppColors.slate200,
+      );
+      expect(
+        heatmapColorFor(minutes: 50, maxMinutes: 0, ramp: _ramp),
+        AppColors.slate200,
+      );
     });
 
     test('intensity increases monotonically with minutes relative to max', () {
@@ -33,7 +44,7 @@ void main() {
       };
 
       final colors = [0, 10, 30, 50, 70, 100]
-          .map((m) => heatmapColorFor(minutes: m, maxMinutes: 100))
+          .map((m) => heatmapColorFor(minutes: m, maxMinutes: 100, ramp: _ramp))
           .map((c) => rank[c]!)
           .toList();
 
@@ -103,7 +114,7 @@ void main() {
         expect(_cellColor(tester, noActivity), AppColors.slate200);
         expect(
           _cellColor(tester, lightDay),
-          heatmapColorFor(minutes: 30, maxMinutes: 120),
+          heatmapColorFor(minutes: 30, maxMinutes: 120, ramp: _ramp),
         );
         expect(_cellColor(tester, busiestDay), AppColors.tangerine700);
 
@@ -134,7 +145,7 @@ void main() {
       // what stops the legend and the grid drifting apart.
       final producible = {
         for (var minutes = 0; minutes <= 100; minutes++)
-          heatmapColorFor(minutes: minutes, maxMinutes: 100),
+          heatmapColorFor(minutes: minutes, maxMinutes: 100, ramp: _ramp),
       };
       expect(swatches, producible);
     });

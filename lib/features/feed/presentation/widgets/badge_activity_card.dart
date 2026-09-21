@@ -11,6 +11,7 @@ import '../../../badges/presentation/widgets/badge_artwork.dart';
 import '../../domain/entities/activity.dart';
 import 'activity_author_header.dart';
 import 'activity_card_footer.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Sunshine-tinted, more celebratory than [SessionActivityCard] — PRD
 /// Section 3.9 / Style Guide: badge unlocks are the "loud" feed moment. The
@@ -44,7 +45,7 @@ class BadgeActivityCard extends StatelessWidget {
     final payload = activity.payload as BadgeActivityPayload;
 
     return BorderedCard(
-      color: AppColors.lagoon50,
+      color: context.colors.lagoonWash,
       // Tinted border rather than the neutral hairline: on a yellow card, the
       // warm grey edge reads as a mistake.
       borderColor: AppColors.lagoon300,
@@ -69,7 +70,7 @@ class BadgeActivityCard extends StatelessWidget {
                         Text(
                           l10n.newBadge,
                           style: AppTypography.caption.copyWith(
-                            color: AppColors.sunshine700,
+                            color: context.colors.sunshineAccent,
                           ),
                         ),
                         Text(

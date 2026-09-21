@@ -26,6 +26,7 @@ import 'package:mobile/core/router/app_router.dart' as _i683;
 import 'package:mobile/core/sharing/services/share_card_service.dart' as _i239;
 import 'package:mobile/core/storage/app_database.dart' as _i141;
 import 'package:mobile/core/storage/secure_token_storage.dart' as _i839;
+import 'package:mobile/core/theme/theme_cubit.dart' as _i783;
 import 'package:mobile/features/auth/data/datasources/auth_remote_datasource.dart'
     as _i1044;
 import 'package:mobile/features/auth/data/repositories/auth_repository_impl.dart'
@@ -226,6 +227,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i390.LocaleCubit>(
       () => _i390.LocaleCubit(gh<_i460.SharedPreferences>()),
+    );
+    gh.lazySingleton<_i783.ThemeCubit>(
+      () => _i783.ThemeCubit(gh<_i460.SharedPreferences>()),
     );
     gh.lazySingleton<_i361.Dio>(
       () => dioClientModule.dio(gh<_i839.SecureTokenStorage>()),

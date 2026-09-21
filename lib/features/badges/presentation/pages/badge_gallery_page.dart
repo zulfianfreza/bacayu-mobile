@@ -12,6 +12,7 @@ import '../../domain/entities/badge.dart';
 import '../cubit/badge_cubit.dart';
 import '../cubit/badge_state.dart';
 import '../widgets/badge_artwork.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 class BadgeGalleryPage extends StatelessWidget {
   const BadgeGalleryPage({super.key});
@@ -123,7 +124,7 @@ class _CollectionProgress extends StatelessWidget {
               // shelf book's progress bar.
               value: total == 0 ? 0 : unlocked / total,
               minHeight: 8,
-              backgroundColor: AppColors.slate200,
+              backgroundColor: context.colors.hairline,
               color: AppColors.lagoon500,
             ),
           ),
@@ -152,8 +153,8 @@ class _BadgeCard extends StatelessWidget {
     final l10n = context.l10n;
     final artwork = BadgeArtwork(imageUrl: badge.imageUrl, size: 72);
     final stateColor = badge.unlocked
-        ? AppColors.lagoon700
-        : AppColors.slate600;
+        ? context.colors.lagoonAccent
+        : context.colors.textSecondary;
 
     return BorderedCard(
       padding: const EdgeInsets.all(12),

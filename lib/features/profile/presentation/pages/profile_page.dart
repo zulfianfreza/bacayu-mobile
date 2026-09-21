@@ -11,6 +11,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/theme/build_context_extension.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/raised_box.dart';
 import '../../../auth/domain/entities/user.dart';
@@ -23,6 +24,7 @@ import '../../../feed/presentation/widgets/badge_activity_card.dart';
 import '../../../feed/presentation/widgets/session_activity_card.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
+import '../widgets/appearance_bottom_sheet.dart';
 import '../widgets/language_bottom_sheet.dart';
 import '../widgets/privacy_bottom_sheet.dart';
 import '../widgets/settings_list_group.dart';
@@ -100,7 +102,7 @@ class _ProfileTabs extends StatelessWidget {
                       followersCount: state.followersCount,
                       followingCount: state.followingCount,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     _StatsRow(
                       booksFinished: state.booksFinished,
                       currentStreak: state.user.currentStreak,
@@ -116,12 +118,12 @@ class _ProfileTabs extends StatelessWidget {
               delegate: _PinnedTabBar(
                 TabBar(
                   labelColor: AppColors.tangerine600,
-                  unselectedLabelColor: AppColors.slate500,
+                  unselectedLabelColor: context.colors.textSecondary,
                   labelStyle: AppTypography.button,
                   unselectedLabelStyle: AppTypography.button,
                   indicatorColor: AppColors.tangerine500,
                   indicatorWeight: 3,
-                  dividerColor: AppColors.slate200,
+                  dividerColor: context.colors.hairline,
                   tabs: [
                     Tab(text: l10n.profileActivityTab),
                     Tab(text: l10n.profileSettingsTab),
@@ -161,7 +163,7 @@ class _PinnedTabBar extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     // Opaque: cards scroll underneath this bar.
-    return ColoredBox(color: AppColors.surface, child: tabBar);
+    return ColoredBox(color: context.colors.surface, child: tabBar);
   }
 
   @override
@@ -314,6 +316,11 @@ class _SettingsTab extends StatelessWidget {
               onTap: () => LanguageBottomSheet.show(context),
             ),
             SettingsListTile(
+              iconData: Icons.dark_mode_outlined,
+              label: l10n.appearance,
+              onTap: () => AppearanceBottomSheet.show(context),
+            ),
+            SettingsListTile(
               icon: "assets/icons/lock-stroke.png",
               label: l10n.privacy,
               onTap: () => _openPrivacyPicker(context),
@@ -368,13 +375,10 @@ class _ActivityMessage extends StatelessWidget {
   }
 }
 
-/// The avatar, the name, and the two counts that describe the account's
-/// social side — one card, because they are one identity rather than three
-/// separate sections.
-///
-/// Identity reads left-to-right: who (avatar), then their name and how long
-/// they have been reading, then a rule, then the numbers. Centring it left a
-/// tall stack with the counts floating at the bottom like stray buttons.
+/// Avatar, name, join line and the two social counts — the whole identity in
+/// one card. Strava-style: the counts sit inline under the name instead of in
+/// their own stacked number-over-label columns, which is what keeps the band
+/// compact.
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader({
     required this.user,
@@ -394,76 +398,62 @@ class _ProfileHeader extends StatelessWidget {
 
     return BorderedCard(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.slate200, width: 2),
-                ),
-                child: CircleAvatar(
-                  radius: 26,
-                  backgroundColor: AppColors.tangerine100,
-                  backgroundImage: hasAvatar
-                      ? NetworkImage(user.avatarUrl)
-                      : null,
-                  child: hasAvatar
-                      ? null
-                      : Text(
-                          user.name.isEmpty ? '?' : user.name[0].toUpperCase(),
-                          style: AppTypography.heading.copyWith(
-                            color: AppColors.tangerine700,
-                          ),
-                        ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Uncapped, like every other identity line in the app: a
-                    // long name wraps rather than being cut.
-                    Text(user.name, style: AppTypography.displaySm),
-                    const SizedBox(height: 4),
-                    Text(
-                      l10n.memberSince(
-                        DateFormat.yMMMM(locale).format(user.createdAt),
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: context.colors.hairline, width: 2),
+            ),
+            child: CircleAvatar(
+              radius: 26,
+              backgroundColor: context.colors.tangerineTint,
+              backgroundImage: hasAvatar ? NetworkImage(user.avatarUrl) : null,
+              child: hasAvatar
+                  ? null
+                  : Text(
+                      user.name.isEmpty ? '?' : user.name[0].toUpperCase(),
+                      style: AppTypography.heading.copyWith(
+                        color: context.colors.tangerineAccent,
                       ),
-                      style: AppTypography.caption,
+                    ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Uncapped, like every other identity line in the app: a
+                // long name wraps rather than being cut.
+                Text(user.name, style: AppTypography.displaySm),
+                const SizedBox(height: 2),
+                Text(
+                  l10n.memberSince(
+                    DateFormat.yMMMM(locale).format(user.createdAt),
+                  ),
+                  style: AppTypography.caption,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    _InlineFollowStat(
+                      count: followersCount,
+                      label: l10n.profileFollowersLabel,
+                      onTap: () => context.push(AppRoutes.followers),
+                    ),
+                    const SizedBox(width: 16),
+                    _InlineFollowStat(
+                      count: followingCount,
+                      label: l10n.profileFollowingLabel,
+                      onTap: () => context.push(AppRoutes.following),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          // A rule rather than the 20 + 12 of blank that used to separate the
-          // two bands: it does the same job in half the height.
-          const SizedBox(height: 12),
-          const Divider(height: 1, color: AppColors.slate200),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _FollowStat(
-                  count: followersCount,
-                  label: l10n.profileFollowersLabel,
-                  onTap: () => context.push(AppRoutes.followers),
-                ),
-              ),
-              Expanded(
-                child: _FollowStat(
-                  count: followingCount,
-                  label: l10n.profileFollowingLabel,
-                  onTap: () => context.push(AppRoutes.following),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -471,10 +461,10 @@ class _ProfileHeader extends StatelessWidget {
   }
 }
 
-/// One of the two social counts: the number over its word, with the whole
-/// column tappable rather than just the number.
-class _FollowStat extends StatelessWidget {
-  const _FollowStat({
+/// A count and its word on one line — the compact counterpart of a stacked
+/// number-over-label column. The whole pair is the tap target.
+class _InlineFollowStat extends StatelessWidget {
+  const _InlineFollowStat({
     required this.count,
     required this.label,
     required this.onTap,
@@ -488,17 +478,25 @@ class _FollowStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
+      // The label repeats the two Texts, so exclude them from the tree the
+      // screen reader walks.
+      excludeSemantics: true,
       label: '$count $label',
       child: GestureDetector(
         onTap: onTap,
-        // Opaque so the gap either side of the column is part of the target.
+        // Opaque so the gap around the pair is part of the target.
         behavior: HitTestBehavior.opaque,
-        child: Column(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('$count', style: AppTypography.heading),
-            const SizedBox(height: 2),
-            Text(label, style: AppTypography.caption),
+            Text('$count', style: AppTypography.subheading),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: AppTypography.caption.copyWith(
+                color: context.colors.textSecondary,
+              ),
+            ),
           ],
         ),
       ),
@@ -535,8 +533,8 @@ class _StatsRow extends StatelessWidget {
               icon: 'assets/icons/book-open-02-stroke.png',
               value: '$booksFinished',
               label: l10n.profileStatsBooks,
-              tint: AppColors.lagoon100,
-              accent: AppColors.lagoon700,
+              tint: context.colors.lagoonTint,
+              accent: context.colors.lagoonAccent,
             ),
           ),
           const SizedBox(width: 12),
@@ -545,8 +543,8 @@ class _StatsRow extends StatelessWidget {
               icon: 'assets/images/day-streak.png',
               value: '$currentStreak',
               label: l10n.profileStatsStreak,
-              tint: AppColors.tangerine100,
-              accent: AppColors.tangerine700,
+              tint: context.colors.tangerineTint,
+              accent: context.colors.tangerineAccent,
               iconSize: 24,
               // The streak flame is full-colour artwork — tinting it to one
               // hue would flatten the yellow highlight that makes it read as
@@ -560,8 +558,8 @@ class _StatsRow extends StatelessWidget {
               icon: 'assets/icons/award-stroke.png',
               value: '$badgesUnlocked/$totalBadges',
               label: l10n.profileStatsBadges,
-              tint: AppColors.sunshine100,
-              accent: AppColors.sunshine700,
+              tint: context.colors.sunshineTint,
+              accent: context.colors.sunshineAccent,
             ),
           ),
         ],

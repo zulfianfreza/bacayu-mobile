@@ -24,6 +24,7 @@ import '../../../social/presentation/pages/user_search_page.dart';
 import '../../../stats/domain/entities/daily_stat.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -173,7 +174,7 @@ class _SearchPeopleButton extends StatelessWidget {
           'assets/icons/search-stroke.png',
           width: 24,
           height: 24,
-          color: AppColors.slate700,
+          color: context.colors.ink,
         ),
       ),
     );
@@ -283,10 +284,10 @@ class _DayCircle extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: read ? AppColors.lagoon : AppColors.slate200,
+        color: read ? AppColors.lagoon : context.colors.hairline,
       ),
       child: read
-          ? const Icon(Icons.check, size: 16, color: AppColors.surface)
+          ? Icon(Icons.check, size: 16, color: context.colors.surface)
           : null,
     );
   }
@@ -419,7 +420,7 @@ class _FindFriendsCta extends StatelessWidget {
     final l10n = context.l10n;
 
     return RaisedBox(
-      color: AppColors.surface,
+      color: context.colors.surface,
       radius: AppRadius.lg,
       padding: const EdgeInsets.all(24),
       child: Column(

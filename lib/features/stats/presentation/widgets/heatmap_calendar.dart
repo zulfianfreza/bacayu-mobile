@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/core/theme/build_context_extension.dart';
 
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/daily_stat.dart';
 
@@ -10,31 +10,28 @@ const _cellSize = 12.0;
 const _cellGap = 3.0;
 const _gutterWidth = 26.0;
 
-/// Every colour [heatmapColorFor] can return, in order — nothing read, then the
-/// four intensities. The legend is drawn from this list, so it cannot drift
-/// from the grid.
-const _rampColors = [
-  AppColors.slate200,
-  AppColors.tangerine200,
-  AppColors.tangerine300,
-  AppColors.tangerine400,
-  AppColors.tangerine500,
-  AppColors.tangerine700,
-];
-
 /// Pure so it's unit-testable without pumping a widget — color intensity
 /// scales with [minutes] relative to [maxMinutes] in the dataset (Style
 /// Guide Section 6.7: Tangerine ramp, not GitHub's green/sharp squares —
 /// note that's about COLOR/SHAPE, the week/day GRID layout below is
 /// deliberately GitHub-like).
-Color heatmapColorFor({required int minutes, required int maxMinutes}) {
-  if (minutes <= 0 || maxMinutes <= 0) return AppColors.slate200;
+///
+/// The shades come from [ramp] — `context.colors.heatmapRamp`, six steps,
+/// dimmest first — rather than a constant here: the "nothing read" cell is a
+/// surface role and has to follow the theme, and the intensity order flips
+/// between modes (see [AppSemanticColors.heatmapRamp]).
+Color heatmapColorFor({
+  required int minutes,
+  required int maxMinutes,
+  required List<Color> ramp,
+}) {
+  if (minutes <= 0 || maxMinutes <= 0) return ramp[0];
   final ratio = minutes / maxMinutes;
-  if (ratio <= 0.2) return AppColors.tangerine200;
-  if (ratio <= 0.4) return AppColors.tangerine300;
-  if (ratio <= 0.6) return AppColors.tangerine400;
-  if (ratio <= 0.8) return AppColors.tangerine500;
-  return AppColors.tangerine700;
+  if (ratio <= 0.2) return ramp[1];
+  if (ratio <= 0.4) return ramp[2];
+  if (ratio <= 0.6) return ramp[3];
+  if (ratio <= 0.8) return ramp[4];
+  return ramp[5];
 }
 
 /// GitHub-style contribution grid: columns are weeks (Sunday-start, to
@@ -106,7 +103,7 @@ class HeatmapCalendar extends StatelessWidget {
                             width: _cellSize + _cellGap,
                             child: Text(
                               label ?? '',
-                              style: AppTypography.caption,
+                              style: context.captionStyle,
                               maxLines: 1,
                               softWrap: false,
                               overflow: TextOverflow.visible,
@@ -257,7 +254,7 @@ class _WeekdayGutter extends StatelessWidget {
                         alignment: Alignment.centerRight,
                         child: Text(
                           format.format(_sunday.add(Duration(days: i))),
-                          style: AppTypography.caption.copyWith(fontSize: 10),
+                          style: context.captionStyle.copyWith(fontSize: 10),
                           maxLines: 1,
                         ),
                       )
@@ -281,9 +278,9 @@ class _Legend extends StatelessWidget {
 
     return Row(
       children: [
-        Text(l10n.heatmapLess, style: AppTypography.caption),
+        Text(l10n.heatmapLess, style: context.captionStyle),
         const SizedBox(width: 6),
-        for (final color in _rampColors) ...[
+        for (final color in context.colors.heatmapRamp) ...[
           Container(
             width: _cellSize,
             height: _cellSize,
@@ -295,7 +292,7 @@ class _Legend extends StatelessWidget {
           const SizedBox(width: 4),
         ],
         const SizedBox(width: 2),
-        Text(l10n.heatmapMore, style: AppTypography.caption),
+        Text(l10n.heatmapMore, style: context.captionStyle),
       ],
     );
   }
@@ -321,10 +318,14 @@ class _HeatmapCell extends StatelessWidget {
       width: _cellSize,
       height: _cellSize,
       decoration: BoxDecoration(
-        color: heatmapColorFor(minutes: minutes, maxMinutes: maxMinutes),
+        color: heatmapColorFor(
+          minutes: minutes,
+          maxMinutes: maxMinutes,
+          ramp: context.colors.heatmapRamp,
+        ),
         borderRadius: BorderRadius.circular(4),
         border: isToday
-            ? Border.all(color: AppColors.slate400, width: 1.5)
+            ? Border.all(color: context.colors.textFaint, width: 1.5)
             : null,
       ),
     );

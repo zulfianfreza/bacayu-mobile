@@ -6,6 +6,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../shelf/domain/entities/user_book.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// The book a session is about, as a card: cover, title, author.
 ///
@@ -72,8 +73,8 @@ class _CoverPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: AppColors.tangerine50,
+    return ColoredBox(
+      color: context.colors.tangerineWash,
       child: Center(
         child: Icon(Icons.menu_book, color: AppColors.tangerine300, size: 20),
       ),

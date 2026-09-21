@@ -9,6 +9,7 @@ import '../localization/build_context_extension.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
+import '../theme/build_context_extension.dart';
 
 /// Nav icons are assets rather than `IconData`, so the artwork can be swapped
 /// without touching this file. Replace the files in `assets/icons/` — they
@@ -40,7 +41,7 @@ class AppShell extends StatelessWidget {
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
@@ -57,7 +58,7 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       body: navigationShell,
       bottomNavigationBar: _AppBottomNavBar(
         currentIndex: navigationShell.currentIndex,
@@ -118,11 +119,11 @@ class _AppBottomNavBar extends StatelessWidget {
       // The bar carries type, so it grows with the user's font size the way
       // its labels do — a hard 72 clips them the moment the text is scaled up.
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.slate200, width: 2)),
+        color: context.colors.surface,
+        border: Border(top: BorderSide(color: context.colors.hairline, width: 2)),
         // boxShadow: [
         //   BoxShadow(
-        //     color: AppColors.slate200,
+        //     color: context.colors.hairline,
         //     blurRadius: 12,
         //     offset: const Offset(0, -2),
         //   ),
@@ -160,7 +161,7 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // The active tab is carried by colour alone — no pill behind it.
-    final color = isActive ? AppColors.tangerine : AppColors.slate600;
+    final color = isActive ? AppColors.tangerine : context.colors.textSecondary;
 
     return InkWell(
       onTap: onTap,

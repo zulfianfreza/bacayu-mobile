@@ -7,6 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/raised_box.dart';
 import '../../domain/entities/book.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Reusable book row — cover, title, author, page count, optional trailing
 /// "+" button. Used by both the search results list and the barcode scan
@@ -111,8 +112,8 @@ class _CoverPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: AppColors.tangerine50,
+    return ColoredBox(
+      color: context.colors.tangerineWash,
       child: Center(
         child: Icon(Icons.menu_book, color: AppColors.tangerine300),
       ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/error_listener.dart';
@@ -12,6 +11,7 @@ import '../../../social/presentation/widgets/comments_bottom_sheet.dart';
 import '../../../social/presentation/widgets/like_button.dart';
 import '../../domain/entities/activity.dart';
 import 'activity_share.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Bottom row shared by [SessionActivityCard]/[BadgeActivityCard] — like
 /// count, comment count (tap opens [CommentsBottomSheet]), a share button on
@@ -78,7 +78,7 @@ class ActivityCardFooter extends StatelessWidget {
                   'assets/icons/message-stroke.png',
                   width: 24,
                   height: 24,
-                  color: AppColors.slate600,
+                  color: context.colors.textSecondary,
                 ),
                 const SizedBox(width: 4),
                 Text('${activity.commentCount}', style: AppTypography.caption),
@@ -105,7 +105,7 @@ class ActivityCardFooter extends StatelessWidget {
                   'assets/icons/share-stroke.png',
                   width: 24,
                   height: 24,
-                  color: AppColors.slate600,
+                  color: context.colors.textSecondary,
                 ),
               ),
             ),
@@ -114,10 +114,10 @@ class ActivityCardFooter extends StatelessWidget {
         const Spacer(),
         if (isOwnActivity)
           PopupMenuButton<ActivityVisibility>(
-            icon: const Icon(
+            icon: Icon(
               Icons.more_vert,
               size: 18,
-              color: AppColors.slate600,
+              color: context.colors.textSecondary,
             ),
             tooltip: l10n.changeVisibility,
             onSelected: (visibility) => _changeVisibility(context, visibility),

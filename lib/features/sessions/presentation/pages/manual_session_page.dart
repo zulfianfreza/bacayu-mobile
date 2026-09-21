@@ -16,6 +16,7 @@ import '../../domain/entities/unlocked_badge.dart';
 import '../cubit/manual_session_cubit.dart';
 import '../cubit/manual_session_state.dart';
 import '../widgets/session_book_header.dart';
+import '../../../../core/theme/build_context_extension.dart';
 
 /// Log a session by hand: which day, how long, and which pages. No clock time —
 /// people don't remember when they started (the cubit derives it).
@@ -158,8 +159,8 @@ class _ManualSessionViewState extends State<_ManualSessionView> {
       labelText: label,
       suffixText: suffix,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      border: _border(AppColors.slate200),
-      enabledBorder: _border(AppColors.slate200),
+      border: _border(context.colors.hairline),
+      enabledBorder: _border(context.colors.hairline),
       focusedBorder: _border(AppColors.tangerine, width: 2.5),
       errorBorder: _border(AppColors.danger),
       focusedErrorBorder: _border(AppColors.danger, width: 2.5),
@@ -274,24 +275,24 @@ class _DateField extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.calendar_today_outlined,
               size: 18,
-              color: AppColors.slate400,
+              color: context.colors.textFaint,
             ),
             const SizedBox(width: 12),
             Expanded(child: Text(label, style: AppTypography.bodyStrong)),
             Text(
               value,
               style: AppTypography.bodyStrong.copyWith(
-                color: AppColors.tangerine700,
+                color: context.colors.tangerineAccent,
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(
+            Icon(
               Icons.chevron_right,
               size: 20,
-              color: AppColors.slate400,
+              color: context.colors.textFaint,
             ),
           ],
         ),
