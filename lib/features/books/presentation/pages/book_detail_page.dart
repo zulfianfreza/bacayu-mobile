@@ -11,10 +11,13 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../shelf/domain/entities/book_read.dart';
+import '../../../shelf/domain/entities/user_book.dart';
+import '../../../shelf/domain/usecases/get_book_card.dart';
 import '../../../shelf/domain/usecases/get_book_reads.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/usecases/get_book_detail.dart';
 import '../widgets/book_description.dart';
+import '../../../notes/presentation/widgets/notes_section.dart';
 import '../../../../core/theme/build_context_extension.dart';
 
 /// Read-only book detail — reached from a shelf card tap (reuses `books`'
@@ -38,6 +41,11 @@ class _BookDetailPageState extends State<BookDetailPage> {
   late final Future<Either<Failure, List<BookRead>>> _readsFuture =
       getIt<GetBookReads>().call(widget.bookId);
 
+  /// The active shelf entry for this book — the `user_book_id` notes attach
+  /// to. 404 (not on the shelf) hides the whole notes section.
+  late final Future<Either<Failure, UserBook>> _cardFuture =
+      getIt<GetBookCard>().call(widget.bookId);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +60,11 @@ class _BookDetailPageState extends State<BookDetailPage> {
 
             return snapshot.data!.fold(
               (failure) => _LoadFailure(failure: failure),
-              (book) => _BookDetailBody(book: book, reads: _readsFuture),
+              (book) => _BookDetailBody(
+                book: book,
+                reads: _readsFuture,
+                card: _cardFuture,
+              ),
             );
           },
         ),
@@ -94,10 +106,15 @@ class _LoadFailure extends StatelessWidget {
 }
 
 class _BookDetailBody extends StatelessWidget {
-  const _BookDetailBody({required this.book, required this.reads});
+  const _BookDetailBody({
+    required this.book,
+    required this.reads,
+    required this.card,
+  });
 
   final Book book;
   final Future<Either<Failure, List<BookRead>>> reads;
+  final Future<Either<Failure, UserBook>> card;
 
   @override
   Widget build(BuildContext context) {
@@ -192,6 +209,7 @@ class _BookDetailBody extends StatelessWidget {
           ),
         ],
         _ReadingHistory(future: reads),
+        _NotesGate(future: card),
         const SizedBox(height: 24),
       ],
     );
@@ -236,6 +254,32 @@ class _ReadingHistory extends StatelessWidget {
             ),
           ),
         );
+      },
+    );
+  }
+}
+
+/// Notes need a shelf entry to hang off; without one (not on the shelf, or the
+/// fetch failed) the section is simply absent.
+class _NotesGate extends StatelessWidget {
+  const _NotesGate({required this.future});
+
+  final Future<Either<Failure, UserBook>> future;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Either<Failure, UserBook>>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done ||
+            snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+
+        final entry = snapshot.data!.fold((_) => null, (entry) => entry);
+        if (entry == null) return const SizedBox.shrink();
+
+        return NotesSection(userBook: entry);
       },
     );
   }

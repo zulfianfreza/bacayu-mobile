@@ -188,6 +188,63 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String get notesTitle => 'Catatan';
+
+  @override
+  String notePageShort(int page) {
+    return 'hlm. $page';
+  }
+
+  @override
+  String get notePageInvalid => 'Halaman harus angka.';
+
+  @override
+  String get addNote => 'Tambah catatan';
+
+  @override
+  String get noteEditorTitleAdd => 'Catatan baru';
+
+  @override
+  String get noteEditorTitleEdit => 'Ubah catatan';
+
+  @override
+  String get noteContentLabel => 'Isi catatan';
+
+  @override
+  String get notePageLabel => 'Halaman (opsional)';
+
+  @override
+  String get noteQuoteLabel => 'Kutipan (opsional)';
+
+  @override
+  String get notesEmptyBody => 'Simpan kutipan dan pikiranmu saat membaca.';
+
+  @override
+  String get noteSaved => 'Catatan tersimpan';
+
+  @override
+  String get deleteNote => 'Hapus catatan';
+
+  @override
+  String get deleteNoteConfirmTitle => 'Hapus catatan ini?';
+
+  @override
+  String get deleteNoteConfirmBody =>
+      'Catatan yang dihapus tidak bisa dikembalikan.';
+
+  @override
+  String get noteDeleted => 'Catatan dihapus';
+
+  @override
+  String get emptyNoteContent => 'Catatan tidak boleh kosong.';
+
+  @override
+  String get noteNotFound => 'Catatan tidak ditemukan.';
+
+  @override
+  String get userBookNotFound => 'Buku ini tidak ada di rak kamu.';
+
+  @override
   String get onboardingWelcomeHeadline =>
       'Lacak bacaanmu, kayak Strava ngelacak larimu';
 

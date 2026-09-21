@@ -120,4 +120,15 @@ class ShelfRepositoryImpl implements ShelfRepository {
       return dioExceptionToEither(e);
     }
   }
+
+  @override
+  Future<Either<Failure, UserBook>> getBookCard(String bookId) async {
+    try {
+      final json = await _remote.getBookCard(bookId);
+      // Unlike the writes, this response embeds the book — nothing to fetch.
+      return Right(UserBookModel.fromShelfItemJson(json));
+    } on DioException catch (e) {
+      return dioExceptionToEither(e);
+    }
+  }
 }

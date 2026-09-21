@@ -28,4 +28,9 @@ abstract class ShelfRepository {
   /// Opens a new read for a finished book. Backend inserts a fresh row
   /// (`is_reread`, page 0) and refuses anything not currently `finished`.
   Future<Either<Failure, UserBook>> startReread(String bookId);
+
+  /// The caller's active card for one book (reading > want_to_read > other),
+  /// book embedded — the book-detail view's shelf entry, and the source of the
+  /// `user_book_id` notes hang off. Backend 404s when not on the shelf.
+  Future<Either<Failure, UserBook>> getBookCard(String bookId);
 }

@@ -68,4 +68,14 @@ class ShelfRemoteDataSource {
     );
     return response.data!['data'] as Map<String, dynamic>;
   }
+
+  /// GET /shelf/books/:bookId — the book-detail view's active card (embedded
+  /// book). Carries the `user_book_id` needed to attach notes, 404 when the
+  /// book isn't on the caller's shelf.
+  Future<Map<String, dynamic>> getBookCard(String bookId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/shelf/books/$bookId',
+    );
+    return response.data!['data'] as Map<String, dynamic>;
+  }
 }

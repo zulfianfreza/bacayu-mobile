@@ -89,6 +89,22 @@ import 'package:mobile/features/feed/presentation/cubit/feed_cubit.dart'
     as _i498;
 import 'package:mobile/features/home/presentation/cubit/home_cubit.dart'
     as _i1054;
+import 'package:mobile/features/notes/data/datasources/note_remote_datasource.dart'
+    as _i623;
+import 'package:mobile/features/notes/data/repositories/note_repository_impl.dart'
+    as _i913;
+import 'package:mobile/features/notes/domain/repositories/note_repository.dart'
+    as _i311;
+import 'package:mobile/features/notes/domain/usecases/create_note.dart'
+    as _i605;
+import 'package:mobile/features/notes/domain/usecases/delete_note.dart'
+    as _i142;
+import 'package:mobile/features/notes/domain/usecases/list_notes.dart'
+    as _i1034;
+import 'package:mobile/features/notes/domain/usecases/update_note.dart'
+    as _i666;
+import 'package:mobile/features/notes/presentation/cubit/notes_cubit.dart'
+    as _i313;
 import 'package:mobile/features/notifications/data/datasources/notification_remote_datasource.dart'
     as _i593;
 import 'package:mobile/features/notifications/data/repositories/notification_repository_impl.dart'
@@ -133,6 +149,8 @@ import 'package:mobile/features/shelf/domain/repositories/shelf_repository.dart'
     as _i180;
 import 'package:mobile/features/shelf/domain/usecases/add_to_shelf.dart'
     as _i640;
+import 'package:mobile/features/shelf/domain/usecases/get_book_card.dart'
+    as _i499;
 import 'package:mobile/features/shelf/domain/usecases/get_book_reads.dart'
     as _i868;
 import 'package:mobile/features/shelf/domain/usecases/list_shelf.dart' as _i156;
@@ -258,6 +276,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i932.FeedRemoteDataSource>(
       () => _i932.FeedRemoteDataSource(gh<_i361.Dio>()),
     );
+    gh.factory<_i623.NoteRemoteDataSource>(
+      () => _i623.NoteRemoteDataSource(gh<_i361.Dio>()),
+    );
     gh.factory<_i593.NotificationRemoteDataSource>(
       () => _i593.NotificationRemoteDataSource(gh<_i361.Dio>()),
     );
@@ -272,6 +293,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i711.StatsRemoteDataSource>(
       () => _i711.StatsRemoteDataSource(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i311.NoteRepository>(
+      () => _i913.NoteRepositoryImpl(gh<_i623.NoteRemoteDataSource>()),
     );
     gh.lazySingleton<_i385.StatsRepository>(
       () => _i554.StatsRepositoryImpl(gh<_i711.StatsRemoteDataSource>()),
@@ -351,6 +375,18 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i223.BookRepository>(
       () => _i401.BookRepositoryImpl(gh<_i701.BookRemoteDataSource>()),
+    );
+    gh.factory<_i605.CreateNote>(
+      () => _i605.CreateNote(gh<_i311.NoteRepository>()),
+    );
+    gh.factory<_i142.DeleteNote>(
+      () => _i142.DeleteNote(gh<_i311.NoteRepository>()),
+    );
+    gh.factory<_i1034.ListNotes>(
+      () => _i1034.ListNotes(gh<_i311.NoteRepository>()),
+    );
+    gh.factory<_i666.UpdateNote>(
+      () => _i666.UpdateNote(gh<_i311.NoteRepository>()),
     );
     gh.factory<_i478.AddManualBook>(
       () => _i478.AddManualBook(gh<_i223.BookRepository>()),
@@ -451,6 +487,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1052.GetCurrentUser>(),
       ),
     );
+    gh.factory<_i313.NotesCubit>(
+      () => _i313.NotesCubit(
+        gh<_i1034.ListNotes>(),
+        gh<_i605.CreateNote>(),
+        gh<_i666.UpdateNote>(),
+        gh<_i142.DeleteNote>(),
+      ),
+    );
     gh.lazySingleton<_i180.ShelfRepository>(
       () => _i841.ShelfRepositoryImpl(
         gh<_i192.ShelfRemoteDataSource>(),
@@ -494,6 +538,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i640.AddToShelf>(
       () => _i640.AddToShelf(gh<_i180.ShelfRepository>()),
+    );
+    gh.factory<_i499.GetBookCard>(
+      () => _i499.GetBookCard(gh<_i180.ShelfRepository>()),
     );
     gh.factory<_i868.GetBookReads>(
       () => _i868.GetBookReads(gh<_i180.ShelfRepository>()),

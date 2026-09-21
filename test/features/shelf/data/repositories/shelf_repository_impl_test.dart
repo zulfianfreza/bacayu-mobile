@@ -185,4 +185,17 @@ void main() {
       verify(() => bookRepository.getById('b-1')).called(1);
     },
   );
+
+  test('getBookCard reads the embedded book without an extra fetch', () async {
+    when(() => remote.getBookCard('b-1')).thenAnswer((_) async => _shelfItem());
+
+    final result = await repository.getBookCard('b-1');
+
+    final entry = result.getOrElse(() => fail('expected the card'));
+    expect(entry.id, 'ub-1');
+    expect(entry.book.id, 'b-1');
+    expect(entry.book.title, 'Atomic Habits');
+    // The response embeds the book — nothing to resolve.
+    verifyNever(() => bookRepository.getById(any()));
+  });
 }

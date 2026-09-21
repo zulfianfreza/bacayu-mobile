@@ -254,6 +254,83 @@
       }
     }
   },
+  "notesTitle": "Notes",
+  "@notesTitle": {
+    "description": "Book detail section heading listing the reader's notes on this read"
+  },
+  "notePageShort": "p. {page}",
+  "@notePageShort": {
+    "description": "Page marker on a note row, e.g. a note taken from page 42",
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "notePageInvalid": "Page has to be a number.",
+  "@notePageInvalid": {
+    "description": "Note editor validation error when the page field isn't a number"
+  },
+  "addNote": "Add a note",
+  "@addNote": {
+    "description": "Button that opens the note editor"
+  },
+  "noteEditorTitleAdd": "New note",
+  "@noteEditorTitleAdd": {
+    "description": "Note editor sheet title when creating"
+  },
+  "noteEditorTitleEdit": "Edit note",
+  "@noteEditorTitleEdit": {
+    "description": "Note editor sheet title when editing an existing note"
+  },
+  "noteContentLabel": "Your note",
+  "@noteContentLabel": {
+    "description": "Note editor field label for the note body"
+  },
+  "notePageLabel": "Page (optional)",
+  "@notePageLabel": {
+    "description": "Note editor field label for the page number"
+  },
+  "noteQuoteLabel": "Quote (optional)",
+  "@noteQuoteLabel": {
+    "description": "Note editor field label for an excerpt the note is about"
+  },
+  "notesEmptyBody": "Save quotes and thoughts as you read.",
+  "@notesEmptyBody": {
+    "description": "Empty state under the Notes heading when the read has no notes yet"
+  },
+  "noteSaved": "Note saved",
+  "@noteSaved": {
+    "description": "Snackbar after creating or updating a note"
+  },
+  "deleteNote": "Delete note",
+  "@deleteNote": {
+    "description": "Destructive action in the note editor"
+  },
+  "deleteNoteConfirmTitle": "Delete this note?",
+  "@deleteNoteConfirmTitle": {
+    "description": "Delete-note confirmation dialog title"
+  },
+  "deleteNoteConfirmBody": "A deleted note can't be recovered.",
+  "@deleteNoteConfirmBody": {
+    "description": "Delete-note confirmation dialog body"
+  },
+  "noteDeleted": "Note deleted",
+  "@noteDeleted": {
+    "description": "Snackbar after deleting a note"
+  },
+  "emptyNoteContent": "A note can't be empty.",
+  "@emptyNoteContent": {
+    "description": "Server error EMPTY_NOTE_CONTENT — the backend refuses a whitespace-only note"
+  },
+  "noteNotFound": "Note not found.",
+  "@noteNotFound": {
+    "description": "Server error NOTE_NOT_FOUND"
+  },
+  "userBookNotFound": "This book isn't on your shelf.",
+  "@userBookNotFound": {
+    "description": "Server error USER_BOOK_NOT_FOUND — the shelf entry is missing or belongs to someone else"
+  },
   "onboardingWelcomeHeadline": "Track your reading like Strava tracks your run",
   "@onboardingWelcomeHeadline": {
     "description": "Onboarding screen 1 headline"

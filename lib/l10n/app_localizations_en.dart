@@ -187,6 +187,62 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get notesTitle => 'Notes';
+
+  @override
+  String notePageShort(int page) {
+    return 'p. $page';
+  }
+
+  @override
+  String get notePageInvalid => 'Page has to be a number.';
+
+  @override
+  String get addNote => 'Add a note';
+
+  @override
+  String get noteEditorTitleAdd => 'New note';
+
+  @override
+  String get noteEditorTitleEdit => 'Edit note';
+
+  @override
+  String get noteContentLabel => 'Your note';
+
+  @override
+  String get notePageLabel => 'Page (optional)';
+
+  @override
+  String get noteQuoteLabel => 'Quote (optional)';
+
+  @override
+  String get notesEmptyBody => 'Save quotes and thoughts as you read.';
+
+  @override
+  String get noteSaved => 'Note saved';
+
+  @override
+  String get deleteNote => 'Delete note';
+
+  @override
+  String get deleteNoteConfirmTitle => 'Delete this note?';
+
+  @override
+  String get deleteNoteConfirmBody => 'A deleted note can\'t be recovered.';
+
+  @override
+  String get noteDeleted => 'Note deleted';
+
+  @override
+  String get emptyNoteContent => 'A note can\'t be empty.';
+
+  @override
+  String get noteNotFound => 'Note not found.';
+
+  @override
+  String get userBookNotFound => 'This book isn\'t on your shelf.';
+
+  @override
   String get onboardingWelcomeHeadline =>
       'Track your reading like Strava tracks your run';
 

@@ -428,6 +428,114 @@ abstract class AppLocalizations {
   /// **'{count}★'**
   String ratingStars(int count);
 
+  /// Book detail section heading listing the reader's notes on this read
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesTitle;
+
+  /// Page marker on a note row, e.g. a note taken from page 42
+  ///
+  /// In en, this message translates to:
+  /// **'p. {page}'**
+  String notePageShort(int page);
+
+  /// Note editor validation error when the page field isn't a number
+  ///
+  /// In en, this message translates to:
+  /// **'Page has to be a number.'**
+  String get notePageInvalid;
+
+  /// Button that opens the note editor
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get addNote;
+
+  /// Note editor sheet title when creating
+  ///
+  /// In en, this message translates to:
+  /// **'New note'**
+  String get noteEditorTitleAdd;
+
+  /// Note editor sheet title when editing an existing note
+  ///
+  /// In en, this message translates to:
+  /// **'Edit note'**
+  String get noteEditorTitleEdit;
+
+  /// Note editor field label for the note body
+  ///
+  /// In en, this message translates to:
+  /// **'Your note'**
+  String get noteContentLabel;
+
+  /// Note editor field label for the page number
+  ///
+  /// In en, this message translates to:
+  /// **'Page (optional)'**
+  String get notePageLabel;
+
+  /// Note editor field label for an excerpt the note is about
+  ///
+  /// In en, this message translates to:
+  /// **'Quote (optional)'**
+  String get noteQuoteLabel;
+
+  /// Empty state under the Notes heading when the read has no notes yet
+  ///
+  /// In en, this message translates to:
+  /// **'Save quotes and thoughts as you read.'**
+  String get notesEmptyBody;
+
+  /// Snackbar after creating or updating a note
+  ///
+  /// In en, this message translates to:
+  /// **'Note saved'**
+  String get noteSaved;
+
+  /// Destructive action in the note editor
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note'**
+  String get deleteNote;
+
+  /// Delete-note confirmation dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this note?'**
+  String get deleteNoteConfirmTitle;
+
+  /// Delete-note confirmation dialog body
+  ///
+  /// In en, this message translates to:
+  /// **'A deleted note can\'t be recovered.'**
+  String get deleteNoteConfirmBody;
+
+  /// Snackbar after deleting a note
+  ///
+  /// In en, this message translates to:
+  /// **'Note deleted'**
+  String get noteDeleted;
+
+  /// Server error EMPTY_NOTE_CONTENT — the backend refuses a whitespace-only note
+  ///
+  /// In en, this message translates to:
+  /// **'A note can\'t be empty.'**
+  String get emptyNoteContent;
+
+  /// Server error NOTE_NOT_FOUND
+  ///
+  /// In en, this message translates to:
+  /// **'Note not found.'**
+  String get noteNotFound;
+
+  /// Server error USER_BOOK_NOT_FOUND — the shelf entry is missing or belongs to someone else
+  ///
+  /// In en, this message translates to:
+  /// **'This book isn\'t on your shelf.'**
+  String get userBookNotFound;
+
   /// Onboarding screen 1 headline
   ///
   /// In en, this message translates to:

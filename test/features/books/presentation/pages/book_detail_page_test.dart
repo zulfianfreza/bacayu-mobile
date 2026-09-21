@@ -6,8 +6,16 @@ import 'package:mobile/core/error/failure.dart';
 import 'package:mobile/features/books/domain/entities/book.dart';
 import 'package:mobile/features/books/domain/usecases/get_book_detail.dart';
 import 'package:mobile/features/books/presentation/pages/book_detail_page.dart';
+import 'package:mobile/features/notes/domain/entities/note.dart';
+import 'package:mobile/features/notes/domain/repositories/note_repository.dart';
+import 'package:mobile/features/notes/domain/usecases/create_note.dart';
+import 'package:mobile/features/notes/domain/usecases/delete_note.dart';
+import 'package:mobile/features/notes/domain/usecases/list_notes.dart';
+import 'package:mobile/features/notes/domain/usecases/update_note.dart';
+import 'package:mobile/features/notes/presentation/cubit/notes_cubit.dart';
 import 'package:mobile/features/shelf/domain/entities/book_read.dart';
 import 'package:mobile/features/shelf/domain/entities/user_book.dart';
+import 'package:mobile/features/shelf/domain/usecases/get_book_card.dart';
 import 'package:mobile/features/shelf/domain/usecases/get_book_reads.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mocktail/mocktail.dart';
@@ -15,6 +23,10 @@ import 'package:mocktail/mocktail.dart';
 class _MockGetBookDetail extends Mock implements GetBookDetail {}
 
 class _MockGetBookReads extends Mock implements GetBookReads {}
+
+class _MockGetBookCard extends Mock implements GetBookCard {}
+
+class _MockNoteRepository extends Mock implements NoteRepository {}
 
 Book _book({String? description, List<String> genres = const ['Self-help']}) =>
     Book(
@@ -36,23 +48,59 @@ Book _book({String? description, List<String> genres = const ['Self-help']}) =>
 void main() {
   late _MockGetBookDetail getBookDetail;
   late _MockGetBookReads getBookReads;
+  late _MockGetBookCard getBookCard;
+  late _MockNoteRepository noteRepository;
 
   setUp(() {
     getBookDetail = _MockGetBookDetail();
     getBookReads = _MockGetBookReads();
+    getBookCard = _MockGetBookCard();
+    noteRepository = _MockNoteRepository();
     getIt.registerFactory<GetBookDetail>(() => getBookDetail);
     getIt.registerFactory<GetBookReads>(() => getBookReads);
+    getIt.registerFactory<GetBookCard>(() => getBookCard);
+    getIt.registerFactory<NotesCubit>(
+      () => NotesCubit(
+        ListNotes(noteRepository),
+        CreateNote(noteRepository),
+        UpdateNote(noteRepository),
+        DeleteNote(noteRepository),
+      ),
+    );
   });
 
   tearDown(() async => getIt.reset());
+
+  UserBook shelfCard() => UserBook(
+    id: 'ub-1',
+    book: _book(),
+    status: ShelfStatus.finished,
+    format: null,
+    currentPage: 320,
+    startedAt: null,
+    finishedAt: null,
+    rating: null,
+    isReread: false,
+    readCount: 1,
+  );
 
   Future<void> pumpDetail(
     WidgetTester tester,
     Book book, {
     List<BookRead> reads = const [],
+    Either<Failure, UserBook>? card,
+    List<Note> notes = const [],
   }) async {
     when(() => getBookDetail.call(any())).thenAnswer((_) async => Right(book));
     when(() => getBookReads.call(any())).thenAnswer((_) async => Right(reads));
+    // No shelf entry by default: most cards on the page need no notes section.
+    when(() => getBookCard.call(any())).thenAnswer(
+      (_) async =>
+          card ?? const Left(ServerFailure(code: 'USER_BOOK_NOT_FOUND', message: 'nope')),
+    );
+    when(
+      () => noteRepository.listNotes(userBookId: any(named: 'userBookId'), page: 1),
+    ).thenAnswer((_) async => Right(notes));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -191,6 +239,40 @@ void main() {
     );
 
     expect(find.text('Riwayat baca'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a book on the shelf gets a notes section', (tester) async {
+    await pumpDetail(
+      tester,
+      _book(),
+      card: Right(shelfCard()),
+      notes: [
+        Note(
+          id: 'n-1',
+          userBookId: 'ub-1',
+          content: 'Bagus banget',
+          page: 42,
+          quote: null,
+          createdAt: DateTime.utc(2026, 9, 1),
+          updatedAt: DateTime.utc(2026, 9, 1),
+        ),
+      ],
+    );
+
+    expect(find.text('Catatan'), findsOneWidget);
+    expect(find.text('Bagus banget'), findsOneWidget);
+    expect(find.text('hlm. 42'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a book that is not on the shelf shows no notes section', (
+    tester,
+  ) async {
+    await pumpDetail(tester, _book());
+
+    // Notes attach to a shelf entry; without one there is nothing to write on.
+    expect(find.text('Catatan'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }
