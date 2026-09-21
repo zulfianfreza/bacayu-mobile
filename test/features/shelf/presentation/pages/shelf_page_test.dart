@@ -6,6 +6,7 @@ import 'package:mobile/features/books/domain/entities/book.dart';
 import 'package:mobile/features/shelf/domain/entities/user_book.dart';
 import 'package:mobile/features/shelf/domain/repositories/shelf_repository.dart';
 import 'package:mobile/features/shelf/domain/usecases/list_shelf.dart';
+import 'package:mobile/features/shelf/domain/usecases/start_reread.dart';
 import 'package:mobile/features/shelf/domain/usecases/update_shelf_status.dart';
 import 'package:mobile/features/shelf/presentation/cubit/shelf_cubit.dart';
 import 'package:mobile/features/shelf/presentation/pages/shelf_page.dart';
@@ -19,20 +20,20 @@ const _longTitle =
     'The 5 AM Club: Bangun Rutinitas Pagi Untuk Level Up Hidupmu!';
 
 Book _book(String title, {int? totalPages = 320}) => Book(
-      id: 'book-$title',
-      source: 'google_books',
-      googleBooksId: 'g1',
-      isbn10: null,
-      isbn13: null,
-      title: title,
-      authors: const ['James Clear'],
-      description: null,
-      coverUrl: null,
-      totalPages: totalPages,
-      language: 'en',
-      genres: const [],
-      publishedDate: '2018',
-    );
+  id: 'book-$title',
+  source: 'google_books',
+  googleBooksId: 'g1',
+  isbn10: null,
+  isbn13: null,
+  title: title,
+  authors: const ['James Clear'],
+  description: null,
+  coverUrl: null,
+  totalPages: totalPages,
+  language: 'en',
+  genres: const [],
+  publishedDate: '2018',
+);
 
 UserBook _userBook(String title, {ShelfStatus status = ShelfStatus.reading}) =>
     UserBook(
@@ -45,6 +46,7 @@ UserBook _userBook(String title, {ShelfStatus status = ShelfStatus.reading}) =>
       finishedAt: null,
       rating: null,
       isReread: false,
+      readCount: 1,
     );
 
 void main() {
@@ -59,13 +61,19 @@ void main() {
       _userBook('Deep Work'),
     ];
 
-    when(() => repository.listShelf(
-          status: any(named: 'status'),
-          page: any(named: 'page'),
-        )).thenAnswer((_) async => Right(books));
+    when(
+      () => repository.listShelf(
+        status: any(named: 'status'),
+        page: any(named: 'page'),
+      ),
+    ).thenAnswer((_) async => Right(books));
 
     getIt.registerFactory<ShelfCubit>(
-      () => ShelfCubit(ListShelf(repository), UpdateShelfStatus(repository)),
+      () => ShelfCubit(
+        ListShelf(repository),
+        UpdateShelfStatus(repository),
+        StartReread(repository),
+      ),
     );
   });
 
@@ -112,8 +120,9 @@ void main() {
     expect(cardAt(tester, 1).height, greaterThan(0));
   });
 
-  testWidgets('a long title is laid out in full, never ellipsized',
-      (tester) async {
+  testWidgets('a long title is laid out in full, never ellipsized', (
+    tester,
+  ) async {
     await pumpShelf(tester);
 
     final title = tester.widget<Text>(find.text(_longTitle));

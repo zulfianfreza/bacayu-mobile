@@ -40,6 +40,7 @@ UserBook _userBook() => UserBook(
   finishedAt: null,
   rating: null,
   isReread: false,
+  readCount: 1,
 );
 
 void main() {

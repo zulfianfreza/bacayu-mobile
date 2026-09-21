@@ -6,9 +6,11 @@ import '../../../../core/error/failure.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../books/domain/entities/book.dart';
 import '../../../books/domain/repositories/book_repository.dart';
+import '../../domain/entities/book_read.dart';
 import '../../domain/entities/user_book.dart';
 import '../../domain/repositories/shelf_repository.dart';
 import '../datasources/shelf_remote_datasource.dart';
+import '../models/book_read_model.dart';
 import '../models/user_book_model.dart';
 
 /// The list (`GET /shelf`) embeds each entry's book, so a shelf needs one
@@ -39,7 +41,9 @@ class ShelfRepositoryImpl implements ShelfRepository {
         status: status?.wireValue,
       );
       final bookResult = await _resolveBook(UserBookModel.bookIdOf(json));
-      return bookResult.map<UserBook>((book) => UserBookModel.fromJson(json, book: book));
+      return bookResult.map<UserBook>(
+        (book) => UserBookModel.fromJson(json, book: book),
+      );
     } on DioException catch (e) {
       return dioExceptionToEither(e);
     }
@@ -82,7 +86,36 @@ class ShelfRepositoryImpl implements ShelfRepository {
         rating: rating,
       );
       final bookResult = await _resolveBook(UserBookModel.bookIdOf(json));
-      return bookResult.map<UserBook>((book) => UserBookModel.fromJson(json, book: book));
+      return bookResult.map<UserBook>(
+        (book) => UserBookModel.fromJson(json, book: book),
+      );
+    } on DioException catch (e) {
+      return dioExceptionToEither(e);
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<BookRead>>> getBookReads(String bookId) async {
+    try {
+      final items = await _remote.getBookReads(bookId);
+      return Right(
+        items.cast<Map<String, dynamic>>().map(BookReadModel.fromJson).toList(),
+      );
+    } on DioException catch (e) {
+      return dioExceptionToEither(e);
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserBook>> startReread(String bookId) async {
+    try {
+      final json = await _remote.startReread(bookId);
+      // Same as the other writes: the flat response carries no book, so resolve
+      // the one book this request is about.
+      final bookResult = await _resolveBook(UserBookModel.bookIdOf(json));
+      return bookResult.map<UserBook>(
+        (book) => UserBookModel.fromJson(json, book: book),
+      );
     } on DioException catch (e) {
       return dioExceptionToEither(e);
     }

@@ -148,6 +148,45 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get rereadAction => 'Read again';
+
+  @override
+  String get rereadConfirmTitle => 'Start rereading this book?';
+
+  @override
+  String get rereadConfirmBody => 'Your previous read is kept as history.';
+
+  @override
+  String get rereadStart => 'Start reread';
+
+  @override
+  String readCount(int count) {
+    return 'Read $count×';
+  }
+
+  @override
+  String get readingHistory => 'Reading history';
+
+  @override
+  String get readOriginal => 'First read';
+
+  @override
+  String get readReread => 'Reread';
+
+  @override
+  String get readInProgress => 'In progress';
+
+  @override
+  String readFinishedOn(String date) {
+    return 'Finished $date';
+  }
+
+  @override
+  String ratingStars(int count) {
+    return '$count★';
+  }
+
+  @override
   String get onboardingWelcomeHeadline =>
       'Track your reading like Strava tracks your run';
 

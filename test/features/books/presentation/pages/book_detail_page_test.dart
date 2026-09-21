@@ -6,10 +6,15 @@ import 'package:mobile/core/error/failure.dart';
 import 'package:mobile/features/books/domain/entities/book.dart';
 import 'package:mobile/features/books/domain/usecases/get_book_detail.dart';
 import 'package:mobile/features/books/presentation/pages/book_detail_page.dart';
+import 'package:mobile/features/shelf/domain/entities/book_read.dart';
+import 'package:mobile/features/shelf/domain/entities/user_book.dart';
+import 'package:mobile/features/shelf/domain/usecases/get_book_reads.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockGetBookDetail extends Mock implements GetBookDetail {}
+
+class _MockGetBookReads extends Mock implements GetBookReads {}
 
 Book _book({String? description, List<String> genres = const ['Self-help']}) =>
     Book(
@@ -30,16 +35,24 @@ Book _book({String? description, List<String> genres = const ['Self-help']}) =>
 
 void main() {
   late _MockGetBookDetail getBookDetail;
+  late _MockGetBookReads getBookReads;
 
   setUp(() {
     getBookDetail = _MockGetBookDetail();
+    getBookReads = _MockGetBookReads();
     getIt.registerFactory<GetBookDetail>(() => getBookDetail);
+    getIt.registerFactory<GetBookReads>(() => getBookReads);
   });
 
   tearDown(() async => getIt.reset());
 
-  Future<void> pumpDetail(WidgetTester tester, Book book) async {
+  Future<void> pumpDetail(
+    WidgetTester tester,
+    Book book, {
+    List<BookRead> reads = const [],
+  }) async {
     when(() => getBookDetail.call(any())).thenAnswer((_) async => Right(book));
+    when(() => getBookReads.call(any())).thenAnswer((_) async => Right(reads));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -103,8 +116,9 @@ void main() {
   testWidgets('a failed load shows the reason instead of an empty page', (
     tester,
   ) async {
-    when(() => getBookDetail.call(any()))
-        .thenAnswer((_) async => const Left(CacheFailure()));
+    when(
+      () => getBookDetail.call(any()),
+    ).thenAnswer((_) async => const Left(CacheFailure()));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -118,6 +132,65 @@ void main() {
 
     expect(find.byIcon(Icons.menu_book_outlined), findsOneWidget);
     expect(find.text('Atomic Habits'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a book read more than once lists its read history', (
+    tester,
+  ) async {
+    final first = BookRead(
+      id: 'read-1',
+      status: ShelfStatus.finished,
+      currentPage: 320,
+      rating: 4,
+      isReread: false,
+      startedAt: DateTime.utc(2025, 1, 5),
+      finishedAt: DateTime.utc(2025, 2, 11),
+      createdAt: DateTime.utc(2025, 1, 5),
+    );
+    final reread = BookRead(
+      id: 'read-2',
+      status: ShelfStatus.reading,
+      currentPage: 0,
+      rating: null,
+      isReread: true,
+      startedAt: null,
+      finishedAt: null,
+      createdAt: DateTime.utc(2026, 9, 1),
+    );
+
+    await pumpDetail(tester, _book(), reads: [first, reread]);
+
+    expect(find.text('Riwayat baca'), findsOneWidget);
+    expect(find.text('Dibaca pertama'), findsOneWidget);
+    expect(find.text('Dibaca ulang'), findsOneWidget);
+    expect(find.text('4★'), findsOneWidget);
+    expect(find.textContaining('Selesai'), findsOneWidget);
+    expect(find.textContaining('Sedang berjalan'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a book with a single read shows no history section', (
+    tester,
+  ) async {
+    await pumpDetail(
+      tester,
+      _book(),
+      reads: [
+        BookRead(
+          id: 'read-1',
+          status: ShelfStatus.finished,
+          currentPage: 320,
+          rating: null,
+          isReread: false,
+          startedAt: null,
+          finishedAt: DateTime.utc(2025, 2, 11),
+          createdAt: DateTime.utc(2025, 1, 5),
+        ),
+      ],
+    );
+
+    expect(find.text('Riwayat baca'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

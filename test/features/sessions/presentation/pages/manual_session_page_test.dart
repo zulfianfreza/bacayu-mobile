@@ -39,6 +39,7 @@ UserBook _userBook({int currentPage = 50}) => UserBook(
   finishedAt: null,
   rating: null,
   isReread: false,
+  readCount: 1,
 );
 
 void main() {

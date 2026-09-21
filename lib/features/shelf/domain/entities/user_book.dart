@@ -17,6 +17,7 @@ class UserBook extends Equatable {
     required this.finishedAt,
     required this.rating,
     required this.isReread,
+    required this.readCount,
   });
 
   final String id;
@@ -37,16 +38,36 @@ class UserBook extends Equatable {
   final int? rating;
   final bool isReread;
 
+  /// How many reads (original + rereads) this book has. Backend collapses a
+  /// book's rows into one representative card and sends the total here, so a
+  /// card can show "read 2×". Only unique to the shelf list; the write
+  /// responses (`POST`/`PATCH /shelf`) omit it and default to 1.
+  final int readCount;
+
+  UserBook copyWith({int? readCount}) => UserBook(
+    id: id,
+    book: book,
+    status: status,
+    format: format,
+    currentPage: currentPage,
+    startedAt: startedAt,
+    finishedAt: finishedAt,
+    rating: rating,
+    isReread: isReread,
+    readCount: readCount ?? this.readCount,
+  );
+
   @override
   List<Object?> get props => [
-        id,
-        book,
-        status,
-        format,
-        currentPage,
-        startedAt,
-        finishedAt,
-        rating,
-        isReread,
-      ];
+    id,
+    book,
+    status,
+    format,
+    currentPage,
+    startedAt,
+    finishedAt,
+    rating,
+    isReread,
+    readCount,
+  ];
 }

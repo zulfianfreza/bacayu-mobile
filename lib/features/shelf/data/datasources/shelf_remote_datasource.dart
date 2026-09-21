@@ -18,10 +18,7 @@ class ShelfRemoteDataSource {
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/shelf',
-      data: {
-        'book_id': bookId,
-        'status': ?status,
-      },
+      data: {'book_id': bookId, 'status': ?status},
     );
     return response.data!['data'] as Map<String, dynamic>;
   }
@@ -30,10 +27,7 @@ class ShelfRemoteDataSource {
   Future<List<dynamic>> listShelf({String? status, int page = 1}) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/shelf',
-      queryParameters: {
-        'status': ?status,
-        'page': page,
-      },
+      queryParameters: {'status': ?status, 'page': page},
     );
     final data = response.data!['data'] as Map<String, dynamic>;
     return data['items'] as List<dynamic>;
@@ -53,6 +47,24 @@ class ShelfRemoteDataSource {
         'current_page': ?currentPage,
         'rating': ?rating,
       },
+    );
+    return response.data!['data'] as Map<String, dynamic>;
+  }
+
+  /// GET /shelf/books/:bookId/reads — envelope's `data` is the list itself,
+  /// oldest read first.
+  Future<List<dynamic>> getBookReads(String bookId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/shelf/books/$bookId/reads',
+    );
+    return response.data!['data'] as List<dynamic>;
+  }
+
+  /// POST /shelf/books/:bookId/reread — creates the new read and returns its
+  /// flat `UserBookResponse` (no embedded book).
+  Future<Map<String, dynamic>> startReread(String bookId) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/shelf/books/$bookId/reread',
     );
     return response.data!['data'] as Map<String, dynamic>;
   }

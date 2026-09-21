@@ -4,34 +4,34 @@ import '../../domain/entities/user_book.dart';
 
 extension ShelfStatusWire on ShelfStatus {
   static ShelfStatus fromWire(String value) => switch (value) {
-        'want_to_read' => ShelfStatus.wantToRead,
-        'reading' => ShelfStatus.reading,
-        'finished' => ShelfStatus.finished,
-        'dnf' => ShelfStatus.dnf,
-        _ => throw ArgumentError('Unknown shelf status from backend: $value'),
-      };
+    'want_to_read' => ShelfStatus.wantToRead,
+    'reading' => ShelfStatus.reading,
+    'finished' => ShelfStatus.finished,
+    'dnf' => ShelfStatus.dnf,
+    _ => throw ArgumentError('Unknown shelf status from backend: $value'),
+  };
 
   String get wireValue => switch (this) {
-        ShelfStatus.wantToRead => 'want_to_read',
-        ShelfStatus.reading => 'reading',
-        ShelfStatus.finished => 'finished',
-        ShelfStatus.dnf => 'dnf',
-      };
+    ShelfStatus.wantToRead => 'want_to_read',
+    ShelfStatus.reading => 'reading',
+    ShelfStatus.finished => 'finished',
+    ShelfStatus.dnf => 'dnf',
+  };
 }
 
 extension BookFormatWire on BookFormat {
   static BookFormat fromWire(String value) => switch (value) {
-        'physical' => BookFormat.physical,
-        'ebook' => BookFormat.ebook,
-        'audiobook' => BookFormat.audiobook,
-        _ => throw ArgumentError('Unknown book format from backend: $value'),
-      };
+    'physical' => BookFormat.physical,
+    'ebook' => BookFormat.ebook,
+    'audiobook' => BookFormat.audiobook,
+    _ => throw ArgumentError('Unknown book format from backend: $value'),
+  };
 
   String get wireValue => switch (this) {
-        BookFormat.physical => 'physical',
-        BookFormat.ebook => 'ebook',
-        BookFormat.audiobook => 'audiobook',
-      };
+    BookFormat.physical => 'physical',
+    BookFormat.ebook => 'ebook',
+    BookFormat.audiobook => 'audiobook',
+  };
 }
 
 /// Mirrors `ShelfItemResponse` in
@@ -53,9 +53,11 @@ class UserBookModel extends UserBook {
     required super.finishedAt,
     required super.rating,
     required super.isReread,
+    required super.readCount,
   });
 
-  static String bookIdOf(Map<String, dynamic> json) => json['book_id'] as String;
+  static String bookIdOf(Map<String, dynamic> json) =>
+      json['book_id'] as String;
 
   /// One `GET /shelf` item, whose book the backend already sent.
   factory UserBookModel.fromShelfItemJson(Map<String, dynamic> json) {
@@ -90,6 +92,9 @@ class UserBookModel extends UserBook {
           : DateTime.parse(json['finished_at'] as String),
       rating: json['rating'] as int?,
       isReread: json['is_reread'] as bool? ?? false,
+      // Only the shelf list carries `read_count`; the flat write responses
+      // leave it out, and a lone entry means a single read.
+      readCount: json['read_count'] as int? ?? 1,
     );
   }
 }

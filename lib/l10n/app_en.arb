@@ -194,6 +194,66 @@
       }
     }
   },
+  "rereadAction": "Read again",
+  "@rereadAction": {
+    "description": "Shelf card button shown on a finished book to open a new read"
+  },
+  "rereadConfirmTitle": "Start rereading this book?",
+  "@rereadConfirmTitle": {
+    "description": "Confirmation sheet title before starting a reread"
+  },
+  "rereadConfirmBody": "Your previous read is kept as history.",
+  "@rereadConfirmBody": {
+    "description": "Confirmation sheet body explaining the finished read is kept"
+  },
+  "rereadStart": "Start reread",
+  "@rereadStart": {
+    "description": "Confirmation sheet action that actually starts the reread"
+  },
+  "readCount": "Read {count}×",
+  "@readCount": {
+    "description": "Small neutral badge on a shelf card for a book read more than once",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readingHistory": "Reading history",
+  "@readingHistory": {
+    "description": "Book detail section heading listing every read of the book"
+  },
+  "readOriginal": "First read",
+  "@readOriginal": {
+    "description": "Reading history row label for the original (non-reread) entry"
+  },
+  "readReread": "Reread",
+  "@readReread": {
+    "description": "Reading history row label for a reread entry"
+  },
+  "readInProgress": "In progress",
+  "@readInProgress": {
+    "description": "Reading history row suffix while a read has not finished"
+  },
+  "readFinishedOn": "Finished {date}",
+  "@readFinishedOn": {
+    "description": "Reading history row suffix for a finished read",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "February 2025"
+      }
+    }
+  },
+  "ratingStars": "{count}★",
+  "@ratingStars": {
+    "description": "Rating shown on a reading history row",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "onboardingWelcomeHeadline": "Track your reading like Strava tracks your run",
   "@onboardingWelcomeHeadline": {
     "description": "Onboarding screen 1 headline"

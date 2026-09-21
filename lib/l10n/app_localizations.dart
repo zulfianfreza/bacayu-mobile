@@ -362,6 +362,72 @@ abstract class AppLocalizations {
   /// **'Page {current} of {total}'**
   String pageProgress(int current, int total);
 
+  /// Shelf card button shown on a finished book to open a new read
+  ///
+  /// In en, this message translates to:
+  /// **'Read again'**
+  String get rereadAction;
+
+  /// Confirmation sheet title before starting a reread
+  ///
+  /// In en, this message translates to:
+  /// **'Start rereading this book?'**
+  String get rereadConfirmTitle;
+
+  /// Confirmation sheet body explaining the finished read is kept
+  ///
+  /// In en, this message translates to:
+  /// **'Your previous read is kept as history.'**
+  String get rereadConfirmBody;
+
+  /// Confirmation sheet action that actually starts the reread
+  ///
+  /// In en, this message translates to:
+  /// **'Start reread'**
+  String get rereadStart;
+
+  /// Small neutral badge on a shelf card for a book read more than once
+  ///
+  /// In en, this message translates to:
+  /// **'Read {count}×'**
+  String readCount(int count);
+
+  /// Book detail section heading listing every read of the book
+  ///
+  /// In en, this message translates to:
+  /// **'Reading history'**
+  String get readingHistory;
+
+  /// Reading history row label for the original (non-reread) entry
+  ///
+  /// In en, this message translates to:
+  /// **'First read'**
+  String get readOriginal;
+
+  /// Reading history row label for a reread entry
+  ///
+  /// In en, this message translates to:
+  /// **'Reread'**
+  String get readReread;
+
+  /// Reading history row suffix while a read has not finished
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get readInProgress;
+
+  /// Reading history row suffix for a finished read
+  ///
+  /// In en, this message translates to:
+  /// **'Finished {date}'**
+  String readFinishedOn(String date);
+
+  /// Rating shown on a reading history row
+  ///
+  /// In en, this message translates to:
+  /// **'{count}★'**
+  String ratingStars(int count);
+
   /// Onboarding screen 1 headline
   ///
   /// In en, this message translates to:

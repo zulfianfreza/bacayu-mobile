@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart' hide State;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure.dart';
@@ -9,6 +10,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
+import '../../../shelf/domain/entities/book_read.dart';
+import '../../../shelf/domain/usecases/get_book_reads.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/usecases/get_book_detail.dart';
 import '../widgets/book_description.dart';
@@ -30,6 +33,11 @@ class _BookDetailPageState extends State<BookDetailPage> {
   late final Future<Either<Failure, Book>> _future = getIt<GetBookDetail>()
       .call(widget.bookId);
 
+  /// Read history is a *shelf* concern, fetched separately from the book itself
+  /// and only rendered when there is more than one read to tell.
+  late final Future<Either<Failure, List<BookRead>>> _readsFuture =
+      getIt<GetBookReads>().call(widget.bookId);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +52,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
 
             return snapshot.data!.fold(
               (failure) => _LoadFailure(failure: failure),
-              (book) => _BookDetailBody(book: book),
+              (book) => _BookDetailBody(book: book, reads: _readsFuture),
             );
           },
         ),
@@ -86,9 +94,10 @@ class _LoadFailure extends StatelessWidget {
 }
 
 class _BookDetailBody extends StatelessWidget {
-  const _BookDetailBody({required this.book});
+  const _BookDetailBody({required this.book, required this.reads});
 
   final Book book;
+  final Future<Either<Failure, List<BookRead>>> reads;
 
   @override
   Widget build(BuildContext context) {
@@ -182,8 +191,99 @@ class _BookDetailBody extends StatelessWidget {
             ),
           ),
         ],
+        _ReadingHistory(future: reads),
         const SizedBox(height: 24),
       ],
+    );
+  }
+}
+
+/// The caller's read history for this book, from `GET /shelf/books/:id/reads`.
+///
+/// Renders nothing until it resolves, on failure, or with a single read: a book
+/// with one read has no history, and the shelf card already tells that story.
+class _ReadingHistory extends StatelessWidget {
+  const _ReadingHistory({required this.future});
+
+  final Future<Either<Failure, List<BookRead>>> future;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Either<Failure, List<BookRead>>>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done ||
+            snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+
+        final reads = snapshot.data!.fold(
+          (_) => const <BookRead>[],
+          (reads) => reads,
+        );
+        if (reads.length < 2) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: BorderedCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(context.l10n.readingHistory, style: AppTypography.heading),
+                const SizedBox(height: 12),
+                for (final read in reads) _ReadRow(read: read),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// One read cycle in [_ReadingHistory]: which read it was, when, and the rating
+/// if the reader left one.
+class _ReadRow extends StatelessWidget {
+  const _ReadRow({required this.read});
+
+  final BookRead read;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final monthYear = DateFormat.yMMMM(locale);
+    final started = monthYear.format(
+      (read.startedAt ?? read.createdAt).toLocal(),
+    );
+    final ended = read.finishedAt != null
+        ? l10n.readFinishedOn(monthYear.format(read.finishedAt!.toLocal()))
+        : l10n.readInProgress;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  read.isReread ? l10n.readReread : l10n.readOriginal,
+                  style: AppTypography.bodyStrong,
+                ),
+                const SizedBox(height: 2),
+                Text('$started · $ended', style: context.captionStyle),
+              ],
+            ),
+          ),
+          if (read.rating != null) ...[
+            const SizedBox(width: 8),
+            Text(l10n.ratingStars(read.rating!), style: AppTypography.body),
+          ],
+        ],
+      ),
     );
   }
 }

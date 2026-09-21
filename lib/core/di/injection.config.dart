@@ -133,7 +133,11 @@ import 'package:mobile/features/shelf/domain/repositories/shelf_repository.dart'
     as _i180;
 import 'package:mobile/features/shelf/domain/usecases/add_to_shelf.dart'
     as _i640;
+import 'package:mobile/features/shelf/domain/usecases/get_book_reads.dart'
+    as _i868;
 import 'package:mobile/features/shelf/domain/usecases/list_shelf.dart' as _i156;
+import 'package:mobile/features/shelf/domain/usecases/start_reread.dart'
+    as _i586;
 import 'package:mobile/features/shelf/domain/usecases/update_shelf_status.dart'
     as _i88;
 import 'package:mobile/features/shelf/presentation/cubit/shelf_cubit.dart'
@@ -491,8 +495,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i640.AddToShelf>(
       () => _i640.AddToShelf(gh<_i180.ShelfRepository>()),
     );
+    gh.factory<_i868.GetBookReads>(
+      () => _i868.GetBookReads(gh<_i180.ShelfRepository>()),
+    );
     gh.factory<_i156.ListShelf>(
       () => _i156.ListShelf(gh<_i180.ShelfRepository>()),
+    );
+    gh.factory<_i586.StartReread>(
+      () => _i586.StartReread(gh<_i180.ShelfRepository>()),
     );
     gh.factory<_i88.UpdateShelfStatus>(
       () => _i88.UpdateShelfStatus(gh<_i180.ShelfRepository>()),
@@ -509,17 +519,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i948.AuthCubit>(),
       ),
     );
+    gh.factory<_i1011.ShelfCubit>(
+      () => _i1011.ShelfCubit(
+        gh<_i156.ListShelf>(),
+        gh<_i88.UpdateShelfStatus>(),
+        gh<_i586.StartReread>(),
+      ),
+    );
     gh.lazySingleton<_i584.GoRouter>(
       () => appRouterModule.goRouter(
         gh<_i839.SecureTokenStorage>(),
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
         gh<_i948.AuthCubit>(),
-      ),
-    );
-    gh.factory<_i1011.ShelfCubit>(
-      () => _i1011.ShelfCubit(
-        gh<_i156.ListShelf>(),
-        gh<_i88.UpdateShelfStatus>(),
       ),
     );
     return this;

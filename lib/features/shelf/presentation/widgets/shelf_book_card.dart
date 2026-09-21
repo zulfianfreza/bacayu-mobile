@@ -12,6 +12,7 @@ import '../../../../core/widgets/raised_box.dart';
 import '../../../books/presentation/pages/book_detail_page.dart';
 import '../../domain/entities/user_book.dart';
 import '../cubit/shelf_cubit.dart';
+import 'reread_confirm_sheet.dart';
 import 'status_picker_bottom_sheet.dart';
 
 /// One book on the shelf: cover on top, everything else under it.
@@ -57,6 +58,15 @@ class ShelfBookCard extends StatelessWidget {
     }
   }
 
+  /// `finished` is the only status backend lets a reread start from — anything
+  /// else is refused with `CANNOT_REREAD_UNFINISHED_BOOK` (422).
+  Future<void> _openReread(BuildContext context) async {
+    final cubit = context.read<ShelfCubit>();
+    final confirmed = await RereadConfirmSheet.show(context);
+    if (!confirmed) return;
+    await cubit.startReread(bookId: userBook.book.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     return compact ? _buildCompact(context) : _buildGrid(context);
@@ -82,76 +92,99 @@ class ShelfBookCard extends StatelessWidget {
         // Transparent so the white body still shows through, but the tile's
         // own tap ripple has something to paint on.
         type: MaterialType.transparency,
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            InkWell(
-              onTap: () => _openBookDetail(context),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AspectRatio(
-                    aspectRatio: coverAspectRatio,
-                    child: book.coverUrl == null
-                        ? const _CoverPlaceholder()
-                        : Image.network(
-                            book.coverUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const _CoverPlaceholder(),
-                          ),
+            Stack(
+              children: [
+                InkWell(
+                  onTap: () => _openBookDetail(context),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AspectRatio(
+                        aspectRatio: coverAspectRatio,
+                        child: book.coverUrl == null
+                            ? const _CoverPlaceholder()
+                            : Image.network(
+                                book.coverUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const _CoverPlaceholder(),
+                              ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Deliberately uncapped: a grid of half-titles is
+                            // worse than a grid of uneven tiles.
+                            Text(book.title, style: AppTypography.subheading),
+                            if (book.authors.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                l10n.byAuthor(book.authors.join(', ')),
+                                style: AppTypography.caption,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                            if (showProgress) ...[
+                              const SizedBox(height: 8),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.pill,
+                                ),
+                                child: LinearProgressIndicator(
+                                  value: (userBook.currentPage / totalPages)
+                                      .clamp(0, 1)
+                                      .toDouble(),
+                                  minHeight: 4,
+                                  backgroundColor: context.colors.hairline,
+                                  color: AppColors.lagoon500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                l10n.pageProgress(
+                                  userBook.currentPage,
+                                  totalPages,
+                                ),
+                                style: AppTypography.caption,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Deliberately uncapped: a grid of half-titles is worse
-                        // than a grid of uneven tiles.
-                        Text(book.title, style: AppTypography.subheading),
-                        if (book.authors.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            l10n.byAuthor(book.authors.join(', ')),
-                            style: AppTypography.caption,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                        if (showProgress) ...[
-                          const SizedBox(height: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(AppRadius.pill),
-                            child: LinearProgressIndicator(
-                              value: (userBook.currentPage / totalPages)
-                                  .clamp(0, 1)
-                                  .toDouble(),
-                              minHeight: 4,
-                              backgroundColor: context.colors.hairline,
-                              color: AppColors.lagoon500,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l10n.pageProgress(userBook.currentPage, totalPages),
-                            style: AppTypography.caption,
-                          ),
-                        ],
-                      ],
-                    ),
+                ),
+                // Sits on the cover rather than in the text column: it is a
+                // badge, and a tile this narrow has no vertical room to spare.
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: _StatusChip(
+                    status: userBook.status,
+                    onTap: () => _openStatusPicker(context),
                   ),
-                ],
-              ),
+                ),
+                if (userBook.readCount > 1)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: _RereadBadge(count: userBook.readCount),
+                  ),
+              ],
             ),
-            // Sits on the cover rather than in the text column: it is a badge,
-            // and a tile this narrow has no vertical room to spare.
-            Positioned(
-              top: 8,
-              left: 8,
-              child: _StatusChip(
-                status: userBook.status,
-                onTap: () => _openStatusPicker(context),
+            // A sibling of the tap-area, never inside it: this tap must only
+            // open the confirmation sheet, not also open the book detail.
+            if (userBook.status == ShelfStatus.finished)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                child: _RereadButton(onPressed: () => _openReread(context)),
               ),
-            ),
           ],
         ),
       ),
@@ -210,6 +243,10 @@ class ShelfBookCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                    ],
+                    if (userBook.readCount > 1) ...[
+                      const SizedBox(height: 6),
+                      _RereadBadge(count: userBook.readCount),
                     ],
                     if (showProgress) ...[
                       const SizedBox(height: 8),
@@ -305,6 +342,65 @@ class _CoverPlaceholder extends StatelessWidget {
         Icons.menu_book,
         color: AppColors.tangerine300,
         size: 32,
+      ),
+    );
+  }
+}
+
+/// A small neutral pill marking a book read more than once. Deliberately flat
+/// and uncoloured: it must not compete with the status chip it sits opposite.
+class _RereadBadge extends StatelessWidget {
+  const _RereadBadge({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        border: Border.all(color: context.colors.hairline),
+      ),
+      child: Text(
+        context.l10n.readCount(count),
+        style: AppTypography.caption.copyWith(
+          color: context.colors.textSecondary,
+        ),
+      ),
+    );
+  }
+}
+
+/// The reread action, shown on finished cards only. Owns its tap target so it
+/// never sits inside the card's navigation [InkWell].
+class _RereadButton extends StatelessWidget {
+  const _RereadButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return RaisedBox(
+      color: context.colors.surface,
+      outlineColor: context.colors.hairline,
+      radius: AppRadius.md,
+      edgeHeight: 3,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Text(
+              context.l10n.rereadAction,
+              textAlign: TextAlign.center,
+              style: AppTypography.button.copyWith(color: context.colors.ink),
+            ),
+          ),
+        ),
       ),
     );
   }

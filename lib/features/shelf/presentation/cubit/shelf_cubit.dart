@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../domain/entities/user_book.dart';
 import '../../domain/usecases/list_shelf.dart';
+import '../../domain/usecases/start_reread.dart';
 import '../../domain/usecases/update_shelf_status.dart';
 import 'shelf_state.dart';
 
@@ -10,11 +11,12 @@ import 'shelf_state.dart';
 /// `BookSearchBloc`), per CLAUDE.md Section 5.2.
 @injectable
 class ShelfCubit extends Cubit<ShelfState> {
-  ShelfCubit(this._listShelf, this._updateShelfStatus)
-      : super(const ShelfInitial());
+  ShelfCubit(this._listShelf, this._updateShelfStatus, this._startReread)
+    : super(const ShelfInitial());
 
   final ListShelf _listShelf;
   final UpdateShelfStatus _updateShelfStatus;
+  final StartReread _startReread;
 
   Future<void> loadShelf({ShelfStatus? filter}) async {
     emit(ShelfLoading(activeFilter: filter));
@@ -51,10 +53,32 @@ class ShelfCubit extends Cubit<ShelfState> {
       (updated) {
         final next = [
           for (final item in items)
-            if (item.id == updated.id) updated else item,
+            if (item.id == updated.id)
+              // The write response is flat and has no read_count; keep the one
+              // the list gave us, or the reread badge would vanish on any
+              // status change.
+              updated.copyWith(readCount: item.readCount)
+            else
+              item,
         ];
         emit(ShelfLoaded(items: next, activeFilter: filter));
       },
+    );
+  }
+
+  /// Starts a reread and refreshes the shelf: the book's representative card
+  /// changes row (new `is_reread` entry, status `reading`, page 0), so patching
+  /// in place is not enough — the whole page is re-fetched.
+  Future<void> startReread({required String bookId}) async {
+    final filter = state.activeFilter;
+    final items = state.items;
+
+    final result = await _startReread(bookId);
+    await result.fold(
+      (failure) async => emit(
+        ShelfUpdateError(items: items, failure: failure, activeFilter: filter),
+      ),
+      (_) async => loadShelf(filter: filter),
     );
   }
 }

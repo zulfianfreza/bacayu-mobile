@@ -7,10 +7,14 @@ import '../../../../core/widgets/sheet_header.dart';
 import '../../domain/entities/user_book.dart';
 import '../../../../core/theme/build_context_extension.dart';
 
-/// Bottom sheet listing the 4 [ShelfStatus] options — the current status is
+/// Bottom sheet listing the [ShelfStatus] options — the current status is
 /// highlighted and dead (already selected, nothing to do). Picking a different
 /// option pops the sheet with that [ShelfStatus]; the caller (`ShelfBookCard`)
 /// is responsible for calling `ShelfCubit.updateStatus`.
+///
+/// "Reading" is withheld when the book is `finished`: backend refuses that
+/// transition (`USE_REREAD_ENDPOINT`, 422) — a finished book is reread through
+/// [RereadConfirmSheet], not by flipping the old row's status.
 ///
 /// Same rows as the language and privacy pickers: one [OptionTile] per choice.
 class StatusPickerBottomSheet extends StatelessWidget {
@@ -38,7 +42,8 @@ class StatusPickerBottomSheet extends StatelessWidget {
     final l10n = context.l10n;
     final options = [
       (ShelfStatus.wantToRead, l10n.statusWantToRead),
-      (ShelfStatus.reading, l10n.statusReading),
+      if (currentStatus != ShelfStatus.finished)
+        (ShelfStatus.reading, l10n.statusReading),
       (ShelfStatus.finished, l10n.statusFinished),
       (ShelfStatus.dnf, l10n.statusDnf),
     ];
@@ -46,25 +51,29 @@ class StatusPickerBottomSheet extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SheetHeader(title: l10n.changeStatus),
-            const SizedBox(height: 16),
-            for (var i = 0; i < options.length; i++) ...[
-              if (i > 0) const SizedBox(height: 8),
-              OptionTile(
-                label: options[i].$2,
-                selected: options[i].$1 == currentStatus,
-                // The current status is already set — tapping it is a no-op,
-                // not a second way to close the sheet.
-                onTap: options[i].$1 == currentStatus
-                    ? null
-                    : () => Navigator.of(context).pop(options[i].$1),
-              ),
+        // Scrolls rather than overflows on a short viewport (a small phone, or
+        // a widget test's default surface).
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SheetHeader(title: l10n.changeStatus),
+              const SizedBox(height: 16),
+              for (var i = 0; i < options.length; i++) ...[
+                if (i > 0) const SizedBox(height: 8),
+                OptionTile(
+                  label: options[i].$2,
+                  selected: options[i].$1 == currentStatus,
+                  // The current status is already set — tapping it is a no-op,
+                  // not a second way to close the sheet.
+                  onTap: options[i].$1 == currentStatus
+                      ? null
+                      : () => Navigator.of(context).pop(options[i].$1),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

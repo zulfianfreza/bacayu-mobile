@@ -42,18 +42,20 @@ void main() {
     expect(find.text('DNF'), findsOneWidget);
   });
 
-  testWidgets('picking a different status pops with that ShelfStatus and closes the sheet',
-      (tester) async {
-    await tester.pumpWidget(wrap(ShelfStatus.reading));
-    await tester.tap(find.text('open'));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'picking a different status pops with that ShelfStatus and closes the sheet',
+    (tester) async {
+      await tester.pumpWidget(wrap(ShelfStatus.reading));
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Finished'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Finished'));
+      await tester.pumpAndSettle();
 
-    expect(result, ShelfStatus.finished);
-    expect(find.byType(StatusPickerBottomSheet), findsNothing);
-  });
+      expect(result, ShelfStatus.finished);
+      expect(find.byType(StatusPickerBottomSheet), findsNothing);
+    },
+  );
 
   testWidgets('the current status option is highlighted and dead', (
     tester,
@@ -87,5 +89,26 @@ void main() {
 
     expect(tileOf('Finished').selected, isFalse);
     expect(tileOf('Finished').onTap, isNotNull);
+  });
+
+  testWidgets('a finished book is not offered Reading', (tester) async {
+    // finished → reading is refused by the backend (USE_REREAD_ENDPOINT); the
+    // reread flow owns that transition.
+    await tester.pumpWidget(wrap(ShelfStatus.finished));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Reading'), findsNothing);
+    expect(find.text('Want to read'), findsOneWidget);
+    expect(find.text('Finished'), findsOneWidget);
+    expect(find.text('DNF'), findsOneWidget);
+  });
+
+  testWidgets('a dnf book is still offered Reading', (tester) async {
+    await tester.pumpWidget(wrap(ShelfStatus.dnf));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Reading'), findsOneWidget);
   });
 }

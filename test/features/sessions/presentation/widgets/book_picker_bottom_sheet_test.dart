@@ -15,34 +15,34 @@ Book _book({
   required String title,
   List<String> authors = const ['James Clear'],
   int? totalPages = 320,
-}) =>
-    Book(
-      id: 'book-$title',
-      source: 'google_books',
-      googleBooksId: 'g1',
-      isbn10: null,
-      isbn13: null,
-      title: title,
-      authors: authors,
-      description: null,
-      coverUrl: null,
-      totalPages: totalPages,
-      language: 'en',
-      genres: const [],
-      publishedDate: '2018',
-    );
+}) => Book(
+  id: 'book-$title',
+  source: 'google_books',
+  googleBooksId: 'g1',
+  isbn10: null,
+  isbn13: null,
+  title: title,
+  authors: authors,
+  description: null,
+  coverUrl: null,
+  totalPages: totalPages,
+  language: 'en',
+  genres: const [],
+  publishedDate: '2018',
+);
 
 UserBook _userBook(Book book, {int currentPage = 50}) => UserBook(
-      id: 'ub-${book.id}',
-      book: book,
-      status: ShelfStatus.reading,
-      format: null,
-      currentPage: currentPage,
-      startedAt: null,
-      finishedAt: null,
-      rating: null,
-      isReread: false,
-    );
+  id: 'ub-${book.id}',
+  book: book,
+  status: ShelfStatus.reading,
+  format: null,
+  currentPage: currentPage,
+  startedAt: null,
+  finishedAt: null,
+  rating: null,
+  isReread: false,
+  readCount: 1,
+);
 
 void main() {
   late _MockListShelf listShelf;
@@ -61,8 +61,9 @@ void main() {
     List<UserBook> books, {
     void Function(UserBook?)? onResult,
   }) async {
-    when(() => listShelf.call(status: any(named: 'status')))
-        .thenAnswer((_) async => Right(books));
+    when(
+      () => listShelf.call(status: any(named: 'status')),
+    ).thenAnswer((_) async => Right(books));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -102,18 +103,16 @@ void main() {
     );
   });
 
-  testWidgets('each row carries the author and the page progress',
-      (tester) async {
-    await openSheet(
-      tester,
-      [
-        _userBook(_book(title: 'Atomic Habits'), currentPage: 50),
-        _userBook(
-          _book(title: 'Deep Work', authors: const ['Cal Newport']),
-          currentPage: 12,
-        ),
-      ],
-    );
+  testWidgets('each row carries the author and the page progress', (
+    tester,
+  ) async {
+    await openSheet(tester, [
+      _userBook(_book(title: 'Atomic Habits'), currentPage: 50),
+      _userBook(
+        _book(title: 'Deep Work', authors: const ['Cal Newport']),
+        currentPage: 12,
+      ),
+    ]);
 
     expect(find.text('Atomic Habits'), findsOneWidget);
     expect(find.text('by James Clear'), findsOneWidget);
@@ -124,31 +123,32 @@ void main() {
     expect(find.text('Page 12 of 320'), findsOneWidget);
   });
 
-  testWidgets('a book with no page count shows no progress line',
-      (tester) async {
-    await openSheet(
-      tester,
-      [_userBook(_book(title: 'Atomic Habits', totalPages: null))],
-    );
+  testWidgets('a book with no page count shows no progress line', (
+    tester,
+  ) async {
+    await openSheet(tester, [
+      _userBook(_book(title: 'Atomic Habits', totalPages: null)),
+    ]);
 
     expect(find.text('by James Clear'), findsOneWidget);
     expect(find.textContaining('Page'), findsNothing);
   });
 
-  testWidgets('a book with no authors still shows its title and progress',
-      (tester) async {
-    await openSheet(
-      tester,
-      [_userBook(_book(title: 'Anonymous Work', authors: const []))],
-    );
+  testWidgets('a book with no authors still shows its title and progress', (
+    tester,
+  ) async {
+    await openSheet(tester, [
+      _userBook(_book(title: 'Anonymous Work', authors: const [])),
+    ]);
 
     expect(find.text('Anonymous Work'), findsOneWidget);
     expect(find.text('Page 50 of 320'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('nothing in progress gets the empty state, not an empty list',
-      (tester) async {
+  testWidgets('nothing in progress gets the empty state, not an empty list', (
+    tester,
+  ) async {
     await openSheet(tester, const []);
 
     expect(
@@ -164,11 +164,10 @@ void main() {
     final first = _userBook(_book(title: 'Atomic Habits'));
     final second = _userBook(_book(title: 'Deep Work'));
 
-    await openSheet(
-      tester,
-      [first, second],
-      onResult: (result) => picked = result,
-    );
+    await openSheet(tester, [
+      first,
+      second,
+    ], onResult: (result) => picked = result);
 
     await tester.tap(find.text('Deep Work'));
     await tester.pumpAndSettle();

@@ -13,8 +13,10 @@ import 'package:mobile/features/books/presentation/pages/book_detail_page.dart';
 import 'package:mobile/features/shelf/domain/entities/user_book.dart';
 import 'package:mobile/features/shelf/domain/repositories/shelf_repository.dart';
 import 'package:mobile/features/shelf/domain/usecases/list_shelf.dart';
+import 'package:mobile/features/shelf/domain/usecases/start_reread.dart';
 import 'package:mobile/features/shelf/domain/usecases/update_shelf_status.dart';
 import 'package:mobile/features/shelf/presentation/cubit/shelf_cubit.dart';
+import 'package:mobile/features/shelf/presentation/widgets/reread_confirm_sheet.dart';
 import 'package:mobile/features/shelf/presentation/widgets/shelf_book_card.dart';
 import 'package:mobile/features/shelf/presentation/widgets/status_picker_bottom_sheet.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -44,6 +46,7 @@ UserBook _userBook({
   String title = 'Atomic Habits',
   ShelfStatus status = ShelfStatus.reading,
   int currentPage = 50,
+  int readCount = 1,
 }) => UserBook(
   id: 'ub-1',
   book: _book(title),
@@ -54,6 +57,7 @@ UserBook _userBook({
   finishedAt: null,
   rating: null,
   isReread: false,
+  readCount: readCount,
 );
 
 void main() {
@@ -84,6 +88,7 @@ void main() {
       create: (_) => ShelfCubit(
         ListShelf(shelfRepository),
         UpdateShelfStatus(shelfRepository),
+        StartReread(shelfRepository),
       ),
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -109,6 +114,7 @@ void main() {
       create: (_) => ShelfCubit(
         ListShelf(shelfRepository),
         UpdateShelfStatus(shelfRepository),
+        StartReread(shelfRepository),
       ),
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -211,6 +217,7 @@ void main() {
           finishedAt: null,
           rating: null,
           isReread: false,
+          readCount: 1,
         ),
       ),
     );
@@ -269,5 +276,58 @@ void main() {
     await tester.pumpWidget(wrapCompact(_userBook(), textScale: 1.5));
 
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'a book read more than once carries the neutral read-count badge',
+    (tester) async {
+      await tester.pumpWidget(
+        wrap(_userBook(status: ShelfStatus.finished, readCount: 2)),
+      );
+
+      expect(find.text('Read 2×'), findsOneWidget);
+    },
+  );
+
+  group('reread', () {
+    testWidgets('button only appears on finished cards', (tester) async {
+      await tester.pumpWidget(wrap(_userBook(status: ShelfStatus.reading)));
+      expect(find.text('Read again'), findsNothing);
+
+      await tester.pumpWidget(wrap(_userBook(status: ShelfStatus.finished)));
+      expect(find.text('Read again'), findsOneWidget);
+    });
+
+    testWidgets(
+      'tapping the button only opens the confirmation sheet; confirming is '
+      'what calls StartReread',
+      (tester) async {
+        final reread = _userBook(status: ShelfStatus.reading);
+        when(
+          () => shelfRepository.startReread(any()),
+        ).thenAnswer((_) async => Right(reread));
+        // startReread re-fetches the shelf so the book's card flips to the
+        // new reading row.
+        when(
+          () => shelfRepository.listShelf(
+            status: any(named: 'status'),
+            page: any(named: 'page'),
+          ),
+        ).thenAnswer((_) async => Right(<UserBook>[reread]));
+
+        await tester.pumpWidget(wrap(_userBook(status: ShelfStatus.finished)));
+
+        await tester.tap(find.text('Read again'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(RereadConfirmSheet), findsOneWidget);
+        verifyNever(() => shelfRepository.startReread(any()));
+
+        await tester.tap(find.text('Start reread'));
+        await tester.pumpAndSettle();
+
+        verify(() => shelfRepository.startReread('book-1')).called(1);
+      },
+    );
   });
 }

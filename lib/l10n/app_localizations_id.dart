@@ -148,6 +148,46 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String get rereadAction => 'Baca ulang';
+
+  @override
+  String get rereadConfirmTitle => 'Mulai baca ulang buku ini?';
+
+  @override
+  String get rereadConfirmBody =>
+      'Progres sebelumnya akan tersimpan sebagai riwayat.';
+
+  @override
+  String get rereadStart => 'Mulai baca ulang';
+
+  @override
+  String readCount(int count) {
+    return 'Baca ke-$count';
+  }
+
+  @override
+  String get readingHistory => 'Riwayat baca';
+
+  @override
+  String get readOriginal => 'Dibaca pertama';
+
+  @override
+  String get readReread => 'Dibaca ulang';
+
+  @override
+  String get readInProgress => 'Sedang berjalan';
+
+  @override
+  String readFinishedOn(String date) {
+    return 'Selesai $date';
+  }
+
+  @override
+  String ratingStars(int count) {
+    return '$count★';
+  }
+
+  @override
   String get onboardingWelcomeHeadline =>
       'Lacak bacaanmu, kayak Strava ngelacak larimu';
 
