@@ -13,11 +13,33 @@ enum ShareCardBackground {
   /// book on the image.
   solid,
 
-  /// Scrim only, with nothing behind it, so the user's own photo shows
-  /// through the top of the exported PNG. The scrim is translucent rather
-  /// than absent on purpose: white type over an unknown photo is unreadable
-  /// the moment that photo is bright, and a text outline does not save it.
+  /// Nothing at all, so the exported PNG is fully transparent and only the
+  /// card's white type survives. The contrast then depends on the media the
+  /// user drops it onto, not on anything this preset paints.
   scrimOnly,
+}
+
+/// How the card's content is composed on the fixed canvas, independent of what
+/// sits behind it. Two presets can share a backdrop and still be different
+/// styles because they arrange the title, cover and stats differently.
+enum ShareCardLayout {
+  /// Photo-first: the backdrop fills the frame and the text block sits in the
+  /// lower third. The activity-photo look, and the original composition.
+  overlay,
+
+  /// The cover as a framed plate up top, with title and stats stacked beneath
+  /// it. Reads like a book plate rather than a photo.
+  framed,
+
+  /// The duration as one hero number, title below and secondary stats at the
+  /// foot. Number-first, the way a streak card leads with the count.
+  hero,
+
+  /// The text block spread down the whole card: brand at the top, title in the
+  /// middle, stats at the foot. The transparent preset has no backdrop to
+  /// anchor the lower-third [overlay], so it would otherwise export with a
+  /// large empty top.
+  spread,
 }
 
 /// Visual preset for a shareable card, deliberately kept as a plain data
@@ -28,11 +50,15 @@ enum ShareCardBackground {
 /// without a rewrite.
 class ShareCardTheme extends Equatable {
   const ShareCardTheme({
+    required this.layout,
     required this.background,
     required this.backgroundColor,
     required this.fontFamily,
     required this.showWatermark,
   });
+
+  /// The content composition. See [ShareCardLayout].
+  final ShareCardLayout layout;
 
   final ShareCardBackground background;
 
@@ -50,12 +76,13 @@ class ShareCardTheme extends Equatable {
 
   bool get usesCover => background == ShareCardBackground.cover;
 
-  /// Paints no fill of its own, so the exported PNG keeps alpha and can be
-  /// pasted over the user's own photo.
+  /// Paints nothing behind the content, so the exported PNG is text on clear
+  /// alpha that the user can drop over their own media.
   bool get isSticker => background == ShareCardBackground.scrimOnly;
 
   /// The book cover, as the card's background.
   static const photo = ShareCardTheme(
+    layout: ShareCardLayout.overlay,
     background: ShareCardBackground.cover,
     backgroundColor: AppColors.ink,
     fontFamily: null,
@@ -64,6 +91,7 @@ class ShareCardTheme extends Equatable {
 
   /// Flat dark card, no cover image.
   static const solid = ShareCardTheme(
+    layout: ShareCardLayout.overlay,
     background: ShareCardBackground.solid,
     backgroundColor: AppColors.ink,
     fontFamily: null,
@@ -72,7 +100,26 @@ class ShareCardTheme extends Equatable {
 
   /// Transparent sticker the user places over their own media.
   static const sticker = ShareCardTheme(
+    layout: ShareCardLayout.spread,
     background: ShareCardBackground.scrimOnly,
+    backgroundColor: AppColors.ink,
+    fontFamily: null,
+    showWatermark: true,
+  );
+
+  /// The cover in a plate above the text, rather than filling the frame.
+  static const plate = ShareCardTheme(
+    layout: ShareCardLayout.framed,
+    background: ShareCardBackground.solid,
+    backgroundColor: AppColors.ink,
+    fontFamily: null,
+    showWatermark: true,
+  );
+
+  /// The session's duration blown up as the one hero number.
+  static const hero = ShareCardTheme(
+    layout: ShareCardLayout.hero,
+    background: ShareCardBackground.solid,
     backgroundColor: AppColors.ink,
     fontFamily: null,
     showWatermark: true,
@@ -80,7 +127,7 @@ class ShareCardTheme extends Equatable {
 
   /// Carousel order — append here to offer another style; the preview sheet's
   /// PageView and its page dots grow from this list automatically.
-  static const presets = <ShareCardTheme>[photo, solid, sticker];
+  static const presets = <ShareCardTheme>[photo, solid, sticker, plate, hero];
 
   /// Applies this preset's face to [base]. `TextStyle.copyWith` ignores a null
   /// argument, so a preset that leaves [fontFamily] unset keeps the app's own
@@ -89,9 +136,10 @@ class ShareCardTheme extends Equatable {
 
   @override
   List<Object?> get props => [
-        background,
-        backgroundColor,
-        fontFamily,
-        showWatermark,
-      ];
+    layout,
+    background,
+    backgroundColor,
+    fontFamily,
+    showWatermark,
+  ];
 }

@@ -11,15 +11,14 @@ void main() {
   SessionShareData buildData({
     String title = 'The Hobbit',
     int durationSeconds = 1800,
-  }) =>
-      SessionShareData(
-        bookTitle: title,
-        bookAuthors: const ['J.R.R. Tolkien'],
-        bookCoverUrl: null,
-        pagesRead: 24,
-        durationSeconds: durationSeconds,
-        speedPpm: 0.8,
-      );
+  }) => SessionShareData(
+    bookTitle: title,
+    bookAuthors: const ['J.R.R. Tolkien'],
+    bookCoverUrl: null,
+    pagesRead: 24,
+    durationSeconds: durationSeconds,
+    speedPpm: 0.8,
+  );
 
   Widget wrap(SessionShareData data, ShareCardTheme theme) {
     return MaterialApp(
@@ -46,8 +45,9 @@ void main() {
     expect(SessionShareCard.designHeight * 3, 1920);
   });
 
-  testWidgets('the text block stops short of the bottom of the story frame',
-      (tester) async {
+  testWidgets('the text block stops short of the bottom of the story frame', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap(buildData(), ShareCardTheme.photo));
 
     // The platform's reply bar covers the last strip of a story, so the block
@@ -118,8 +118,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('photo preset paints the cover behind the text',
-      (tester) async {
+  testWidgets('photo preset paints the cover behind the text', (tester) async {
     await tester.pumpWidget(wrap(buildData(), ShareCardTheme.photo));
 
     // No cover URL in the fixture, so this is the brand fallback gradient plus
@@ -133,60 +132,67 @@ void main() {
     );
   });
 
-  testWidgets('solid preset paints the flat dark fill instead of a cover',
-      (tester) async {
+  testWidgets('solid preset paints the flat dark fill instead of a cover', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap(buildData(), ShareCardTheme.solid));
 
     final fill = tester.widget<ColoredBox>(
-      find.descendant(
-        of: backgroundLayer(),
-        matching: find.byType(ColoredBox),
-      ),
+      find.descendant(of: backgroundLayer(), matching: find.byType(ColoredBox)),
     );
     expect(fill.color, AppColors.ink);
   });
 
-  testWidgets(
-      'sticker preset drops the cover and keeps a translucent scrim, so the '
-      'user\'s own photo shows through', (tester) async {
-    await tester.pumpWidget(
-      wrap(buildData(), ShareCardTheme.sticker),
-    );
+  testWidgets('sticker preset exports the type alone on clear alpha', (
+    tester,
+  ) async {
+    await tester.pumpWidget(wrap(buildData(), ShareCardTheme.sticker));
 
     expect(
       find.descendant(of: backgroundLayer(), matching: find.byType(Image)),
       findsNothing,
     );
+    // Nothing is painted anywhere in the card — no cover, no fill, no panel —
+    // so the downloaded PNG carries the text and nothing else.
     expect(
-      find.descendant(of: backgroundLayer(), matching: find.byType(ColoredBox)),
-      findsNothing,
-      reason: 'a flat fill would hide the photo the sticker lands on',
-    );
-
-    final scrim = tester.widget<DecoratedBox>(
       find.descendant(
-        of: backgroundLayer(),
+        of: find.byType(SessionShareCard),
         matching: find.byType(DecoratedBox),
       ),
-    );
-    final gradient =
-        (scrim.decoration as BoxDecoration).gradient! as LinearGradient;
-    expect(
-      gradient.colors.any((color) => color.a < 1),
-      isTrue,
-      reason: 'a fully opaque scrim would defeat the point of a sticker',
+      findsNothing,
     );
 
-    // The watermark still shows in sticker mode.
+    // The type is still there, watermark included.
+    expect(find.text('The Hobbit'), findsOneWidget);
     expect(find.text('BacaYu'), findsOneWidget);
   });
 
-  testWidgets('a long title shrinks its type instead of truncating',
-      (tester) async {
+  testWidgets('the transparent preset centers its text, brand just under the '
+      'stats', (tester) async {
+    await tester.pumpWidget(wrap(buildData(), ShareCardTheme.sticker));
+
+    final card = tester.getRect(backgroundLayer());
+    final watermark = tester.getRect(find.text('BacaYu'));
+    final title = tester.getRect(find.text('The Hobbit'));
+    final time = tester.getRect(find.text('TIME'));
+    final pages = tester.getRect(find.text('PAGES'));
+    final speed = tester.getRect(find.text('SPEED'));
+
+    // Title, then the stats below it, then the brand right after them.
+    expect(title.bottom, lessThan(time.top));
+    expect(speed.bottom, lessThan(watermark.top));
+    expect(watermark.top - speed.bottom, lessThan(card.height * 0.1));
+
+    // Stats stack vertically, one per row.
+    expect(time.top, lessThan(pages.top));
+    expect(pages.top, lessThan(speed.top));
+  });
+
+  testWidgets('a long title shrinks its type instead of truncating', (
+    tester,
+  ) async {
     const long = 'The 100-Year-Old Man Who Climbed Out the Window';
-    await tester.pumpWidget(
-      wrap(buildData(title: long), ShareCardTheme.photo),
-    );
+    await tester.pumpWidget(wrap(buildData(title: long), ShareCardTheme.photo));
 
     final title = tester.widget<Text>(find.text(long));
     expect(title.maxLines, isNull);
@@ -216,11 +222,86 @@ void main() {
     expect(find.text(absurd), findsOneWidget);
   });
 
-  testWidgets('every preset offers the watermark and the same carousel slots',
-      (tester) async {
+  testWidgets('plate preset frames the cover and stacks the text beneath it', (
+    tester,
+  ) async {
+    await tester.pumpWidget(wrap(buildData(), ShareCardTheme.plate));
+
+    expect(find.text('The Hobbit'), findsOneWidget);
+    expect(find.text('by J.R.R. Tolkien'), findsOneWidget);
+    expect(find.text('TIME'), findsOneWidget);
+    expect(find.text('BacaYu'), findsOneWidget);
+
+    // The cover is presented as a clipped plate rather than as the backdrop.
+    expect(
+      find.descendant(
+        of: find.byType(SessionShareCard),
+        matching: find.byType(ClipRRect),
+      ),
+      findsWidgets,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('hero preset leads with the duration and leaves it out of the '
+      'stats', (tester) async {
+    await tester.pumpWidget(
+      wrap(buildData(durationSeconds: 1800), ShareCardTheme.hero),
+    );
+
+    // The duration is the headline, under its own label…
+    expect(find.text('30m'), findsOneWidget);
+    expect(find.text('TIME'), findsOneWidget);
+
+    // …so the footer carries only the numbers it does not already state.
+    expect(find.text('PAGES'), findsOneWidget);
+    expect(find.text('SPEED'), findsOneWidget);
+    expect(find.text('The Hobbit'), findsOneWidget);
+
+    // Watermark on the new styles too.
+    expect(find.text('BacaYu'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('every preset survives an absurd title without overflowing', (
+    tester,
+  ) async {
+    final absurd = List.filled(24, 'Antidisestablishmentarianism').join(' ');
+
+    for (final preset in ShareCardTheme.presets) {
+      await tester.pumpWidget(wrap(buildData(title: absurd), preset));
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: 'layout ${preset.layout} overflowed the fixed canvas',
+      );
+    }
+  });
+
+  test('the presets offer more than one composition', () {
+    final layouts = ShareCardTheme.presets
+        .map((preset) => preset.layout)
+        .toSet();
+
+    expect(
+      layouts,
+      containsAll([
+        ShareCardLayout.overlay,
+        ShareCardLayout.framed,
+        ShareCardLayout.hero,
+        ShareCardLayout.spread,
+      ]),
+    );
+  });
+
+  testWidgets('every preset offers the watermark and the same carousel slots', (
+    tester,
+  ) async {
     expect(ShareCardTheme.presets, contains(ShareCardTheme.photo));
     expect(ShareCardTheme.presets, contains(ShareCardTheme.solid));
     expect(ShareCardTheme.presets, contains(ShareCardTheme.sticker));
+    expect(ShareCardTheme.presets, contains(ShareCardTheme.plate));
+    expect(ShareCardTheme.presets, contains(ShareCardTheme.hero));
     expect(
       ShareCardTheme.presets.every((preset) => preset.showWatermark),
       isTrue,

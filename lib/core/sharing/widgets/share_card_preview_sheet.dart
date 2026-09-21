@@ -31,6 +31,12 @@ class ShareCardPreviewSheet extends StatefulWidget {
     this.service,
   });
 
+  /// Marks the checkerboard-and-wash backdrop shown behind the transparent
+  /// preset in the preview. It lives outside the captured boundary, so it never
+  /// reaches the exported PNG.
+  @visibleForTesting
+  static const stickerBackdropKey = Key('sticker-checkerboard');
+
   final SessionShareData data;
   final List<ShareCardTheme> themes;
 
@@ -67,8 +73,10 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
   /// One key per carousel page — a single shared key would be attached to
   /// whichever page happened to build last, and the capture would rasterize
   /// the wrong card.
-  late final List<GlobalKey> _cardKeys =
-      List.generate(widget.themes.length, (_) => GlobalKey());
+  late final List<GlobalKey> _cardKeys = List.generate(
+    widget.themes.length,
+    (_) => GlobalKey(),
+  );
 
   /// Capture cache, valid only for the page it was taken on: tapping Share and
   /// then Download on the same style must not rasterize twice, while swiping
@@ -79,7 +87,8 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
   int _pageIndex = 0;
   _Action? _busyAction;
 
-  late final ShareCardService _service = widget.service ?? getIt<ShareCardService>();
+  late final ShareCardService _service =
+      widget.service ?? getIt<ShareCardService>();
 
   @override
   void dispose() {
@@ -119,12 +128,15 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
     try {
       final bytes = await _captureActivePage();
       if (!mounted) return;
-      await _service.shareSessionCard(bytes, sharePositionOrigin: _shareOrigin());
+      await _service.shareSessionCard(
+        bytes,
+        sharePositionOrigin: _shareOrigin(),
+      );
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.shareFailed)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.shareFailed)));
     } finally {
       if (mounted) setState(() => _busyAction = null);
     }
@@ -314,11 +326,18 @@ class _SheetNote extends StatelessWidget {
   }
 }
 
-/// Paints a stand-in photo behind the sticker preset.
+/// Paints the transparent preset's preview backdrop: a transparency
+/// checkerboard under a full-frame dark wash.
 ///
-/// The sticker's scrim is translucent and its top is nearly clear, so a
-/// preview on the sheet's own flat surface would misrepresent it — the whole
-/// point is how it sits on media. This stands in for that media.
+/// The sticker exports as white type on clear alpha, so in the preview there is
+/// nothing behind that type but the sheet. The checkerboard says the clear
+/// areas are alpha and not white paint; the wash is what actually buys the
+/// contrast the export will get from wherever the user pastes it.
+///
+/// Both are painted by a single painter on a single layer, so they can never
+/// disagree about their bounds and leak a sliver of grid at the edge. The whole
+/// backdrop sits outside the `RepaintBoundary`, so it is never captured — the
+/// downloaded PNG stays text-only.
 ///
 /// Square-edged, like the card itself: the export has no rounded frame, and a
 /// preview that draws one would not be showing what gets shared.
@@ -328,19 +347,56 @@ class _PreviewBackdrop extends StatelessWidget {
   final ShareCardTheme theme;
   final Widget child;
 
+  /// Side of one checker square. Big enough to read as a pattern at preview
+  /// size, small enough that it never competes with the card's own text.
+  static const _cell = 14.0;
+
+  /// Dark, but not opaque: enough for the white type, not so much that the
+  /// checkerboard — the point of the preview — disappears.
+  static final _wash = AppColors.ink.withValues(alpha: 0.45);
+
   @override
   Widget build(BuildContext context) {
     if (!theme.isSticker) return child;
 
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF9AAEC4), Color(0xFFE7D3B8)],
-        ),
-      ),
+    return CustomPaint(
+      key: ShareCardPreviewSheet.stickerBackdropKey,
+      painter: _StickerBackdropPainter(cell: _cell, wash: _wash),
       child: child,
     );
   }
+}
+
+/// The classic two-tone transparency grid with the dark wash laid over it.
+/// Kept light: the wash supplies the contrast, and a dark grid under a dark
+/// wash would just disappear.
+class _StickerBackdropPainter extends CustomPainter {
+  const _StickerBackdropPainter({required this.cell, required this.wash});
+
+  final double cell;
+  final Color wash;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bounds = Offset.zero & size;
+    // A CustomPaint is never clipped to its own box, and the grid is drawn in
+    // whole squares — so without this the last column/row would spill a few
+    // pixels past the card and read as an uncovered edge.
+    canvas.clipRect(bounds);
+
+    canvas.drawRect(bounds, Paint()..color = AppColors.surface);
+    final dark = Paint()..color = AppColors.slate200;
+    for (var y = 0; y * cell < size.height; y++) {
+      for (var x = 0; x * cell < size.width; x++) {
+        if ((x + y).isEven) continue;
+        canvas.drawRect(Rect.fromLTWH(x * cell, y * cell, cell, cell), dark);
+      }
+    }
+
+    canvas.drawRect(bounds, Paint()..color = wash);
+  }
+
+  @override
+  bool shouldRepaint(covariant _StickerBackdropPainter oldDelegate) =>
+      oldDelegate.cell != cell || oldDelegate.wash != wash;
 }

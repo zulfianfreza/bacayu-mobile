@@ -156,7 +156,7 @@ class _Header extends StatelessWidget {
   }
 }
 
-/// The way into user search: a chunky tile beside the greeting, so finding
+/// The way into user search: a bare icon beside the greeting, so finding
 /// people is one tap from the top of Home — not only from the empty state.
 class _SearchPeopleButton extends StatelessWidget {
   const _SearchPeopleButton();
@@ -169,17 +169,11 @@ class _SearchPeopleButton extends StatelessWidget {
       child: GestureDetector(
         onTap: () =>
             pushFullScreen(context, (_) => const UserSearchPage()),
-        child: RaisedBox(
-          color: AppColors.slate100,
-          radius: AppRadius.md,
-          edgeHeight: 3,
-          padding: const EdgeInsets.all(10),
-          child: Image.asset(
-            'assets/icons/search-stroke.png',
-            width: 20,
-            height: 20,
-            color: AppColors.slate700,
-          ),
+        child: Image.asset(
+          'assets/icons/search-stroke.png',
+          width: 24,
+          height: 24,
+          color: AppColors.slate700,
         ),
       ),
     );

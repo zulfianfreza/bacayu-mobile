@@ -26,11 +26,11 @@ class SessionShareData extends Equatable {
 
   @override
   List<Object?> get props => [
-        bookTitle,
-        bookAuthors,
-        bookCoverUrl,
-        pagesRead,
-        durationSeconds,
-        speedPpm,
-      ];
+    bookTitle,
+    bookAuthors,
+    bookCoverUrl,
+    pagesRead,
+    durationSeconds,
+    speedPpm,
+  ];
 }
