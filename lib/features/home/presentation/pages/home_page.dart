@@ -141,12 +141,18 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final hour = DateTime.now().hour;
+    final greeting = hour >= 17
+        ? l10n.greetingEvening
+        : hour >= 12
+            ? l10n.greetingAfternoon
+            : l10n.greetingMorning;
 
     return Row(
       children: [
         Expanded(
           child: Text(
-            l10n.homeGreeting(userName),
+            l10n.homeGreeting(greeting, userName),
             style: AppTypography.displaySm,
           ),
         ),
@@ -168,8 +174,7 @@ class _SearchPeopleButton extends StatelessWidget {
       button: true,
       label: context.l10n.findFriends,
       child: GestureDetector(
-        onTap: () =>
-            pushFullScreen(context, (_) => const UserSearchPage()),
+        onTap: () => pushFullScreen(context, (_) => const UserSearchPage()),
         child: Image.asset(
           'assets/icons/search-stroke.png',
           width: 24,

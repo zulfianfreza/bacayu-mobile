@@ -629,6 +629,18 @@
   "@statsHeatmapTitle": {
     "description": "Stats page section title above the full-year heatmap"
   },
+  "statsWeekChartTitle": "This week",
+  "@statsWeekChartTitle": {
+    "description": "Stats page section title above the weekly bar chart"
+  },
+  "statsWeekChartDuration": "Duration",
+  "@statsWeekChartDuration": {
+    "description": "Legend label for reading duration in the weekly chart"
+  },
+  "statsWeekChartPages": "Pages",
+  "@statsWeekChartPages": {
+    "description": "Legend label for pages read in the weekly chart"
+  },
   "statsGenresTitle": "Favorite genres",
   "@statsGenresTitle": {
     "description": "Stats page section title above the genre bar chart"
@@ -690,15 +702,21 @@
       }
     }
   },
-  "homeGreeting": "Hi, {name}",
+  "homeGreeting": "{greeting}\n{name}",
   "@homeGreeting": {
-    "description": "Home page header greeting",
+    "description": "Home page header greeting. Greeting is time-of-day (e.g. Good morning, Selamat pagi).",
     "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
       "name": {
         "type": "String"
       }
     }
   },
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
   "dayStreak": "day streak",
   "@dayStreak": {
     "description": "Label under the big streak number on the home page"

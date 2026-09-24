@@ -484,6 +484,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get statsHeatmapTitle => 'Aktivitas membaca';
 
   @override
+  String get statsWeekChartTitle => 'Minggu ini';
+
+  @override
+  String get statsWeekChartDuration => 'Durasi';
+
+  @override
+  String get statsWeekChartPages => 'Halaman';
+
+  @override
   String get statsGenresTitle => 'Genre favorit';
 
   @override
@@ -524,9 +533,18 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String homeGreeting(String name) {
-    return 'Hai, $name';
+  String homeGreeting(String greeting, String name) {
+    return '$greeting\n$name';
   }
+
+  @override
+  String get greetingMorning => 'Selamat pagi';
+
+  @override
+  String get greetingAfternoon => 'Selamat siang';
+
+  @override
+  String get greetingEvening => 'Selamat malam';
 
   @override
   String get dayStreak => 'hari beruntun';

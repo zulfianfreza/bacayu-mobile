@@ -6,17 +6,15 @@ import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/navigation/full_screen_page.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/chunky_button.dart';
 import '../../../../core/widgets/error_listener.dart';
-import '../../../../core/widgets/raised_box.dart';
+import '../../../../core/widgets/filter_pill.dart';
 import '../../../books/presentation/pages/book_search_page.dart';
 import '../../domain/entities/user_book.dart';
 import '../cubit/shelf_cubit.dart';
 import '../cubit/shelf_state.dart';
 import '../widgets/shelf_book_card.dart';
-import '../../../../core/theme/build_context_extension.dart';
 
 class ShelfPage extends StatelessWidget {
   const ShelfPage({super.key});
@@ -209,45 +207,12 @@ class _FilterTabs extends StatelessWidget {
         separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final (status, label) = tabs[index];
-          return _FilterTab(
+          return FilterPill(
             label: label,
             isActive: status == activeFilter,
             onTap: () => context.read<ShelfCubit>().changeFilter(status),
           );
         },
-      ),
-    );
-  }
-}
-
-/// One shelf filter, built like the range control on Stats: a chunky pill on
-/// its own edge, filled in when it is the active one.
-class _FilterTab extends StatelessWidget {
-  const _FilterTab({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: RaisedBox(
-        color: isActive ? AppColors.tangerine : context.colors.surface,
-        radius: AppRadius.pill,
-        edgeHeight: 3,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Text(
-          label,
-          style: AppTypography.button.copyWith(
-            color: isActive ? Colors.white : context.colors.textSecondary,
-          ),
-        ),
       ),
     );
   }

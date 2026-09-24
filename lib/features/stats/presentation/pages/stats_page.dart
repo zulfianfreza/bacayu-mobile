@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
@@ -9,7 +10,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
-import '../../../../core/widgets/raised_box.dart';
+import '../../../../core/widgets/filter_pill.dart';
+import '../../domain/entities/daily_stat.dart';
 import '../../domain/entities/stats_summary.dart';
 import '../cubit/stats_cubit.dart';
 import '../cubit/stats_state.dart';
@@ -73,6 +75,10 @@ class _StatsView extends StatelessWidget {
                       children: [
                         _MetricsGrid(summary: summary),
                         const SizedBox(height: 20),
+                        if (state.range == StatsRange.week) ...[
+                          _WeeklyChart(dailyStats: heatmap),
+                          const SizedBox(height: 20),
+                        ],
                         _SectionCard(
                           title: l10n.statsHeatmapTitle,
                           child: HeatmapCalendar(
@@ -148,56 +154,15 @@ class _RangeSegmentedControl extends StatelessWidget {
         for (var i = 0; i < options.length; i++) ...[
           if (i > 0) const SizedBox(width: 8),
           Expanded(
-            child: _RangeSegment(
+            child: FilterPill(
               label: options[i].$2,
               isActive: options[i].$1 == activeRange,
               onTap: () => onChanged(options[i].$1),
+              expand: true,
             ),
           ),
         ],
       ],
-    );
-  }
-}
-
-/// One range, built like the metric tiles below it: every segment sits on its
-/// own edge, and the selected one is simply filled in — so the control belongs
-/// to the same system as the numbers it filters.
-class _RangeSegment extends StatelessWidget {
-  const _RangeSegment({
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: RaisedBox(
-        color: isActive ? AppColors.tangerine : context.colors.surface,
-        radius: AppRadius.sm,
-        edgeHeight: 3,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-        child: SizedBox(
-          width: double.infinity,
-          // Shrinks rather than truncates: four labels have to share one row
-          // in every language, and "Minggu" is already tight in Indonesian.
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              label,
-              style: AppTypography.button.copyWith(
-                color: isActive ? Colors.white : context.colors.textSecondary,
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -269,6 +234,145 @@ class _MetricsGrid extends StatelessWidget {
           icon: icon,
         );
       },
+    );
+  }
+}
+
+class _WeeklyChart extends StatelessWidget {
+  const _WeeklyChart({required this.dailyStats});
+
+  final List<DailyStat> dailyStats;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final now = DateTime.now();
+    final weekStart = now.subtract(Duration(days: now.weekday - 1)); // Monday
+    final locale = Localizations.localeOf(context).toLanguageTag();
+
+    // Build 7-day map: Mon=0 .. Sun=6.
+    final byWeekday = <int, DailyStat>{};
+    for (final stat in dailyStats) {
+      final diff = stat.date.difference(weekStart).inDays;
+      if (diff >= 0 && diff < 7) {
+        byWeekday[diff] = stat;
+      }
+    }
+
+    final days = [
+      for (var i = 0; i < 7; i++) byWeekday[i],
+    ];
+
+    final maxMin = days
+        .map((d) => d?.totalMinutes ?? 0)
+        .fold<int>(0, (a, b) => b > a ? b : a);
+    final maxPg = days
+        .map((d) => d?.totalPages ?? 0)
+        .fold<int>(0, (a, b) => b > a ? b : a);
+    final maxY = (maxMin > maxPg ? maxMin : maxPg).toDouble();
+    if (maxY == 0) return const SizedBox.shrink();
+
+    final barWidth = 10.0;
+
+    return _SectionCard(
+      title: l10n.statsWeekChartTitle,
+      child: Column(
+        children: [
+          // Legend
+          Row(
+            children: [
+              _LegendDot(color: AppColors.lagoon500, label: l10n.statsWeekChartDuration),
+              const SizedBox(width: 16),
+              _LegendDot(color: AppColors.tangerine500, label: l10n.statsWeekChartPages),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 160,
+            child: BarChart(
+              BarChartData(
+                maxY: maxY * 1.2,
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                barGroups: [
+                  for (var i = 0; i < 7; i++)
+                    BarChartGroupData(
+                      x: i,
+                      groupVertically: true,
+                      barsSpace: 4,
+                      barRods: [
+                        BarChartRodData(
+                          toY: (days[i]?.totalMinutes ?? 0).toDouble(),
+                          color: AppColors.lagoon500,
+                          width: barWidth,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(AppRadius.sm),
+                          ),
+                        ),
+                        BarChartRodData(
+                          toY: (days[i]?.totalPages ?? 0).toDouble(),
+                          color: AppColors.tangerine500,
+                          width: barWidth,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(AppRadius.sm),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+                titlesData: FlTitlesData(
+                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        final idx = value.toInt();
+                        if (idx < 0 || idx > 6) return const SizedBox.shrink();
+                        final day = weekStart.add(Duration(days: idx));
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            DateFormat.E(locale).format(day),
+                            style: AppTypography.caption,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  const _LegendDot({required this.color, required this.label});
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(label, style: AppTypography.caption),
+      ],
     );
   }
 }

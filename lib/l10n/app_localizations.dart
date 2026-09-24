@@ -974,6 +974,24 @@ abstract class AppLocalizations {
   /// **'Reading activity'**
   String get statsHeatmapTitle;
 
+  /// Stats page section title above the weekly bar chart
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get statsWeekChartTitle;
+
+  /// Legend label for reading duration in the weekly chart
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get statsWeekChartDuration;
+
+  /// Legend label for pages read in the weekly chart
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get statsWeekChartPages;
+
   /// Stats page section title above the genre bar chart
   ///
   /// In en, this message translates to:
@@ -1046,11 +1064,29 @@ abstract class AppLocalizations {
   /// **'{speed} ppm'**
   String speedPpmValue(String speed);
 
-  /// Home page header greeting
+  /// Home page header greeting. Greeting is time-of-day (e.g. Good morning, Selamat pagi).
   ///
   /// In en, this message translates to:
-  /// **'Hi, {name}'**
-  String homeGreeting(String name);
+  /// **'{greeting}\n{name}'**
+  String homeGreeting(String greeting, String name);
+
+  /// No description provided for @greetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get greetingEvening;
 
   /// Label under the big streak number on the home page
   ///
