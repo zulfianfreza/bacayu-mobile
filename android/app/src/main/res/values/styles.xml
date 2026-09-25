@@ -15,4 +15,14 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
+
+    <!-- Streak widget's 7-day activity dots (streak_widget.xml) — background
+         drawable is swapped per-dot in StreakWidgetProvider between
+         @drawable/streak_widget_dot_active and .../_inactive. -->
+    <style name="StreakWidgetDot">
+        <item name="android:layout_width">10dp</item>
+        <item name="android:layout_height">10dp</item>
+        <item name="android:layout_marginEnd">6dp</item>
+        <item name="android:background">@drawable/streak_widget_dot_inactive</item>
+    </style>
 </resources>

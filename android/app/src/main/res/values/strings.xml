@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Streak widget only — mirrors dayStreak/@dayStreak in
+         lib/l10n/app_en.arb. Native RemoteViews can't reach context.l10n
+         (CLAUDE.md Section 9.1's Flutter-widget-tree requirement doesn't
+         apply here), so these are hand-kept in sync instead. -->
+    <string name="streak_widget_label">day streak</string>
+    <string name="streak_widget_description">Shows your BacaYu reading streak</string>
+</resources>

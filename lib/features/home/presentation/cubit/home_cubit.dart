@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/error/failure.dart';
+import '../../../../core/widget/streak_widget_service.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/get_current_user.dart';
 import '../../../shelf/domain/entities/user_book.dart';
@@ -19,12 +22,17 @@ import 'home_state.dart';
 /// already returns the full year, this just slices the last 7 days.
 @injectable
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit(this._getCurrentUser, this._getHeatmap, this._listShelf)
-    : super(const HomeInitial());
+  HomeCubit(
+    this._getCurrentUser,
+    this._getHeatmap,
+    this._listShelf,
+    this._streakWidgetService,
+  ) : super(const HomeInitial());
 
   final GetCurrentUser _getCurrentUser;
   final GetHeatmap _getHeatmap;
   final ListShelf _listShelf;
+  final StreakWidgetService _streakWidgetService;
 
   Future<void> load() async {
     emit(const HomeLoading());
@@ -55,14 +63,28 @@ class HomeCubit extends Cubit<HomeState> {
       return;
     }
 
+    final last7Days = _last7Days(heatmap!);
+
     emit(
       HomeLoaded(
         userName: user!.name,
         avatarUrl: user!.avatarUrl,
         currentStreak: user!.currentStreak,
         longestStreak: user!.longestStreak,
-        last7Days: _last7Days(heatmap!),
+        last7Days: last7Days,
         continueReading: continueReading!,
+      ),
+    );
+
+    // Fire-and-forget: the home-screen widget is a nice-to-have side effect
+    // of a successful load, never something that should hold up or fail it.
+    unawaited(
+      _streakWidgetService.push(
+        currentStreak: user!.currentStreak,
+        longestStreak: user!.longestStreak,
+        last7DaysHasActivity: [
+          for (final day in last7Days) day.sessionCount > 0,
+        ],
       ),
     );
   }

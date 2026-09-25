@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile/core/widget/streak_widget_service.dart';
 import 'package:mobile/features/auth/domain/entities/user.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/domain/usecases/get_current_user.dart';
@@ -55,6 +56,7 @@ void main() {
       GetCurrentUser(authRepository),
       GetHeatmap(statsRepository),
       ListShelf(shelfRepository),
+      StreakWidgetService(),
     );
 
     when(

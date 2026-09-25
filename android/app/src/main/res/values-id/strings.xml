@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mirrors dayStreak in lib/l10n/app_id.arb — see ../values/strings.xml. -->
+    <string name="streak_widget_label">hari beruntun</string>
+    <string name="streak_widget_description">Menampilkan streak membaca BacaYu-mu</string>
+</resources>

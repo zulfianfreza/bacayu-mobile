@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark-mode mirror of ../values/colors.xml — see that file's note on
+         why these are hand-kept in sync with lib/core/theme/app_colors.dart
+         instead of shared with the Flutter side. -->
+    <color name="streak_widget_background">#FF332619</color>
+    <color name="streak_widget_flame">#FFFF6A3D</color>
+    <color name="streak_widget_ink">#FFF7EFE5</color>
+    <color name="streak_widget_dot_active">#FFFF6A3D</color>
+    <color name="streak_widget_dot_inactive">#FF4A3826</color>
+</resources>

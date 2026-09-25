@@ -27,6 +27,7 @@ import 'package:mobile/core/sharing/services/share_card_service.dart' as _i239;
 import 'package:mobile/core/storage/app_database.dart' as _i141;
 import 'package:mobile/core/storage/secure_token_storage.dart' as _i839;
 import 'package:mobile/core/theme/theme_cubit.dart' as _i783;
+import 'package:mobile/core/widget/streak_widget_service.dart' as _i766;
 import 'package:mobile/features/auth/data/datasources/auth_remote_datasource.dart'
     as _i1044;
 import 'package:mobile/features/auth/data/repositories/auth_repository_impl.dart'
@@ -239,6 +240,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i141.AppDatabase>(() => _i141.AppDatabase());
     gh.lazySingleton<_i839.SecureTokenStorage>(
       () => _i839.SecureTokenStorage(),
+    );
+    gh.lazySingleton<_i766.StreakWidgetService>(
+      () => _i766.StreakWidgetService(),
     );
     gh.lazySingleton<_i892.FirebaseMessaging>(
       () => firebaseMessagingModule.firebaseMessaging,
@@ -554,13 +558,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i88.UpdateShelfStatus>(
       () => _i88.UpdateShelfStatus(gh<_i180.ShelfRepository>()),
     );
-    gh.factory<_i1054.HomeCubit>(
-      () => _i1054.HomeCubit(
-        gh<_i1052.GetCurrentUser>(),
-        gh<_i485.GetHeatmap>(),
-        gh<_i156.ListShelf>(),
-      ),
-    );
     gh.lazySingleton<_i387.SessionExpiredHandler>(
       () => sessionExpiredHandlerModule.sessionExpiredHandler(
         gh<_i948.AuthCubit>(),
@@ -578,6 +575,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i839.SecureTokenStorage>(),
         gh<_i409.GlobalKey<_i409.NavigatorState>>(),
         gh<_i948.AuthCubit>(),
+      ),
+    );
+    gh.factory<_i1054.HomeCubit>(
+      () => _i1054.HomeCubit(
+        gh<_i1052.GetCurrentUser>(),
+        gh<_i485.GetHeatmap>(),
+        gh<_i156.ListShelf>(),
+        gh<_i766.StreakWidgetService>(),
       ),
     );
     return this;

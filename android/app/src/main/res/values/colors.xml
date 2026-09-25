@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Streak widget only. Hand-mirrored from lib/core/theme/app_colors.dart
+         (Style Guide Section 2) — native code can't import the Dart theme,
+         so these values are kept in sync by hand, not by accident. -->
+    <color name="streak_widget_background">#FFFFF1EB</color>
+    <color name="streak_widget_flame">#FFFF6A3D</color>
+    <color name="streak_widget_ink">#FF2B2117</color>
+    <color name="streak_widget_dot_active">#FFFF6A3D</color>
+    <color name="streak_widget_dot_inactive">#FFE2E8F0</color>
+</resources>
