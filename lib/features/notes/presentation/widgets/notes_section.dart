@@ -7,7 +7,6 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/build_context_extension.dart';
 import '../../../../core/utils/relative_time.dart';
-import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/error_listener.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../domain/entities/note.dart';
@@ -83,9 +82,7 @@ class _NotesView extends StatelessWidget {
         final notes = state.items;
         return Padding(
           padding: const EdgeInsets.only(top: 16),
-          child: BorderedCard(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-            child: Column(
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -117,7 +114,6 @@ class _NotesView extends StatelessWidget {
                     ),
                   ],
               ],
-            ),
           ),
         );
       },

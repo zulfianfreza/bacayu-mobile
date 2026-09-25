@@ -132,80 +132,75 @@ class _BookDetailBody extends StatelessWidget {
         // The book's identity in one card: the cover, then everything that
         // names it. Kept apart from the synopsis below, which is prose rather
         // than a label you scan.
-        BorderedCard(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                  child: SizedBox(
-                    width: 140,
-                    height: 200,
-                    child: book.coverUrl == null
-                        ? const _CoverPlaceholder()
-                        : Image.network(
-                            book.coverUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const _CoverPlaceholder(),
-                          ),
-                  ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                child: SizedBox(
+                  width: 140,
+                  height: 200,
+                  child: book.coverUrl == null
+                      ? const _CoverPlaceholder()
+                      : Image.network(
+                          book.coverUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const _CoverPlaceholder(),
+                        ),
                 ),
               ),
-              const SizedBox(height: 20),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              book.title,
+              style: AppTypography.heading,
+              textAlign: TextAlign.center,
+            ),
+            if (book.authors.isNotEmpty) ...[
+              const SizedBox(height: 4),
               Text(
-                book.title,
-                style: AppTypography.heading,
+                l10n.byAuthor(book.authors.join(', ')),
+                style: AppTypography.body,
                 textAlign: TextAlign.center,
               ),
-              if (book.authors.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  l10n.byAuthor(book.authors.join(', ')),
-                  style: AppTypography.body,
-                  textAlign: TextAlign.center,
-                ),
-              ],
-              if (hasMeta) ...[
-                const SizedBox(height: 16),
-                // Facts first, tags after: one reader is scanning for "how long
-                // is it", the other for "what kind of book is it", and both
-                // find their row without reading the other one.
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    if (book.totalPages != null)
-                      _FactChip(
-                        icon: Icons.menu_book_outlined,
-                        text: l10n.pagesCount(book.totalPages!),
-                      ),
-                    if (book.publishedDate.isNotEmpty)
-                      _FactChip(
-                        icon: Icons.calendar_today_outlined,
-                        text: book.publishedDate,
-                      ),
-                    for (final genre in book.genres) _GenreChip(text: genre),
-                  ],
-                ),
-              ],
             ],
-          ),
+            if (hasMeta) ...[
+              const SizedBox(height: 16),
+              // Facts first, tags after: one reader is scanning for "how long
+              // is it", the other for "what kind of book is it", and both
+              // find their row without reading the other one.
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (book.totalPages != null)
+                    _FactChip(
+                      icon: Icons.menu_book_outlined,
+                      text: l10n.pagesCount(book.totalPages!),
+                    ),
+                  if (book.publishedDate.isNotEmpty)
+                    _FactChip(
+                      icon: Icons.calendar_today_outlined,
+                      text: book.publishedDate,
+                    ),
+                  for (final genre in book.genres) _GenreChip(text: genre),
+                ],
+              ),
+            ],
+          ],
         ),
         if (hasDescription) ...[
           const SizedBox(height: 16),
-          BorderedCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(l10n.bookSynopsis, style: AppTypography.heading),
-                const SizedBox(height: 12),
-                BookDescription(html: book.description!),
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.bookSynopsis, style: AppTypography.heading),
+              const SizedBox(height: 12),
+              BookDescription(html: book.description!),
+            ],
           ),
         ],
         _ReadingHistory(future: reads),

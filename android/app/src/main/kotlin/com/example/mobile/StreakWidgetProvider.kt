@@ -5,66 +5,55 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetPlugin
 
-/**
- * Renders the day-streak home-screen widget from data `StreakWidgetService`
- * (lib/core/widget/streak_widget_service.dart) pushes via the `home_widget`
- * plugin. Refresh is app-driven only (see that class's docstring) — this
- * provider never fetches anything itself, only re-reads whatever was last
- * written to `HomeWidgetPlugin`'s shared prefs.
- */
 class StreakWidgetProvider : AppWidgetProvider() {
-    override fun onUpdate(
+    override fun onAppWidgetOptionsChanged(
         context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray,
+        manager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle,
     ) {
+        // Launcher calls this after resize, not onUpdate(). Re-render now so
+        // layout switches between square and wide without waiting 30 minutes.
+        onUpdate(context, manager, intArrayOf(appWidgetId))
+    }
+
+    override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         val prefs = HomeWidgetPlugin.getData(context)
-        val currentStreak = prefs.getInt("currentStreak", 0)
-        val last7Days = prefs.getString("last7Days", "0000000") ?: "0000000"
+        val streak = prefs.getInt("current_streak", 0)
+        val heatmap = prefs.getString("weekly_heatmap", "0000000") ?: "0000000"
+        val message = prefs.getString("message_text", "Bacaaa yuk!") ?: "Bacaaa yuk!"
+        val background = prefs.getString("background_res_name", "widget_bg_calm_a") ?: "widget_bg_calm_a"
+        val mascot = prefs.getString("mascot_res_name", "mascot_calm_a") ?: "mascot_calm_a"
 
-        for (appWidgetId in appWidgetIds) {
-            val views = RemoteViews(context.packageName, R.layout.streak_widget)
-            views.setTextViewText(R.id.streak_widget_count, currentStreak.toString())
-            views.setTextViewText(
-                R.id.streak_widget_label,
-                context.getString(R.string.streak_widget_label),
-            )
+        for (id in ids) {
+            val options = manager.getAppWidgetOptions(id)
+            val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+            val height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
+            val layout = if (width >= height * 1.5) R.layout.streak_widget_medium else R.layout.streak_widget_small
+            val views = RemoteViews(context.packageName, layout)
+            val backgroundId = context.resources.getIdentifier(background, "drawable", context.packageName)
+            val mascotId = context.resources.getIdentifier(mascot, "drawable", context.packageName)
+            if (backgroundId != 0) views.setInt(R.id.streak_widget_root, "setBackgroundResource", backgroundId)
+            if (mascotId != 0) views.setImageViewResource(R.id.streak_widget_mascot, mascotId)
+            views.setTextViewText(R.id.streak_widget_count, streak.toString())
+            views.setTextViewText(R.id.streak_widget_message, message)
 
-            val dotIds = intArrayOf(
-                R.id.streak_widget_dot_0,
-                R.id.streak_widget_dot_1,
-                R.id.streak_widget_dot_2,
-                R.id.streak_widget_dot_3,
-                R.id.streak_widget_dot_4,
-                R.id.streak_widget_dot_5,
-                R.id.streak_widget_dot_6,
-            )
-            for (i in dotIds.indices) {
-                val active = last7Days.getOrNull(i) == '1'
-                views.setInt(
-                    dotIds[i],
-                    "setBackgroundResource",
-                    if (active) {
-                        R.drawable.streak_widget_dot_active
-                    } else {
-                        R.drawable.streak_widget_dot_inactive
-                    },
-                )
+            if (layout == R.layout.streak_widget_medium) {
+                val dots = intArrayOf(R.id.streak_widget_dot_0, R.id.streak_widget_dot_1, R.id.streak_widget_dot_2, R.id.streak_widget_dot_3, R.id.streak_widget_dot_4, R.id.streak_widget_dot_5, R.id.streak_widget_dot_6)
+                dots.forEachIndexed { index, dot ->
+                    views.setImageViewResource(dot, if (heatmap.getOrNull(index) == '1') R.drawable.streak_widget_dot_active else R.drawable.streak_widget_dot_inactive)
+                }
             }
 
-            val openApp = Intent(context, MainActivity::class.java)
-            val pendingIntent = PendingIntent.getActivity(
-                context,
-                appWidgetId,
-                openApp,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-            views.setOnClickPendingIntent(R.id.streak_widget_root, pendingIntent)
-
-            appWidgetManager.updateAppWidget(appWidgetId, views)
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("bacayu://widget/start-session"), context, MainActivity::class.java)
+            val tap = PendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            views.setOnClickPendingIntent(R.id.streak_widget_root, tap)
+            manager.updateAppWidget(id, views)
         }
     }
 }

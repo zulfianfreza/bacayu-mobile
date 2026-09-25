@@ -80,6 +80,7 @@ class HomeCubit extends Cubit<HomeState> {
     // of a successful load, never something that should hold up or fail it.
     unawaited(
       _streakWidgetService.push(
+        userId: user!.id,
         currentStreak: user!.currentStreak,
         longestStreak: user!.longestStreak,
         last7DaysHasActivity: [
