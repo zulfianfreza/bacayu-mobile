@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/error/failure.dart';
 import '../entities/reading_session.dart';
+import '../entities/session_submit_result.dart';
 import '../entities/unlocked_badge.dart';
 import '../repositories/session_repository.dart';
 
@@ -14,10 +15,12 @@ class SubmitSession {
 
   Future<Either<Failure, Unit>> call(
     ReadingSession session, {
+    void Function(SessionSubmitResult result)? onSynced,
     void Function(List<UnlockedBadge> badges)? onSyncedWithBadges,
   }) {
     return _repository.submitSession(
       session,
+      onSynced: onSynced,
       onSyncedWithBadges: onSyncedWithBadges,
     );
   }

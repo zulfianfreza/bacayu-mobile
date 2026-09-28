@@ -550,6 +550,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get dayStreak => 'hari beruntun';
 
   @override
+  String get streakExtendedTitle => 'Streak bertambah!';
+
+  @override
   String longestStreakDays(int count) {
     return 'Terpanjang: $count hari';
   }

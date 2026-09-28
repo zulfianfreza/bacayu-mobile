@@ -68,22 +68,28 @@ class SessionTimerCubit extends Cubit<SessionTimerState>
     final now = _clock();
     _currentPauseStart = now;
     _stopTicker();
-    emit(SessionTimerPaused(
-      elapsed: _elapsedAt(now),
-      pauseCount: _pauseIntervals.length,
-    ));
+    emit(
+      SessionTimerPaused(
+        elapsed: _elapsedAt(now),
+        pauseCount: _pauseIntervals.length,
+      ),
+    );
   }
 
   void resume() {
     if (state is! SessionTimerPaused) return;
     final now = _clock();
-    _pauseIntervals.add(PauseInterval(pausedAt: _currentPauseStart!, resumedAt: now));
+    _pauseIntervals.add(
+      PauseInterval(pausedAt: _currentPauseStart!, resumedAt: now),
+    );
     _currentPauseStart = null;
     _startTicker();
-    emit(SessionTimerRunning(
-      elapsed: _elapsedAt(now),
-      pauseCount: _pauseIntervals.length,
-    ));
+    emit(
+      SessionTimerRunning(
+        elapsed: _elapsedAt(now),
+        pauseCount: _pauseIntervals.length,
+      ),
+    );
   }
 
   void stop() {
@@ -95,15 +101,19 @@ class SessionTimerCubit extends Cubit<SessionTimerState>
     // requires every pause_interval to have a resumedAt (see
     // api/internal/features/sessions/domain/entity.go).
     if (_currentPauseStart != null) {
-      _pauseIntervals.add(PauseInterval(pausedAt: _currentPauseStart!, resumedAt: now));
+      _pauseIntervals.add(
+        PauseInterval(pausedAt: _currentPauseStart!, resumedAt: now),
+      );
       _currentPauseStart = null;
     }
 
     _endTime = now;
-    emit(SessionTimerStopped(
-      activeDurationSeconds: _elapsedAt(now).inSeconds,
-      pauseCount: _pauseIntervals.length,
-    ));
+    emit(
+      SessionTimerStopped(
+        activeDurationSeconds: _elapsedAt(now).inSeconds,
+        pauseCount: _pauseIntervals.length,
+      ),
+    );
   }
 
   Future<void> submit({required int startPage, required int endPage}) async {
@@ -125,10 +135,15 @@ class SessionTimerCubit extends Cubit<SessionTimerState>
 
     final result = await _submitSession(
       session,
-      onSyncedWithBadges: (badges) {
+      onSynced: (result) {
         if (isClosed) return;
         if (state is SessionTimerSubmitted) {
-          emit(SessionTimerSubmitted(badgesUnlocked: badges));
+          emit(
+            SessionTimerSubmitted(
+              badgesUnlocked: result.badgesUnlocked,
+              streak: result.streak,
+            ),
+          );
         }
       },
     );
@@ -144,10 +159,12 @@ class SessionTimerCubit extends Cubit<SessionTimerState>
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       final current = state;
       if (current is SessionTimerRunning) {
-        emit(SessionTimerRunning(
-          elapsed: _elapsedAt(_clock()),
-          pauseCount: current.pauseCount,
-        ));
+        emit(
+          SessionTimerRunning(
+            elapsed: _elapsedAt(_clock()),
+            pauseCount: current.pauseCount,
+          ),
+        );
       }
     });
   }
@@ -182,10 +199,12 @@ class SessionTimerCubit extends Cubit<SessionTimerState>
 
     switch (lifecycleState) {
       case AppLifecycleState.resumed:
-        emit(SessionTimerRunning(
-          elapsed: _elapsedAt(_clock()),
-          pauseCount: current.pauseCount,
-        ));
+        emit(
+          SessionTimerRunning(
+            elapsed: _elapsedAt(_clock()),
+            pauseCount: current.pauseCount,
+          ),
+        );
         _startTicker();
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:

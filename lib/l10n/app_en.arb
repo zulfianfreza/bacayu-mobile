@@ -718,6 +718,7 @@
   "greetingAfternoon": "Good afternoon",
   "greetingEvening": "Good evening",
   "dayStreak": "day streak",
+  "streakExtendedTitle": "Streak extended!",
   "@dayStreak": {
     "description": "Label under the big streak number on the home page"
   },

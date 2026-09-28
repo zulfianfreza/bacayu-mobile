@@ -9,6 +9,8 @@ import '../../../../core/error/failure.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../domain/entities/reading_session.dart';
 import '../../domain/entities/unlocked_badge.dart';
+import '../../domain/entities/session_streak.dart';
+import '../../domain/entities/session_submit_result.dart';
 import '../../domain/repositories/session_repository.dart';
 import '../datasources/session_local_datasource.dart';
 import '../datasources/session_remote_datasource.dart';
@@ -31,6 +33,7 @@ class SessionRepositoryImpl implements SessionRepository {
   @override
   Future<Either<Failure, Unit>> submitSession(
     ReadingSession session, {
+    void Function(SessionSubmitResult result)? onSynced,
     void Function(List<UnlockedBadge> badges)? onSyncedWithBadges,
   }) async {
     final model = ReadingSessionModel.fromEntity(session);
@@ -44,7 +47,9 @@ class SessionRepositoryImpl implements SessionRepository {
 
     // Best-effort immediate send. Deliberately NOT awaited by the caller —
     // the local enqueue above is already "success" (CLAUDE.md Section 6.2).
-    unawaited(_trySyncNow(session.clientId, payload, onSyncedWithBadges));
+    unawaited(
+      _trySyncNow(session.clientId, payload, onSynced, onSyncedWithBadges),
+    );
 
     return const Right(unit);
   }
@@ -52,6 +57,7 @@ class SessionRepositoryImpl implements SessionRepository {
   Future<void> _trySyncNow(
     String clientId,
     Map<String, dynamic> payload,
+    void Function(SessionSubmitResult result)? onSynced,
     void Function(List<UnlockedBadge> badges)? onSyncedWithBadges,
   ) async {
     try {
@@ -61,6 +67,18 @@ class SessionRepositoryImpl implements SessionRepository {
           .cast<Map<String, dynamic>>()
           .map(UnlockedBadgeModel.fromJson)
           .toList();
+      final streakJson = json['streak'] as Map<String, dynamic>?;
+      final result = SessionSubmitResult(
+        badgesUnlocked: badges,
+        streak: streakJson == null
+            ? null
+            : SessionStreak(
+                current: streakJson['current'] as int? ?? 0,
+                longest: streakJson['longest'] as int? ?? 0,
+                extendedToday: streakJson['extended_today'] as bool? ?? false,
+              ),
+      );
+      onSynced?.call(result);
       onSyncedWithBadges?.call(badges);
     } on DioException catch (e) {
       final failure = mapDioExceptionToFailure(e);
@@ -75,7 +93,9 @@ class SessionRepositoryImpl implements SessionRepository {
   }
 
   @override
-  Future<Either<Failure, List<ReadingSession>>> getHistory({int page = 1}) async {
+  Future<Either<Failure, List<ReadingSession>>> getHistory({
+    int page = 1,
+  }) async {
     try {
       final json = await _remote.getHistory(page: page);
       final sessions = json

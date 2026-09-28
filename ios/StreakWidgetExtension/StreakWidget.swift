@@ -75,7 +75,7 @@ struct StreakWidgetView: View {
     let entry: StreakEntry
 
     var body: some View {
-        ZStack(alignment: family == .systemSmall ? .bottom : .bottomTrailing) {
+        ZStack(alignment: .bottomTrailing) {
             mascot
             if family == .systemMedium { mediumContent } else { smallContent }
         }
@@ -87,8 +87,11 @@ struct StreakWidgetView: View {
         Image(availableMascot)
             .resizable()
             .scaledToFit()
-            .frame(width: family == .systemSmall ? 150 : 155, height: family == .systemSmall ? 150 : 155)
-            .padding(family == .systemSmall ? 0 : 4)
+            .frame(width: family == .systemSmall ? 180 : 205, height: family == .systemSmall ? 180 : 205)
+            .offset(
+                x: family == .systemSmall ? 0 : 12,
+                y: family == .systemSmall ? 22 : 12
+            )
     }
 
     private var availableMascot: String {
@@ -103,6 +106,7 @@ struct StreakWidgetView: View {
             streakCount
             Text(entry.message).font(.system(size: 12, weight: .medium)).multilineTextAlignment(.center).lineLimit(2)
             Spacer()
+            heatmap
         }
         .foregroundStyle(WidgetPalette.ink).padding(12)
     }
@@ -111,15 +115,15 @@ struct StreakWidgetView: View {
         VStack(alignment: .leading, spacing: 3) {
             streakCount
             Text(entry.message).font(.system(size: 12, weight: .medium)).lineLimit(2).frame(maxWidth: 135, alignment: .leading)
-            heatmap.padding(.top, 5)
             Spacer()
+            heatmap
         }
         .foregroundStyle(WidgetPalette.ink).frame(maxWidth: .infinity, alignment: .leading).padding(14)
     }
 
     private var streakCount: some View {
         HStack(spacing: 6) {
-            Image(systemName: "flame.fill").foregroundStyle(WidgetPalette.flame).font(.system(size: 23))
+            Image("day_streak").resizable().scaledToFit().frame(width: 24, height: 28)
             Text("\(entry.currentStreak)").font(.system(size: 26, weight: .bold))
         }
     }

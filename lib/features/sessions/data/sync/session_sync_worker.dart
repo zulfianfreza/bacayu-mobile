@@ -45,8 +45,9 @@ class SessionSyncWorker {
   void start() {
     if (_started) return;
     _started = true;
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_onConnectivityChanged);
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
+      _onConnectivityChanged,
+    );
     _scheduleNext(Duration.zero);
   }
 
@@ -87,7 +88,8 @@ class SessionSyncWorker {
           await _local.markSynced(row.clientId);
         } on DioException catch (e) {
           final failure = mapDioExceptionToFailure(e);
-          if (failure is ServerFailure && failure.code == _duplicateSessionCode) {
+          if (failure is ServerFailure &&
+              failure.code == _duplicateSessionCode) {
             await _local.markSynced(row.clientId);
           } else {
             anyFailed = true;

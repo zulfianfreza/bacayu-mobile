@@ -547,6 +547,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dayStreak => 'day streak';
 
   @override
+  String get streakExtendedTitle => 'Streak extended!';
+
+  @override
   String longestStreakDays(int count) {
     return 'Longest: $count days';
   }

@@ -49,7 +49,8 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
     if (preselected != null) {
       _selectedBook = preselected;
       WidgetsBinding.instance.addPostFrameCallback(
-        (_) => context.read<SessionTimerCubit>().start(userBookId: preselected.id),
+        (_) =>
+            context.read<SessionTimerCubit>().start(userBookId: preselected.id),
       );
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) => _pickBook());
@@ -108,15 +109,15 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
           builder: (context, state) {
             final (elapsed, pauseCount, isPaused) = switch (state) {
               SessionTimerRunning(:final elapsed, :final pauseCount) => (
-                  elapsed,
-                  pauseCount,
-                  false,
-                ),
+                elapsed,
+                pauseCount,
+                false,
+              ),
               SessionTimerPaused(:final elapsed, :final pauseCount) => (
-                  elapsed,
-                  pauseCount,
-                  true,
-                ),
+                elapsed,
+                pauseCount,
+                true,
+              ),
               _ => (Duration.zero, 0, false),
             };
 
@@ -190,7 +191,8 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
                         backgroundColor: context.colors.surface,
                         iconColor: context.colors.ink,
                         borderColor: context.colors.hairline,
-                        onPressed: () => context.read<SessionTimerCubit>().stop(),
+                        onPressed: () =>
+                            context.read<SessionTimerCubit>().stop(),
                       ),
                     ],
                   ),

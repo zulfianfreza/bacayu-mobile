@@ -8,6 +8,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/duration_formatter.dart';
 import '../../../../core/widgets/error_listener.dart';
 import '../../../badges/presentation/widgets/badge_unlocked_modal.dart';
+import '../../../stats/presentation/widgets/streak_modal.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../cubit/session_timer_cubit.dart';
 import '../cubit/session_timer_state.dart';
@@ -26,14 +27,16 @@ class SessionSummaryPage extends StatefulWidget {
 }
 
 class _SessionSummaryPageState extends State<SessionSummaryPage> {
-  late final _startPageController =
-      TextEditingController(text: widget.userBook.currentPage.toString());
+  late final _startPageController = TextEditingController(
+    text: widget.userBook.currentPage.toString(),
+  );
   final _endPageController = TextEditingController();
 
   // A late `onSyncedWithBadges` callback can re-emit `SessionTimerSubmitted`
   // after the badges already showed once — track which ones we've already
   // popped the modal for so it never shows twice.
   final Set<String> _shownBadgeIds = {};
+  bool _shownStreak = false;
 
   // The duration lives in the (transient) `SessionTimerStopped` state, but the
   // page is still on screen after `submit()` moved the Cubit to
@@ -65,7 +68,10 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
     final endPage = int.tryParse(_endPageController.text) ?? startPage;
     _submittedStartPage = startPage;
     _submittedEndPage = endPage;
-    context.read<SessionTimerCubit>().submit(startPage: startPage, endPage: endPage);
+    context.read<SessionTimerCubit>().submit(
+      startPage: startPage,
+      endPage: endPage,
+    );
   }
 
   int get _pagesRead {
@@ -82,6 +88,7 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
 
   Future<void> _shareSession(BuildContext context) async {
     final pagesRead = _pagesRead;
+    final state = context.read<SessionTimerCubit>().state;
 
     await ShareCardPreviewSheet.show(
       context,
@@ -92,11 +99,17 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
         pagesRead: pagesRead,
         durationSeconds: _activeDurationSeconds,
         speedPpm: _speedPpm(pagesRead),
+        currentStreak: state is SessionTimerSubmitted
+            ? state.streak?.current
+            : null,
       ),
     );
   }
 
-  Future<void> _showNewBadges(BuildContext context, SessionTimerSubmitted state) async {
+  Future<void> _showNewBadges(
+    BuildContext context,
+    SessionTimerSubmitted state,
+  ) async {
     for (final badge in state.badgesUnlocked) {
       if (!_shownBadgeIds.add(badge.badgeId)) continue;
       if (!context.mounted) return;
@@ -106,6 +119,22 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
         description: badge.description,
       );
     }
+  }
+
+  Future<void> _showCelebrations(
+    BuildContext context,
+    SessionTimerSubmitted state,
+  ) async {
+    final streak = state.streak;
+    if (!_shownStreak && streak != null && streak.extendedToday) {
+      _shownStreak = true;
+      await StreakModal.show(
+        context,
+        current: streak.current,
+        longest: streak.longest,
+      );
+    }
+    if (context.mounted) await _showNewBadges(context, state);
   }
 
   @override
@@ -121,8 +150,10 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
               _activeDurationSeconds = state.activeDurationSeconds;
             } else if (state is SessionTimerError) {
               context.showFailureSnackBar(state.failure);
-            } else if (state is SessionTimerSubmitted && state.badgesUnlocked.isNotEmpty) {
-              _showNewBadges(context, state);
+            } else if (state is SessionTimerSubmitted &&
+                (state.badgesUnlocked.isNotEmpty ||
+                    state.streak?.extendedToday == true)) {
+              _showCelebrations(context, state);
             }
           },
           builder: (context, state) {
@@ -186,7 +217,11 @@ class _SessionSummaryPageState extends State<SessionSummaryPage> {
                             color: Colors.white,
                           ),
                         )
-                      : Text(submitted != null ? l10n.sessionSaved : l10n.saveSession),
+                      : Text(
+                          submitted != null
+                              ? l10n.sessionSaved
+                              : l10n.saveSession,
+                        ),
                 ),
                 if (submitted != null) ...[
                   const SizedBox(height: 12),

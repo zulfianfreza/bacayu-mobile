@@ -1094,6 +1094,12 @@ abstract class AppLocalizations {
   /// **'day streak'**
   String get dayStreak;
 
+  /// No description provided for @streakExtendedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak extended!'**
+  String get streakExtendedTitle;
+
   /// Secondary line on the home page streak card, next to the current streak
   ///
   /// In en, this message translates to:

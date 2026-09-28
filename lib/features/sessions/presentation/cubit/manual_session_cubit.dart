@@ -62,11 +62,11 @@ class ManualSessionCubit extends Cubit<ManualSessionState> {
 
     final result = await _submitSession(
       session,
-      onSyncedWithBadges: (badges) {
-        onBadges?.call(badges);
+      onSynced: (result) {
+        onBadges?.call(result.badgesUnlocked);
         if (isClosed) return;
         if (state is ManualSessionSubmitted) {
-          emit(ManualSessionSubmitted(badgesUnlocked: badges));
+          emit(ManualSessionSubmitted(badgesUnlocked: result.badgesUnlocked));
         }
       },
     );

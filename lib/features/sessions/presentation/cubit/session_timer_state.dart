@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../domain/entities/unlocked_badge.dart';
+import '../../domain/entities/session_streak.dart';
 
 sealed class SessionTimerState extends Equatable {
   const SessionTimerState();
@@ -58,12 +59,13 @@ class SessionTimerSubmitting extends SessionTimerState {
 }
 
 class SessionTimerSubmitted extends SessionTimerState {
-  const SessionTimerSubmitted({required this.badgesUnlocked});
+  const SessionTimerSubmitted({required this.badgesUnlocked, this.streak});
 
   final List<UnlockedBadge> badgesUnlocked;
+  final SessionStreak? streak;
 
   @override
-  List<Object?> get props => [badgesUnlocked];
+  List<Object?> get props => [badgesUnlocked, streak];
 }
 
 class SessionTimerError extends SessionTimerState {

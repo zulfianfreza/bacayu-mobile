@@ -166,6 +166,7 @@
   "greetingAfternoon": "Selamat siang",
   "greetingEvening": "Selamat malam",
   "dayStreak": "hari beruntun",
+  "streakExtendedTitle": "Streak bertambah!",
   "longestStreakDays": "Terpanjang: {count} hari",
   "viewFullHeatmap": "Lihat heatmap lengkap",
   "heatmapLess": "Sedikit",

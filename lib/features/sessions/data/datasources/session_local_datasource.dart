@@ -16,7 +16,9 @@ class SessionLocalDataSource {
     required String clientId,
     required Map<String, dynamic> payload,
   }) {
-    return _db.into(_db.pendingSessions).insertOnConflictUpdate(
+    return _db
+        .into(_db.pendingSessions)
+        .insertOnConflictUpdate(
           PendingSessionsCompanion.insert(
             clientId: clientId,
             payload: jsonEncode(payload),
@@ -32,8 +34,8 @@ class SessionLocalDataSource {
   }
 
   Future<List<PendingSession>> getUnsynced() {
-    return (_db.select(_db.pendingSessions)
-          ..where((row) => row.synced.equals(false)))
-        .get();
+    return (_db.select(
+      _db.pendingSessions,
+    )..where((row) => row.synced.equals(false))).get();
   }
 }

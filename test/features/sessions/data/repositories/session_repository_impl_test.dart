@@ -10,9 +10,11 @@ import 'package:mobile/features/sessions/data/datasources/session_local_datasour
 import 'package:mobile/features/sessions/data/datasources/session_remote_datasource.dart';
 import 'package:mobile/features/sessions/data/repositories/session_repository_impl.dart';
 import 'package:mobile/features/sessions/domain/entities/reading_session.dart';
+import 'package:mobile/features/sessions/domain/entities/session_submit_result.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockSessionRemoteDataSource extends Mock implements SessionRemoteDataSource {}
+class _MockSessionRemoteDataSource extends Mock
+    implements SessionRemoteDataSource {}
 
 ReadingSession _session({String clientId = 'client-1'}) {
   final start = DateTime(2026, 1, 1, 9, 0, 0);
@@ -48,10 +50,8 @@ void main() {
 
   tearDown(() => db.close());
 
-  test(
-      'submitSession succeeds from the caller\'s point of view even when '
-      'offline — the session is queued in PendingSessions, not lost',
-      () async {
+  test('submitSession succeeds from the caller\'s point of view even when '
+      'offline — the session is queued in PendingSessions, not lost', () async {
     when(() => remote.submit(any())).thenAnswer(
       (_) async => throw DioException(
         requestOptions: RequestOptions(path: '/sessions'),
@@ -79,11 +79,45 @@ void main() {
   });
 
   test(
-      'submitSession marks the row synced once the background remote send '
+    'online submit returns server streak, offline submit returns no result',
+    () async {
+      SessionSubmitResult? online;
+      when(() => remote.submit(any())).thenAnswer(
+        (_) async => {
+          'badges_unlocked': <dynamic>[],
+          'streak': {'current': 4, 'longest': 9, 'extended_today': true},
+        },
+      );
+
+      await repository.submitSession(
+        _session(),
+        onSynced: (result) => online = result,
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(online?.streak?.current, 4);
+      expect(online?.streak?.extendedToday, isTrue);
+
+      SessionSubmitResult? offline;
+      when(() => remote.submit(any())).thenAnswer(
+        (_) async => throw DioException(
+          requestOptions: RequestOptions(path: '/sessions'),
+          type: DioExceptionType.connectionError,
+        ),
+      );
+      await repository.submitSession(
+        _session(clientId: 'offline'),
+        onSynced: (result) => offline = result,
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(offline, isNull);
+    },
+  );
+
+  test('submitSession marks the row synced once the background remote send '
       'succeeds', () async {
-    when(() => remote.submit(any())).thenAnswer(
-      (_) async => {'badges_unlocked': <dynamic>[]},
-    );
+    when(
+      () => remote.submit(any()),
+    ).thenAnswer((_) async => {'badges_unlocked': <dynamic>[]});
 
     final session = _session(clientId: 'client-2');
     await repository.submitSession(session);
@@ -93,8 +127,7 @@ void main() {
     expect(unsynced, isEmpty);
   });
 
-  test(
-      'a DUPLICATE_SESSION response (retry of an already-landed client_id) '
+  test('a DUPLICATE_SESSION response (retry of an already-landed client_id) '
       'is treated as synced, not left to retry forever', () async {
     when(() => remote.submit(any())).thenAnswer(
       (_) async => throw DioException(
