@@ -76,7 +76,6 @@ struct StreakWidgetView: View {
 
     var body: some View {
         ZStack(alignment: family == .systemSmall ? .bottom : .bottomTrailing) {
-            WidgetPalette.background(for: entry.bundleId)
             mascot
             if family == .systemMedium { mediumContent } else { smallContent }
         }
@@ -145,7 +144,10 @@ struct StreakWidget: Widget {
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: StreakProvider()) { entry in
-            StreakWidgetView(entry: entry).containerBackground(for: .widget) { Color.clear }
+            StreakWidgetView(entry: entry)
+                .containerBackground(for: .widget) {
+                    WidgetPalette.background(for: entry.bundleId)
+                }
         }
         .configurationDisplayName("BacaYu Streak")
         .description("Shows your BacaYu reading streak")
