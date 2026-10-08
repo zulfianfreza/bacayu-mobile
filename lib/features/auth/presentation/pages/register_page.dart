@@ -91,10 +91,10 @@ class _RegisterViewState extends State<_RegisterView> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                          l10n.appName,
-                          style: AppTypography.displaySm,
-                          textAlign: TextAlign.center,
+                        Image.asset(
+                          'assets/images/bacayu-logo.png',
+                          height: 52,
+                          semanticLabel: l10n.appName,
                         ),
                         const SizedBox(height: 8),
                         Text(

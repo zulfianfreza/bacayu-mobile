@@ -765,20 +765,10 @@ class _Watermark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Icon(Icons.menu_book, size: 14, color: _overlaySecondary),
-        const SizedBox(width: 4),
-        Text(
-          context.l10n.appName,
-          style: _overlayTextStyle(
-            theme,
-            AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
-            _overlaySecondary,
-          ),
-        ),
-      ],
+    return Image.asset(
+      'assets/images/bacayu-logo-white.png',
+      height: 20,
+      semanticLabel: context.l10n.appName,
     );
   }
 }
