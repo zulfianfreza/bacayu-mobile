@@ -702,7 +702,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearance => 'Appearance';
 
   @override
-  String get appearanceSystem => 'Follow system';
+  String get appearanceSystem => 'System';
 
   @override
   String get appearanceLight => 'Light';

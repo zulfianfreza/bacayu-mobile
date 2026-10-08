@@ -705,7 +705,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get appearance => 'Tampilan';
 
   @override
-  String get appearanceSystem => 'Ikuti sistem';
+  String get appearanceSystem => 'Sistem';
 
   @override
   String get appearanceLight => 'Terang';

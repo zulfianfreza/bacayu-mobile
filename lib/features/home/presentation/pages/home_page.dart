@@ -7,11 +7,9 @@ import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/navigation/full_screen_page.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/chunky_button.dart';
-import '../../../../core/widgets/raised_box.dart';
 import '../../../feed/domain/entities/activity.dart';
 import '../../../feed/presentation/cubit/feed_cubit.dart';
 import '../../../feed/presentation/cubit/feed_state.dart';
@@ -145,8 +143,8 @@ class _Header extends StatelessWidget {
     final greeting = hour >= 17
         ? l10n.greetingEvening
         : hour >= 12
-            ? l10n.greetingAfternoon
-            : l10n.greetingMorning;
+        ? l10n.greetingAfternoon
+        : l10n.greetingMorning;
 
     return Row(
       children: [
@@ -424,37 +422,33 @@ class _FindFriendsCta extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return RaisedBox(
-      color: context.colors.surface,
-      radius: AppRadius.lg,
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          const Icon(
-            Icons.people_outline,
-            size: 40,
-            color: AppColors.tangerine300,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.findFriendsHeadline,
-            style: AppTypography.heading,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.findFriendsBody,
-            style: AppTypography.body,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          ChunkyButton(
-            label: l10n.findFriends,
-            onPressed: () =>
-                pushFullScreen(context, (_) => const UserSearchPage()),
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        Image.asset(
+          'assets/icons/add-team-stroke.png',
+          width: 40,
+          height: 40,
+          color: AppColors.tangerine300,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          l10n.findFriendsHeadline,
+          style: AppTypography.heading,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          l10n.findFriendsBody,
+          style: AppTypography.body,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 20),
+        ChunkyButton(
+          label: l10n.findFriends,
+          onPressed: () =>
+              pushFullScreen(context, (_) => const UserSearchPage()),
+        ),
+      ],
     );
   }
 }

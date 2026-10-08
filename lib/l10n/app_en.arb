@@ -930,7 +930,7 @@
   "@appearance": {
     "description": "Profile settings list item — opens the light/dark/system picker"
   },
-  "appearanceSystem": "Follow system",
+  "appearanceSystem": "System",
   "@appearanceSystem": {
     "description": "Appearance picker option — track the device's light/dark setting"
   },

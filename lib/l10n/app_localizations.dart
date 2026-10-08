@@ -1391,7 +1391,7 @@ abstract class AppLocalizations {
   /// Appearance picker option — track the device's light/dark setting
   ///
   /// In en, this message translates to:
-  /// **'Follow system'**
+  /// **'System'**
   String get appearanceSystem;
 
   /// Appearance picker option — always use the light theme
