@@ -154,9 +154,10 @@ class _EmptyShelf extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.menu_book_outlined,
-              size: 48,
+            Image.asset(
+              'assets/icons/book-open-02-stroke.png',
+              width: 48,
+              height: 48,
               color: AppColors.tangerine300,
             ),
             const SizedBox(height: 16),

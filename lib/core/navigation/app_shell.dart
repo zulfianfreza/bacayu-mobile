@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/sessions/presentation/pages/session_start_page.dart';
@@ -11,15 +10,11 @@ import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
 import '../theme/build_context_extension.dart';
 
-/// Nav icons are assets rather than `IconData`, so the artwork can be swapped
-/// without touching this file. Replace the files in `assets/icons/` — they
-/// must be monochrome with a transparent background, because [_TintedIcon]
-/// recolors them per state.
-const _navHomeIcon = 'assets/icons/home-stroke.png';
-const _navShelfIcon = 'assets/icons/library-stroke.png';
-const _navStatsIcon = 'assets/icons/stats-stroke.png';
-const _navProfileIcon = 'assets/icons/user-stroke.png';
-const _navSessionIcon = 'assets/icons/record-alt-stroke.svg';
+const _navHomeIcon = 'assets/icons/icon-home.png';
+const _navShelfIcon = 'assets/icons/icon-shelf.png';
+const _navStatsIcon = 'assets/icons/icon-stats.png';
+const _navProfileIcon = 'assets/icons/icon-profile.png';
+const _navSessionIcon = 'assets/icons/icon-record.png';
 
 /// Root shell for the 4 primary tabs (Home/Shelf/Stats/Profile) — hosts
 /// go_router's [StatefulNavigationShell] so each tab keeps its own
@@ -120,7 +115,9 @@ class _AppBottomNavBar extends StatelessWidget {
       // its labels do — a hard 72 clips them the moment the text is scaled up.
       decoration: BoxDecoration(
         color: context.colors.surface,
-        border: Border(top: BorderSide(color: context.colors.hairline, width: 2)),
+        border: Border(
+          top: BorderSide(color: context.colors.hairline, width: 2),
+        ),
         // boxShadow: [
         //   BoxShadow(
         //     color: context.colors.hairline,
@@ -133,11 +130,13 @@ class _AppBottomNavBar extends StatelessWidget {
       // target would be under the 44px minimum.
       child: SafeArea(
         top: false,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: slots,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 60),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: slots,
+            ),
           ),
         ),
       ),
@@ -181,7 +180,7 @@ class _NavItem extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          _TintedIcon(asset: icon, color: color, size: 24),
+          Image.asset(icon, width: 24, height: 24, fit: BoxFit.contain),
           const SizedBox(height: 4),
           Text(
             label,
@@ -195,33 +194,6 @@ class _NavItem extends StatelessWidget {
           const SizedBox(height: 6),
         ],
       ),
-    );
-  }
-}
-
-/// Draws a monochrome asset in [color].
-///
-/// `srcIn` keeps the asset's alpha and replaces its colour outright, which is
-/// what lets one file serve both the active and inactive state.
-class _TintedIcon extends StatelessWidget {
-  const _TintedIcon({
-    required this.asset,
-    required this.color,
-    required this.size,
-  });
-
-  final String asset;
-  final Color color;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.asset(
-      asset,
-      width: size,
-      height: size,
-      color: color,
-      colorBlendMode: BlendMode.srcIn,
     );
   }
 }
@@ -240,11 +212,11 @@ class _StartSessionButton extends StatelessWidget {
         child: GestureDetector(
           onTap: onPressed,
           behavior: HitTestBehavior.opaque,
-          child: SvgPicture.asset(
+          child: Image.asset(
             _navSessionIcon,
             height: 40,
             width: 40,
-            colorFilter: ColorFilter.mode(AppColors.tangerine, BlendMode.srcIn),
+            fit: BoxFit.contain,
           ),
         ),
       ),

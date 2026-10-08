@@ -21,17 +21,26 @@ GoRouter _testRouter() {
         branches: [
           StatefulShellBranch(
             routes: [
-              GoRoute(path: '/home', builder: (_, _) => const Text('Home Page')),
+              GoRoute(
+                path: '/home',
+                builder: (_, _) => const Text('Home Page'),
+              ),
             ],
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: '/shelf', builder: (_, _) => const Text('Shelf Page')),
+              GoRoute(
+                path: '/shelf',
+                builder: (_, _) => const Text('Shelf Page'),
+              ),
             ],
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: '/stats', builder: (_, _) => const Text('Stats Page')),
+              GoRoute(
+                path: '/stats',
+                builder: (_, _) => const Text('Stats Page'),
+              ),
             ],
           ),
           StatefulShellBranch(
@@ -71,10 +80,8 @@ void main() {
   /// The slot that owns a tab is the bar's own height, so measuring it
   /// measures the bar.
   Rect tabSlot(WidgetTester tester, String label) => tester.getRect(
-        find
-            .ancestor(of: find.text(label), matching: find.byType(InkWell))
-            .first,
-      );
+    find.ancestor(of: find.text(label), matching: find.byType(InkWell)).first,
+  );
 
   int activeBranchIndex(WidgetTester tester) =>
       tester.widget<IndexedStack>(find.byType(IndexedStack)).index!;
@@ -123,32 +130,44 @@ void main() {
     expect(activeBranchIndex(tester), 0);
   });
 
-  testWidgets('every nav icon comes from an asset, not an IconData',
-      (tester) async {
+  testWidgets('every nav icon comes from an asset, not an IconData', (
+    tester,
+  ) async {
     await pumpShell(tester);
 
     // One per tab plus the session button.
-    expect(find.byType(Image), findsNWidgets(5));
+    final icons = tester.widgetList<Image>(find.byType(Image)).toList();
+    expect(icons, hasLength(5));
+    expect(icons.map((icon) => (icon.image as AssetImage).assetName), [
+      'assets/icons/icon-home.png',
+      'assets/icons/icon-shelf.png',
+      'assets/icons/icon-record.png',
+      'assets/icons/icon-stats.png',
+      'assets/icons/icon-profile.png',
+    ]);
+    expect(icons.every((icon) => icon.color == null), isTrue);
     expect(find.byIcon(Icons.play_arrow), findsNothing);
   });
 
-  testWidgets('the active tab is carried by colour alone — no pill behind it',
-      (tester) async {
+  testWidgets('the active tab is carried by colour alone — no pill behind it', (
+    tester,
+  ) async {
     await pumpShell(tester);
 
     final activeLabel = tester.widget<Text>(find.text('Home'));
     final inactiveLabel = tester.widget<Text>(find.text('Shelf'));
 
-    expect(activeLabel.style?.color, AppColors.tangerine700);
+    expect(activeLabel.style?.color, AppColors.tangerine);
     expect(activeLabel.style?.fontWeight, FontWeight.w700);
     expect(inactiveLabel.style?.color, AppColors.slate600);
 
-    // Icons follow the same two colours. Order in the bar is Home, Shelf,
-    // session, Stats, Profile.
-    final icons = tester.widgetList<Image>(find.byType(Image)).toList();
-    expect(icons[0].color, AppColors.tangerine700);
-    expect(icons[1].color, AppColors.slate600);
-    expect(icons[2].color, Colors.white);
+    // The artwork keeps its original colours in both states.
+    expect(
+      tester
+          .widgetList<Image>(find.byType(Image))
+          .every((icon) => icon.color == null),
+      isTrue,
+    );
   });
 
   testWidgets('the session button sits on the same line as the tabs, inside '
