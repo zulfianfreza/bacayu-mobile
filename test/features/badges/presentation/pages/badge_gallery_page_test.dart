@@ -9,24 +9,22 @@ import 'package:mobile/features/badges/domain/usecases/get_all_badges.dart';
 import 'package:mobile/features/badges/presentation/cubit/badge_cubit.dart';
 import 'package:mobile/features/badges/presentation/pages/badge_gallery_page.dart';
 import 'package:mobile/features/badges/presentation/widgets/badge_artwork.dart';
+import 'package:mobile/features/badges/presentation/widgets/badge_unlocked_modal.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockBadgeRepository extends Mock implements BadgeRepository {}
 
-Badge _badge(
-  String id, {
-  required bool unlocked,
-  String name = 'First Step',
-}) => Badge(
-  id: id,
-  name: name,
-  icon: '🎉',
-  description: 'A badge',
-  imageUrl: null,
-  unlocked: unlocked,
-  unlockedAt: unlocked ? DateTime(2026, 1, 1) : null,
-);
+Badge _badge(String id, {required bool unlocked, String name = 'First Step'}) =>
+    Badge(
+      id: id,
+      name: name,
+      icon: '🎉',
+      description: 'A badge',
+      imageUrl: null,
+      unlocked: unlocked,
+      unlockedAt: unlocked ? DateTime(2026, 1, 1) : null,
+    );
 
 void main() {
   late _MockBadgeRepository badgeRepository;
@@ -61,8 +59,9 @@ void main() {
   }
 
   void stubBadges(List<Badge> badges) {
-    when(() => badgeRepository.getAllBadges())
-        .thenAnswer((_) async => Right(badges));
+    when(
+      () => badgeRepository.getAllBadges(),
+    ).thenAnswer((_) async => Right(badges));
   }
 
   testWidgets('leads with how much of the set is collected', (tester) async {
@@ -98,6 +97,20 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('long pressing a badge previews its celebration in debug', (
+    tester,
+  ) async {
+    stubBadges([_badge('b1', unlocked: false)]);
+    await pumpGallery(tester);
+
+    await tester.longPress(find.text('First Step'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BadgeUnlockedModal), findsOneWidget);
+    expect(find.text('A badge'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('an empty set gets a message, not a blank page', (tester) async {
     stubBadges(const []);
 
@@ -109,8 +122,9 @@ void main() {
   });
 
   testWidgets('a failed load says so', (tester) async {
-    when(() => badgeRepository.getAllBadges())
-        .thenAnswer((_) async => const Left(CacheFailure()));
+    when(
+      () => badgeRepository.getAllBadges(),
+    ).thenAnswer((_) async => const Left(CacheFailure()));
 
     await pumpGallery(tester);
 

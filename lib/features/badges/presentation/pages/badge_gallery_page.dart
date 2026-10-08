@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,6 +13,7 @@ import '../../domain/entities/badge.dart';
 import '../cubit/badge_cubit.dart';
 import '../cubit/badge_state.dart';
 import '../widgets/badge_artwork.dart';
+import '../widgets/badge_unlocked_modal.dart';
 import '../../../../core/theme/build_context_extension.dart';
 
 class BadgeGalleryPage extends StatelessWidget {
@@ -36,19 +38,19 @@ class _BadgeGalleryView extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<BadgeCubit, BadgeState>(
           builder: (context, state) => switch (state) {
-            BadgeInitial() || BadgeLoading() => const Center(
-              child: CircularProgressIndicator(),
-            ),
+            BadgeInitial() ||
+            BadgeLoading() => const Center(child: CircularProgressIndicator()),
             BadgeError(:final failure) => _GalleryMessage(
               icon: Icons.cloud_off,
               text: failure.localizedMessage(context),
             ),
-            BadgeLoaded(:final badges) => badges.isEmpty
-                ? _GalleryMessage(
-                    icon: Icons.workspace_premium_outlined,
-                    text: context.l10n.noBadgesYet,
-                  )
-                : _Gallery(badges: badges),
+            BadgeLoaded(:final badges) =>
+              badges.isEmpty
+                  ? _GalleryMessage(
+                      icon: Icons.workspace_premium_outlined,
+                      text: context.l10n.noBadgesYet,
+                    )
+                  : _Gallery(badges: badges),
           },
         ),
       ),
@@ -156,46 +158,56 @@ class _BadgeCard extends StatelessWidget {
         ? context.colors.lagoonAccent
         : context.colors.textSecondary;
 
-    return BorderedCard(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          badge.unlocked
-              ? artwork
-              : ColorFiltered(
-                  colorFilter: _grayscale,
-                  child: Opacity(opacity: 0.45, child: artwork),
+    return GestureDetector(
+      onLongPress: kDebugMode
+          ? () => BadgeUnlockedModal.show(
+              context,
+              name: badge.name,
+              description: badge.description,
+              imageUrl: badge.imageUrl,
+            )
+          : null,
+      child: BorderedCard(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            badge.unlocked
+                ? artwork
+                : ColorFiltered(
+                    colorFilter: _grayscale,
+                    child: Opacity(opacity: 0.45, child: artwork),
+                  ),
+            const SizedBox(height: 10),
+            // Uncapped, like every other name in the app: it wraps rather than
+            // being cut.
+            Text(
+              badge.name,
+              style: AppTypography.subheading,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            // The state is said out loud, not carried by the greying alone.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  badge.unlocked
+                      ? Icons.check_circle_outline
+                      : Icons.lock_outline,
+                  size: 14,
+                  color: stateColor,
                 ),
-          const SizedBox(height: 10),
-          // Uncapped, like every other name in the app: it wraps rather than
-          // being cut.
-          Text(
-            badge.name,
-            style: AppTypography.subheading,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          // The state is said out loud, not carried by the greying alone.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                badge.unlocked
-                    ? Icons.check_circle_outline
-                    : Icons.lock_outline,
-                size: 14,
-                color: stateColor,
-              ),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(
-                  badge.unlocked ? l10n.badgeUnlocked : l10n.badgeLocked,
-                  style: AppTypography.caption.copyWith(color: stateColor),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    badge.unlocked ? l10n.badgeUnlocked : l10n.badgeLocked,
+                    style: AppTypography.caption.copyWith(color: stateColor),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

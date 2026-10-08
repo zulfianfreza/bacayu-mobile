@@ -26,6 +26,7 @@ import 'package:mobile/features/social/presentation/pages/user_search_page.dart'
 import 'package:mobile/features/stats/domain/entities/daily_stat.dart';
 import 'package:mobile/features/stats/domain/repositories/stats_repository.dart';
 import 'package:mobile/features/stats/domain/usecases/get_heatmap.dart';
+import 'package:mobile/features/stats/presentation/widgets/streak_modal.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -208,6 +209,20 @@ void main() {
     expect(find.text('Cari teman baca'), findsOneWidget);
     expect(find.text('Cari teman'), findsOneWidget);
     expect(find.byType(ActivityAuthorHeader), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('long pressing the streak card previews its modal in debug', (
+    tester,
+  ) async {
+    stubFeed(const []);
+    await pumpHome(tester);
+
+    await tester.longPress(find.text('3'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(StreakModal), findsOneWidget);
+    expect(find.text('Streak bertambah!'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

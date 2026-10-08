@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide Badge;
 
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'badge_artwork.dart';
 import '../../../../core/theme/build_context_extension.dart';
@@ -32,20 +31,25 @@ class BadgeUnlockedModal extends StatefulWidget {
   /// [BadgeArtwork]'s placeholder stands in.
   final String? imageUrl;
 
-  /// Shows the modal as a dialog over [context].
+  /// Shows the celebration over [context].
   static Future<void> show(
     BuildContext context, {
     required String name,
     required String description,
     String? imageUrl,
   }) {
-    return showDialog<void>(
+    return showGeneralDialog<void>(
       context: context,
-      builder: (_) => BadgeUnlockedModal(
+      barrierDismissible: false,
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 350),
+      pageBuilder: (_, _, _) => BadgeUnlockedModal(
         name: name,
         description: description,
         imageUrl: imageUrl,
       ),
+      transitionBuilder: (_, animation, _, child) =>
+          FadeTransition(opacity: animation, child: child),
     );
   }
 
@@ -59,10 +63,12 @@ class _BadgeUnlockedModalState extends State<BadgeUnlockedModal>
     vsync: this,
     duration: const Duration(milliseconds: 400),
   );
-  late final Animation<double> _scale = CurvedAnimation(
-    parent: _controller,
-    // Pop-in with a slight overshoot, per Style Guide Section 6.4/7.
-    curve: Curves.easeOutBack,
+  late final Animation<double> _scale = Tween(begin: 0.7, end: 1.0).animate(
+    CurvedAnimation(
+      parent: _controller,
+      // Pop-in with a slight overshoot, per Style Guide Section 6.4/7.
+      curve: Curves.easeOutBack,
+    ),
   );
 
   @override
@@ -81,41 +87,57 @@ class _BadgeUnlockedModalState extends State<BadgeUnlockedModal>
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: ScaleTransition(
-        scale: _scale,
-        child: Container(
+    return Scaffold(
+      backgroundColor: context.colors.sunshineTint,
+      body: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: context.colors.sunshineTint,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-          ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              BadgeArtwork(imageUrl: widget.imageUrl, size: 96),
-              const SizedBox(height: 12),
-              Text(
-                l10n.newBadge,
-                style: AppTypography.caption.copyWith(color: context.colors.sunshineAccent),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                widget.name,
-                style: AppTypography.heading,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                widget.description,
-                style: AppTypography.body,
-                textAlign: TextAlign.center,
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ScaleTransition(
+                          scale: _scale,
+                          child: BadgeArtwork(
+                            imageUrl: widget.imageUrl,
+                            size: 200,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          l10n.newBadge,
+                          style: AppTypography.caption.copyWith(
+                            color: context.colors.sunshineAccent,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.name,
+                          style: AppTypography.heading,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.description,
+                          style: AppTypography.body,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(l10n.awesome),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(l10n.awesome),
+                ),
               ),
             ],
           ),

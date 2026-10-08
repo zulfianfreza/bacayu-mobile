@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -20,6 +21,7 @@ import '../../../shelf/domain/entities/user_book.dart';
 import '../../../shelf/presentation/widgets/shelf_book_card.dart';
 import '../../../social/presentation/pages/user_search_page.dart';
 import '../../../stats/domain/entities/daily_stat.dart';
+import '../../../stats/presentation/widgets/streak_modal.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../../../../core/theme/build_context_extension.dart';
@@ -111,6 +113,7 @@ class _HomeViewState extends State<_HomeView> {
                     const SizedBox(height: 20),
                     _StreakCard(
                       currentStreak: state.currentStreak,
+                      longestStreak: state.longestStreak,
                       last7Days: state.last7Days,
                     ),
                     const SizedBox(height: 24),
@@ -187,44 +190,58 @@ class _SearchPeopleButton extends StatelessWidget {
 /// The streak and the week that feeds it, in one card: the number is the
 /// headline, the strip underneath is the evidence for it.
 class _StreakCard extends StatelessWidget {
-  const _StreakCard({required this.currentStreak, required this.last7Days});
+  const _StreakCard({
+    required this.currentStreak,
+    required this.longestStreak,
+    required this.last7Days,
+  });
 
   final int currentStreak;
+  final int longestStreak;
   final List<DailyStat> last7Days;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return BorderedCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Image.asset(
-                'assets/images/day-streak.png',
-                width: 64,
-                height: 64,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$currentStreak',
-                      style: AppTypography.displayLg.copyWith(fontSize: 36),
-                    ),
-                    Text(l10n.dayStreak, style: AppTypography.caption),
-                  ],
+    return GestureDetector(
+      onLongPress: kDebugMode
+          ? () => StreakModal.show(
+              context,
+              current: currentStreak,
+              longest: longestStreak,
+            )
+          : null,
+      child: BorderedCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  'assets/images/day-streak.png',
+                  width: 64,
+                  height: 64,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _WeekStrip(last7Days: last7Days),
-        ],
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$currentStreak',
+                        style: AppTypography.displayLg.copyWith(fontSize: 36),
+                      ),
+                      Text(l10n.dayStreak, style: AppTypography.caption),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _WeekStrip(last7Days: last7Days),
+          ],
+        ),
       ),
     );
   }

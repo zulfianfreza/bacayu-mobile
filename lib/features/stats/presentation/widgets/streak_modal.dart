@@ -6,7 +6,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/build_context_extension.dart';
 
-class StreakModal extends StatelessWidget {
+class StreakModal extends StatefulWidget {
   const StreakModal({super.key, required this.current, required this.longest});
 
   final int current;
@@ -16,44 +16,106 @@ class StreakModal extends StatelessWidget {
     BuildContext context, {
     required int current,
     required int longest,
-  }) => showDialog<void>(
+  }) => showGeneralDialog<void>(
     context: context,
-    builder: (_) => StreakModal(current: current, longest: longest),
+    barrierDismissible: false,
+    barrierColor: Colors.black54,
+    transitionDuration: const Duration(milliseconds: 350),
+    pageBuilder: (_, _, _) => StreakModal(current: current, longest: longest),
+    transitionBuilder: (_, animation, _, child) =>
+        FadeTransition(opacity: animation, child: child),
   );
+
+  @override
+  State<StreakModal> createState() => _StreakModalState();
+}
+
+class _StreakModalState extends State<StreakModal>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 450),
+  );
+  late final Animation<double> _scale = Tween(
+    begin: 0.7,
+    end: 1.0,
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.local_fire_department_rounded,
-              color: AppColors.tangerine,
-              size: 48,
-            ),
-            const SizedBox(height: 8),
-            Text(l10n.streakExtendedTitle, style: AppTypography.heading),
-            const SizedBox(height: 12),
-            Text('$current', style: AppTypography.displayLg),
-            Text(l10n.dayStreak, style: context.captionStyle),
-            const SizedBox(height: 12),
-            Text(l10n.longestStreakDays(longest), style: context.captionStyle),
-            const SizedBox(height: 20),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.tangerine,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.md),
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ScaleTransition(
+                          scale: _scale,
+                          child: Image.asset(
+                            'assets/images/day-streak.png',
+                            width: 200,
+                            height: 245,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          l10n.streakExtendedTitle,
+                          style: AppTypography.heading,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '${widget.current}',
+                          style: AppTypography.displayLg,
+                        ),
+                        Text(l10n.dayStreak, style: context.captionStyle),
+                        const SizedBox(height: 12),
+                        Text(
+                          l10n.longestStreakDays(widget.longest),
+                          style: context.captionStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              child: Text(l10n.awesome),
-            ),
-          ],
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.tangerine,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                    ),
+                  ),
+                  child: Text(l10n.awesome),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

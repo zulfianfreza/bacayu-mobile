@@ -13,8 +13,9 @@ void main() {
     );
   }
 
-  testWidgets('renders the badge content and plays its pop-in animation',
-      (tester) async {
+  testWidgets('renders the badge content and plays its pop-in animation', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       wrap(
         const BadgeUnlockedModal(
@@ -38,16 +39,23 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('You started your first session'), findsOneWidget);
-
-    // Right after the first frame, the pop-in animation (easeOutBack,
-    // 400ms) hasn't reached rest yet. Scoped to a descendant of our widget
-    // specifically — MaterialApp's default route transition also uses a
-    // ScaleTransition of its own.
-    final scaleTransition = tester.widget<ScaleTransition>(
+    expect(find.byType(Dialog), findsNothing);
+    expect(
       find.descendant(
         of: find.byType(BadgeUnlockedModal),
-        matching: find.byType(ScaleTransition),
+        matching: find.byType(Scaffold),
       ),
+      findsOneWidget,
+    );
+
+    // Right after the first frame, the pop-in animation (easeOutBack,
+    // 400ms) hasn't reached rest yet. The route also has a ScaleTransition,
+    // so check the one immediately wrapping the badge artwork.
+    final scaleTransition = tester.widget<ScaleTransition>(
+      find.ancestor(
+        of: find.byType(BadgeArtwork),
+        matching: find.byType(ScaleTransition),
+      ).first,
     );
     expect(scaleTransition.scale.value, lessThan(1.0));
 
@@ -57,8 +65,9 @@ void main() {
     expect(scaleTransition.scale.value, closeTo(1.0, 0.01));
   });
 
-  testWidgets('show() displays the modal, and the dismiss button closes it',
-      (tester) async {
+  testWidgets('show() displays the modal, and the dismiss button closes it', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       wrap(
         Builder(
