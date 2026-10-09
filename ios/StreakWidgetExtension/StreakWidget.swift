@@ -158,3 +158,17 @@ struct StreakWidget: Widget {
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
+
+#Preview("Small", as: .systemSmall) {
+    StreakWidget()
+} timeline: {
+    StreakEntry(date: .now, currentStreak: 0, weeklyHeatmap: [false,false,false,true,false,false,false], bundleId: "repair_a", message: "Nggak apa-apa, coba lagi", mascotName: "mascot_calm_a")
+    StreakEntry(date: .now, currentStreak: 5, weeklyHeatmap: [true,true,false,true,true,true,false], bundleId: "calm_a", message: "Bacaaa yuk!", mascotName: "mascot_calm_a")
+}
+
+#Preview("Medium", as: .systemMedium) {
+    StreakWidget()
+} timeline: {
+    StreakEntry(date: .now, currentStreak: 0, weeklyHeatmap: [false,false,false,true,false,false,false], bundleId: "repair_a", message: "Nggak apa-apa, coba lagi", mascotName: "mascot_calm_a")
+    StreakEntry(date: .now, currentStreak: 12, weeklyHeatmap: [true,true,true,true,true,true,true], bundleId: "done_c", message: "Hebat hari ini!", mascotName: "mascot_calm_b")
+}
