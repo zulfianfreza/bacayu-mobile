@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/di/injection.dart';
 import 'package:mobile/core/error/failure.dart';
+import 'package:mobile/core/theme/app_radius.dart';
+import 'package:mobile/core/widgets/raised_box.dart';
 import 'package:mobile/features/books/domain/entities/book.dart';
 import 'package:mobile/features/books/domain/repositories/book_repository.dart';
 import 'package:mobile/features/books/domain/usecases/get_book_detail.dart';
@@ -144,6 +146,29 @@ void main() {
   double compactHeight(WidgetTester tester) =>
       tester.getSize(find.byType(ShelfBookCard)).height;
 
+  testWidgets('cover is clipped to the inside of the rounded card border', (
+    tester,
+  ) async {
+    await tester.pumpWidget(wrap(_userBook()));
+
+    final material = tester.widget<Material>(
+      find
+          .descendant(
+            of: find.byType(ShelfBookCard),
+            matching: find.byType(Material),
+          )
+          .first,
+    );
+    expect(material.clipBehavior, Clip.antiAlias);
+    expect(
+      material.borderRadius,
+      const BorderRadius.vertical(
+        top: Radius.circular(AppRadius.md - RaisedBox.outlineWidth),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'tapping the cover/title area navigates to BookDetailPage with the '
     "book's id",
@@ -229,7 +254,7 @@ void main() {
   });
 
   testWidgets(
-    'tapping the status chip opens StatusPickerBottomSheet, and does NOT '
+    'tapping the status control opens StatusPickerBottomSheet, and does NOT '
     'navigate to BookDetailPage',
     (tester) async {
       await tester.pumpWidget(wrap(_userBook(status: ShelfStatus.reading)));
@@ -242,6 +267,24 @@ void main() {
       expect(find.byType(BookDetailPage), findsNothing);
     },
   );
+
+  testWidgets('status is a full-width action below the book content', (
+    tester,
+  ) async {
+    for (final status in ShelfStatus.values) {
+      await tester.pumpWidget(wrap(_userBook(status: status)));
+      final arrow = find.byIcon(Icons.keyboard_arrow_down_rounded);
+      expect(arrow, findsOneWidget);
+      final action = find.ancestor(of: arrow, matching: find.byType(InkWell));
+      expect(tester.getSize(action).width, greaterThan(140));
+      expect(tester.getSize(action).height, greaterThanOrEqualTo(48));
+      expect(
+        tester.getTopLeft(action).dy,
+        greaterThan(tester.getBottomLeft(find.text('Atomic Habits')).dy),
+      );
+      expect(tester.takeException(), isNull);
+    }
+  });
 
   testWidgets(
     'compact variant is as tall as its content, and drops the redundant '

@@ -10,6 +10,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/chunky_button.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../badges/presentation/widgets/badge_unlocked_modal.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../domain/entities/unlocked_badge.dart';
@@ -178,9 +179,7 @@ class _ManualSessionViewState extends State<_ManualSessionView> {
           listener: (context, state) {
             switch (state) {
               case ManualSessionSubmitted():
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(l10n.sessionSaved)));
+                context.showAppSnackBar(l10n.sessionSaved);
                 _leave(context);
               case ManualSessionError(:final failure):
                 context.showFailureSnackBar(failure);

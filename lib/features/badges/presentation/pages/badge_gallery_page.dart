@@ -71,6 +71,10 @@ class _Gallery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final unlocked = badges.where((badge) => badge.unlocked).length;
+    final orderedBadges = [
+      ...badges.where((badge) => badge.unlocked),
+      ...badges.where((badge) => !badge.unlocked),
+    ];
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -88,7 +92,7 @@ class _Gallery extends StatelessWidget {
                     if (i > 0) const SizedBox(width: 12),
                     Expanded(
                       child: start + i < badges.length
-                          ? _BadgeCard(badge: badges[start + i])
+                          ? _BadgeCard(badge: orderedBadges[start + i])
                           : const SizedBox.shrink(),
                     ),
                   ],

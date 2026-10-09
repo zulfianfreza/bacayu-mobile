@@ -5,6 +5,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../social/domain/entities/activity_visibility.dart';
 import '../../../social/domain/usecases/update_activity_visibility.dart';
 import '../../../social/presentation/widgets/comments_bottom_sheet.dart';
@@ -115,9 +116,7 @@ class ActivityVisibilityMenu extends StatelessWidget {
     if (!context.mounted) return;
     result.fold(
       (failure) => context.showFailureSnackBar(failure),
-      (_) => ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.visibilityUpdated))),
+      (_) => context.showAppSnackBar(l10n.visibilityUpdated),
     );
   }
 

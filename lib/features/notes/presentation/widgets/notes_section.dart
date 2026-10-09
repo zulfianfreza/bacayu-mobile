@@ -8,6 +8,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/build_context_extension.dart';
 import '../../../../core/utils/relative_time.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../domain/entities/note.dart';
 import '../cubit/notes_cubit.dart';
@@ -66,7 +67,7 @@ class _NotesView extends StatelessWidget {
       context.showFailureSnackBar(failure);
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    context.showAppSnackBar(message);
   }
 
   @override
@@ -83,37 +84,34 @@ class _NotesView extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(top: 16),
           child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(l10n.notesTitle, style: AppTypography.heading),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => _openEditor(context),
-                      icon: const Icon(Icons.add, size: 18),
-                      label: Text(l10n.addNote),
-                    ),
-                  ],
-                ),
-                if (notes.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4, bottom: 12),
-                    child: Text(
-                      l10n.notesEmptyBody,
-                      style: context.captionStyle,
-                    ),
-                  )
-                else
-                  for (var i = 0; i < notes.length; i++) ...[
-                    if (i > 0) Divider(height: 1, color: context.colors.hairline),
-                    _NoteTile(
-                      note: notes[i],
-                      onTap: () => _openEditor(context, note: notes[i]),
-                    ),
-                  ],
-              ],
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(l10n.notesTitle, style: AppTypography.heading),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _openEditor(context),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: Text(l10n.addNote),
+                  ),
+                ],
+              ),
+              if (notes.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, bottom: 12),
+                  child: Text(l10n.notesEmptyBody, style: context.captionStyle),
+                )
+              else
+                for (var i = 0; i < notes.length; i++) ...[
+                  if (i > 0) Divider(height: 1, color: context.colors.hairline),
+                  _NoteTile(
+                    note: notes[i],
+                    onTap: () => _openEditor(context, note: notes[i]),
+                  ),
+                ],
+            ],
           ),
         );
       },

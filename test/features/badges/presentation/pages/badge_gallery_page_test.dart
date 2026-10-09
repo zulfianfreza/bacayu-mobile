@@ -97,6 +97,33 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('unlocked badges come first while preserving each group order', (
+    tester,
+  ) async {
+    final badges = [
+      _badge('b1', unlocked: false, name: 'Locked first'),
+      _badge('b2', unlocked: true, name: 'Unlocked first'),
+      _badge('b3', unlocked: false, name: 'Locked second'),
+      _badge('b4', unlocked: true, name: 'Unlocked second'),
+    ];
+    stubBadges(badges);
+    await pumpGallery(tester);
+
+    final names = tester
+        .widgetList<Text>(find.byType(Text))
+        .map((text) => text.data)
+        .where((name) => badges.any((badge) => badge.name == name))
+        .toList();
+    expect(names, [
+      'Unlocked first',
+      'Unlocked second',
+      'Locked first',
+      'Locked second',
+    ]);
+    expect(badges.first.name, 'Locked first');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('long pressing a badge previews its celebration in debug', (
     tester,
   ) async {

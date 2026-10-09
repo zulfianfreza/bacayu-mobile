@@ -10,6 +10,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/chunky_button.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_text_field.dart';
@@ -50,16 +51,14 @@ class _LoginViewState extends State<_LoginView> {
     // (see `SessionExpiredHandler`/`forceLogout`), that state transition
     // already happened before this page (and its BlocConsumer listener
     // below) even existed, so a plain `listener:` would never see it. Check
-    // the CURRENT state once, post-frame so a Scaffold/ScaffoldMessenger
+    // the CURRENT state once, post-frame so an Overlay
     // exists to show it in.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final state = context.read<AuthCubit>().state;
       if (state is AuthUnauthenticated &&
           state.reason == UnauthenticatedReason.sessionExpired) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.sessionExpired)));
+        context.showAppSnackBar(context.l10n.sessionExpired);
       }
     });
   }

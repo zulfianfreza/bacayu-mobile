@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../error/failure.dart';
 import '../error/failure_localizer.dart';
+import 'app_snack_bar.dart';
 
 /// The one place every "show a snackbar for a failed operation" call site
 /// in the app funnels through — used from a `BlocListener`/`BlocConsumer`
@@ -15,8 +16,6 @@ import '../error/failure_localizer.dart';
 extension FailureSnackBar on BuildContext {
   void showFailureSnackBar(Failure failure) {
     if (failure is SessionExpiredFailure) return;
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(content: Text(failure.localizedMessage(this))),
-    );
+    showAppSnackBar(failure.localizedMessage(this));
   }
 }

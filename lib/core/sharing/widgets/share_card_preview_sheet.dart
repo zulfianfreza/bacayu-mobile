@@ -9,6 +9,7 @@ import '../../theme/app_radius.dart';
 import '../../theme/app_typography.dart';
 import '../../theme/build_context_extension.dart';
 import '../../widgets/chunky_button.dart';
+import '../../widgets/app_snack_bar.dart';
 import '../../widgets/sheet_header.dart';
 import '../models/session_share_data.dart';
 import '../models/share_card_theme.dart';
@@ -135,9 +136,7 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
       );
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.shareFailed)));
+      context.showAppSnackBar(context.l10n.shareFailed);
     } finally {
       if (mounted) setState(() => _busyAction = null);
     }
@@ -147,23 +146,18 @@ class _ShareCardPreviewSheetState extends State<ShareCardPreviewSheet> {
     if (_busyAction != null) return;
     setState(() => _busyAction = _Action.download);
 
-    // Captured before the first await: the confirmation belongs to the screen
-    // underneath, which is what the user sees once this sheet closes.
-    final messenger = ScaffoldMessenger.of(context);
     final savedMessage = context.l10n.savedToGallery;
 
     try {
       final bytes = await _captureActivePage();
       await _service.downloadSessionCard(bytes);
       if (!mounted) return;
+      context.showAppSnackBar(savedMessage);
       Navigator.of(context).pop();
-      messenger.showSnackBar(SnackBar(content: Text(savedMessage)));
     } catch (_) {
       if (!mounted) return;
       setState(() => _busyAction = null);
-      messenger.showSnackBar(
-        SnackBar(content: Text(context.l10n.saveImageFailed)),
-      );
+      context.showAppSnackBar(context.l10n.saveImageFailed);
     }
   }
 

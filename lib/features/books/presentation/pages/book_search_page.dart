@@ -10,6 +10,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../shelf/domain/usecases/add_to_shelf.dart';
 import '../../domain/entities/book.dart';
 import '../bloc/book_search_bloc.dart';
@@ -53,9 +54,7 @@ class _BookSearchViewState extends State<_BookSearchView> {
     if (!context.mounted) return;
     result.fold(
       (failure) => context.showFailureSnackBar(failure),
-      (_) => ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.bookAddedToShelf))),
+      (_) => context.showAppSnackBar(l10n.bookAddedToShelf),
     );
   }
 
@@ -112,10 +111,7 @@ class _BookSearchViewState extends State<_BookSearchView> {
                   ),
                   border: _fieldBorder(context.colors.hairline),
                   enabledBorder: _fieldBorder(context.colors.hairline),
-                  focusedBorder: _fieldBorder(
-                    AppColors.tangerine,
-                    width: 2.5,
-                  ),
+                  focusedBorder: _fieldBorder(AppColors.tangerine, width: 2.5),
                 ),
                 onChanged: (query) => context.read<BookSearchBloc>().add(
                   SearchQueryChanged(query),

@@ -58,18 +58,11 @@ class ActivityAuthorHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      name,
-                      style: AppTypography.bodyStrong,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  ?trailing,
-                ],
+              Text(
+                name,
+                style: AppTypography.bodyStrong,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               Text(
                 formatRelativeTime(
@@ -82,6 +75,7 @@ class ActivityAuthorHeader extends StatelessWidget {
             ],
           ),
         ),
+        ?trailing,
       ],
     );
   }

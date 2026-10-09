@@ -4,6 +4,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/widgets/chunky_button.dart';
 import '../../../../core/widgets/number_stepper.dart';
 import '../../../auth/domain/entities/user.dart';
@@ -35,9 +36,7 @@ class _ReadingGoalsPageState extends State<ReadingGoalsPage> {
     );
     if (!mounted) return;
     result.fold((failure) => setState(() => _isSaving = false), (_) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.goalsUpdated)));
+      context.showAppSnackBar(context.l10n.goalsUpdated);
       Navigator.of(context).pop(true);
     });
   }

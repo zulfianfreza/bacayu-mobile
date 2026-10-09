@@ -17,11 +17,9 @@ import 'status_picker_bottom_sheet.dart';
 
 /// One book on the shelf: cover on top, everything else under it.
 ///
-/// The card and the status chip each own their own tap target — NEVER nest one
-/// inside the other's `InkWell`. A tap landing inside the chip must only open
+/// The book and status control each own their own tap target. A status tap opens
 /// [StatusPickerBottomSheet], never also navigate to [BookDetailPage] (and
-/// vice versa); the chip is a sibling stacked over the card for exactly that
-/// reason, so the topmost hit always wins outright.
+/// vice versa); the controls sit below the book's navigation area.
 class ShelfBookCard extends StatelessWidget {
   const ShelfBookCard({super.key, required this.userBook}) : compact = false;
 
@@ -92,6 +90,11 @@ class ShelfBookCard extends StatelessWidget {
         // Transparent so the white body still shows through, but the tile's
         // own tap ripple has something to paint on.
         type: MaterialType.transparency,
+        // The cover follows the inner edge, not the outer card radius.
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppRadius.md - RaisedBox.outlineWidth),
+        ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -114,7 +117,7 @@ class ShelfBookCard extends StatelessWidget {
                               ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -140,7 +143,7 @@ class ShelfBookCard extends StatelessWidget {
                                   value: (userBook.currentPage / totalPages)
                                       .clamp(0, 1)
                                       .toDouble(),
-                                  minHeight: 4,
+                                  minHeight: 6,
                                   backgroundColor: context.colors.hairline,
                                   color: AppColors.lagoon500,
                                 ),
@@ -160,16 +163,6 @@ class ShelfBookCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Sits on the cover rather than in the text column: it is a
-                // badge, and a tile this narrow has no vertical room to spare.
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: _StatusChip(
-                    status: userBook.status,
-                    onTap: () => _openStatusPicker(context),
-                  ),
-                ),
                 if (userBook.readCount > 1)
                   Positioned(
                     top: 8,
@@ -178,11 +171,18 @@ class ShelfBookCard extends StatelessWidget {
                   ),
               ],
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: _StatusControl(
+                status: userBook.status,
+                onTap: () => _openStatusPicker(context),
+              ),
+            ),
             // A sibling of the tap-area, never inside it: this tap must only
             // open the confirmation sheet, not also open the book detail.
             if (userBook.status == ShelfStatus.finished)
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                 child: _RereadButton(onPressed: () => _openReread(context)),
               ),
           ],
@@ -278,51 +278,79 @@ class ShelfBookCard extends StatelessWidget {
   }
 }
 
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status, this.onTap});
+class _StatusControl extends StatelessWidget {
+  const _StatusControl({required this.status, required this.onTap});
 
   final ShelfStatus status;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final (label, background, foreground) = switch (status) {
+    final (label, background, foreground, icon) = switch (status) {
       ShelfStatus.wantToRead => (
         l10n.statusWantToRead,
         context.colors.hairline,
         context.colors.textSecondary,
+        Icons.bookmark_outline_rounded,
       ),
       ShelfStatus.reading => (
         l10n.statusReading,
         context.colors.lagoonTint,
         context.colors.lagoonAccent,
+        Icons.auto_stories_rounded,
       ),
       ShelfStatus.finished => (
         l10n.statusFinished,
         context.colors.sunshineTint,
         context.colors.sunshineAccent,
+        Icons.check_circle_outline_rounded,
       ),
       ShelfStatus.dnf => (
         l10n.statusDnf,
         context.colors.hairline,
         context.colors.textSecondary,
+        Icons.pause_circle_outline_rounded,
       ),
     };
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.pill),
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-          ),
-          child: Text(
-            label,
-            style: AppTypography.caption.copyWith(color: foreground),
+    return Semantics(
+      button: true,
+      label: l10n.changeStatus,
+      child: RaisedBox(
+        color: background,
+        radius: AppRadius.md,
+        edgeHeight: 3,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 48),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: Row(
+                children: [
+                  Icon(icon, size: 18, color: foreground),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: AppTypography.caption.copyWith(
+                        color: foreground,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 18,
+                    color: foreground,
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -348,7 +376,7 @@ class _CoverPlaceholder extends StatelessWidget {
 }
 
 /// A small neutral pill marking a book read more than once. Deliberately flat
-/// and uncoloured: it must not compete with the status chip it sits opposite.
+/// and uncoloured so the cover remains the focus.
 class _RereadBadge extends StatelessWidget {
   const _RereadBadge({required this.count});
 

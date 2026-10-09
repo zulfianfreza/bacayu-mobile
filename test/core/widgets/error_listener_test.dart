@@ -22,38 +22,41 @@ void main() {
     );
   }
 
-  testWidgets('SessionExpiredFailure is skipped — no snackbar shown',
-      (tester) async {
+  testWidgets('SessionExpiredFailure is skipped — no snackbar shown', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap(const SessionExpiredFailure()));
 
     await tester.tap(find.text('trigger'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.byType(SnackBar), findsNothing);
+    expect(find.byType(Dismissible), findsNothing);
   });
 
-  testWidgets('NetworkFailure still shows its localized snackbar',
-      (tester) async {
+  testWidgets('NetworkFailure still shows its localized snackbar', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap(const NetworkFailure()));
 
     await tester.tap(find.text('trigger'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.byType(Dismissible), findsOneWidget);
   });
 
-  testWidgets('ServerFailure still shows its localized snackbar',
-      (tester) async {
-    await tester.pumpWidget(wrap(
-      const ServerFailure(code: 'SESSION_NOT_FOUND', message: 'fallback'),
-    ));
+  testWidgets('ServerFailure still shows its localized snackbar', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrap(const ServerFailure(code: 'SESSION_NOT_FOUND', message: 'fallback')),
+    );
 
     await tester.tap(find.text('trigger'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.byType(Dismissible), findsOneWidget);
   });
 }

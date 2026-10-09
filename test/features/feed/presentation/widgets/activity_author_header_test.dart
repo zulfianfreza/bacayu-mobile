@@ -37,6 +37,32 @@ void main() {
     expect(find.text('2h ago'), findsOneWidget);
   });
 
+  testWidgets('a menu does not increase the gap between name and time', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrap(
+        ActivityAuthorHeader(
+          name: 'Julian',
+          occurredAt: twoHoursAgo,
+          trailing: IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.more_vert),
+          ),
+        ),
+      ),
+    );
+
+    final nameBottom = tester.getBottomLeft(find.text('Julian')).dy;
+    final timeTop = tester.getTopLeft(find.text('2h ago')).dy;
+    expect(timeTop - nameBottom, closeTo(0, 0.1));
+    expect(
+      tester.getSize(find.byType(IconButton)).height,
+      greaterThanOrEqualTo(48),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('uses the picture when there is one, and drops the initial', (
     tester,
   ) async {
