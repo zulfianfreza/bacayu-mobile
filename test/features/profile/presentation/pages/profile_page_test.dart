@@ -2,6 +2,10 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/di/injection.dart';
+import 'package:mobile/core/widgets/bordered_card.dart';
+import 'package:mobile/features/feed/presentation/widgets/badge_activity_card.dart';
+import 'package:mobile/features/feed/presentation/widgets/activity_author_header.dart';
+import 'package:mobile/features/feed/presentation/widgets/activity_card_footer.dart';
 import 'package:mobile/features/auth/domain/entities/user.dart';
 import 'package:mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:mobile/features/auth/domain/usecases/get_current_user.dart';
@@ -35,49 +39,49 @@ class _MockSocialRepository extends Mock implements SocialRepository {}
 class _MockFeedRepository extends Mock implements FeedRepository {}
 
 User _user() => User(
-      id: 'u1',
-      email: 'reader@bacayu.app',
-      name: 'Julian',
-      avatarUrl: '',
-      timezone: 'UTC',
-      favoriteGenres: const [],
-      yearlyGoalBooks: null,
-      dailyGoalMinutes: null,
-      currentStreak: 3,
-      longestStreak: 5,
-      lastReadDate: null,
-      privacyDefault: 'private',
-      onboardingCompletedAt: DateTime(2026, 1, 1),
-      createdAt: DateTime(2026, 1, 1),
-      updatedAt: DateTime(2026, 1, 1),
-    );
+  id: 'u1',
+  email: 'reader@bacayu.app',
+  name: 'Julian',
+  avatarUrl: '',
+  timezone: 'UTC',
+  favoriteGenres: const [],
+  yearlyGoalBooks: null,
+  dailyGoalMinutes: null,
+  currentStreak: 3,
+  longestStreak: 5,
+  lastReadDate: null,
+  privacyDefault: 'private',
+  onboardingCompletedAt: DateTime(2026, 1, 1),
+  createdAt: DateTime(2026, 1, 1),
+  updatedAt: DateTime(2026, 1, 1),
+);
 
 Badge _badge(String id, {required bool unlocked}) => Badge(
-      id: id,
-      name: 'Badge $id',
-      icon: '🏅',
-      description: 'A badge',
-      imageUrl: null,
-      unlocked: unlocked,
-      unlockedAt: unlocked ? DateTime(2026, 1, 1) : null,
-    );
+  id: id,
+  name: 'Badge $id',
+  icon: '🏅',
+  description: 'A badge',
+  imageUrl: null,
+  unlocked: unlocked,
+  unlockedAt: unlocked ? DateTime(2026, 1, 1) : null,
+);
 
 Activity _activity(String bookTitle) => Activity(
-      id: 'act-1',
-      author: const ActivityAuthor(id: 'u1', name: 'Julian', avatarUrl: null),
-      occurredAt: DateTime(2026, 1, 1),
-      payload: SessionActivityPayload(
-        bookId: 'book-1',
-        bookTitle: bookTitle,
-        bookCoverUrl: null,
-        pagesRead: 20,
-        speedPpm: 1.2,
-        activeDurationSeconds: 600,
-      ),
-      likeCount: 2,
-      commentCount: 3,
-      isLiked: false,
-    );
+  id: 'act-1',
+  author: const ActivityAuthor(id: 'u1', name: 'Julian', avatarUrl: null),
+  occurredAt: DateTime(2026, 1, 1),
+  payload: SessionActivityPayload(
+    bookId: 'book-1',
+    bookTitle: bookTitle,
+    bookCoverUrl: null,
+    pagesRead: 20,
+    speedPpm: 1.2,
+    activeDurationSeconds: 600,
+  ),
+  likeCount: 2,
+  commentCount: 3,
+  isLiked: false,
+);
 
 void main() {
   late _MockAuthRepository authRepository;
@@ -95,8 +99,9 @@ void main() {
     socialRepository = _MockSocialRepository();
     feedRepository = _MockFeedRepository();
 
-    when(() => authRepository.getCurrentUser())
-        .thenAnswer((_) async => Right(_user()));
+    when(
+      () => authRepository.getCurrentUser(),
+    ).thenAnswer((_) async => Right(_user()));
     when(() => statsRepository.getSummary(any())).thenAnswer(
       (_) async => const Right(
         StatsSummary(
@@ -115,15 +120,15 @@ void main() {
         _badge('b3', unlocked: false),
       ]),
     );
-    when(() => socialRepository.getFollowersCount())
-        .thenAnswer((_) async => const Right(21));
-    when(() => socialRepository.getFollowingCount())
-        .thenAnswer((_) async => const Right(30));
+    when(
+      () => socialRepository.getFollowersCount(),
+    ).thenAnswer((_) async => const Right(21));
+    when(
+      () => socialRepository.getFollowingCount(),
+    ).thenAnswer((_) async => const Right(30));
     // The activity tab opens with the profile, so this has to answer from the
     // start — empty is the quiet default.
-    when(
-      () => feedRepository.getFeed(cursor: any(named: 'cursor')),
-    ).thenAnswer(
+    when(() => feedRepository.getFeed(cursor: any(named: 'cursor'))).thenAnswer(
       (_) async => const Right(ActivityPage(items: [], nextCursor: null)),
     );
 
@@ -221,6 +226,64 @@ void main() {
     await pumpProfile(tester);
 
     expect(find.textContaining('Belum ada aktivitas'), findsOneWidget);
+  });
+
+  testWidgets('activity posts have no borders and a thick full-width divider', (
+    tester,
+  ) async {
+    when(() => feedRepository.getFeed(cursor: any(named: 'cursor'))).thenAnswer(
+      (_) async => Right(
+        ActivityPage(
+          items: [
+            _activity('Atomic Habits'),
+            Activity(
+              id: 'act-badge',
+              author: const ActivityAuthor(
+                id: 'u1',
+                name: 'Julian',
+                avatarUrl: null,
+              ),
+              occurredAt: DateTime(2026, 1, 1),
+              payload: const BadgeActivityPayload(
+                badgeName: 'First Step',
+                badgeIcon: '',
+                badgeDescription: 'Finish your first session',
+              ),
+              likeCount: 0,
+              commentCount: 0,
+              isLiked: false,
+            ),
+          ],
+          nextCursor: null,
+        ),
+      ),
+    );
+
+    await pumpProfile(tester);
+
+    expect(find.byType(SessionActivityCard), findsOneWidget);
+    expect(find.byType(BadgeActivityCard), findsOneWidget);
+    expect(find.byType(BorderedCard), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byType(ActivityAuthorHeader),
+        matching: find.byType(ActivityVisibilityMenu),
+      ),
+      findsNWidgets(2),
+    );
+    expect(
+      find.descendant(
+        of: find.byType(ActivityCardFooter),
+        matching: find.byType(ActivityVisibilityMenu),
+      ),
+      findsNothing,
+    );
+    final divider = find.byWidgetPredicate(
+      (widget) => widget is Divider && widget.thickness == 8,
+    );
+    expect(divider, findsOneWidget);
+    expect(tester.getSize(divider).width, 700);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('settings live behind their own tab', (tester) async {

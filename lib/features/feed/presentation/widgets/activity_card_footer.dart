@@ -15,8 +15,7 @@ import '../../../../core/theme/build_context_extension.dart';
 
 /// Bottom row shared by [SessionActivityCard]/[BadgeActivityCard] — like
 /// count, comment count (tap opens [CommentsBottomSheet]), a share button on
-/// the viewer's own session activities, and — only for the viewer's own
-/// activity — a small "..." menu to change visibility.
+/// the viewer's own session activities.
 ///
 /// [isOwnActivity] is caller-supplied rather than derived here: the caller
 /// knows who is viewing (the social feed keeps the viewer's id alongside the
@@ -34,24 +33,6 @@ class ActivityCardFooter extends StatelessWidget {
 
   Future<void> _openComments(BuildContext context) {
     return CommentsBottomSheet.show(context, activityId: activity.id);
-  }
-
-  Future<void> _changeVisibility(
-    BuildContext context,
-    ActivityVisibility visibility,
-  ) async {
-    final l10n = context.l10n;
-    final result = await getIt<UpdateActivityVisibility>().call(
-      activityId: activity.id,
-      visibility: visibility,
-    );
-    if (!context.mounted) return;
-    result.fold(
-      (failure) => context.showFailureSnackBar(failure),
-      (_) => ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.visibilityUpdated))),
-    );
   }
 
   @override
@@ -112,30 +93,60 @@ class ActivityCardFooter extends StatelessWidget {
           ),
         ],
         const Spacer(),
-        if (isOwnActivity)
-          PopupMenuButton<ActivityVisibility>(
-            icon: Icon(
-              Icons.more_vert,
-              size: 18,
-              color: context.colors.textSecondary,
-            ),
-            tooltip: l10n.changeVisibility,
-            onSelected: (visibility) => _changeVisibility(context, visibility),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: ActivityVisibility.private,
-                child: Text(l10n.visibilityPrivate),
-              ),
-              PopupMenuItem(
-                value: ActivityVisibility.followers,
-                child: Text(l10n.visibilityFollowers),
-              ),
-              PopupMenuItem(
-                value: ActivityVisibility.public,
-                child: Text(l10n.visibilityPublic),
-              ),
-            ],
-          ),
+      ],
+    );
+  }
+}
+
+class ActivityVisibilityMenu extends StatelessWidget {
+  const ActivityVisibilityMenu({super.key, required this.activityId});
+
+  final String activityId;
+
+  Future<void> _changeVisibility(
+    BuildContext context,
+    ActivityVisibility visibility,
+  ) async {
+    final l10n = context.l10n;
+    final result = await getIt<UpdateActivityVisibility>().call(
+      activityId: activityId,
+      visibility: visibility,
+    );
+    if (!context.mounted) return;
+    result.fold(
+      (failure) => context.showFailureSnackBar(failure),
+      (_) => ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.visibilityUpdated))),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return PopupMenuButton<ActivityVisibility>(
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+      icon: Icon(
+        Icons.more_vert,
+        size: 18,
+        color: context.colors.textSecondary,
+      ),
+      tooltip: l10n.changeVisibility,
+      onSelected: (visibility) => _changeVisibility(context, visibility),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: ActivityVisibility.private,
+          child: Text(l10n.visibilityPrivate),
+        ),
+        PopupMenuItem(
+          value: ActivityVisibility.followers,
+          child: Text(l10n.visibilityFollowers),
+        ),
+        PopupMenuItem(
+          value: ActivityVisibility.public,
+          child: Text(l10n.visibilityPublic),
+        ),
       ],
     );
   }

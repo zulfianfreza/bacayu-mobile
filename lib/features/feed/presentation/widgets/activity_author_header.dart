@@ -21,6 +21,7 @@ class ActivityAuthorHeader extends StatelessWidget {
     required this.name,
     required this.occurredAt,
     this.avatarUrl,
+    this.trailing,
   });
 
   final String name;
@@ -29,6 +30,7 @@ class ActivityAuthorHeader extends StatelessWidget {
   final DateTime occurredAt;
 
   final String? avatarUrl;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -52,24 +54,33 @@ class ActivityAuthorHeader extends StatelessWidget {
                 ),
         ),
         const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              name,
-              style: AppTypography.bodyStrong,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              formatRelativeTime(
-                l10n: context.l10n,
-                locale: Localizations.localeOf(context).toLanguageTag(),
-                occurredAt: occurredAt,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      name,
+                      style: AppTypography.bodyStrong,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  ?trailing,
+                ],
               ),
-              style: AppTypography.caption,
-            ),
-          ],
+              Text(
+                formatRelativeTime(
+                  l10n: context.l10n,
+                  locale: Localizations.localeOf(context).toLanguageTag(),
+                  occurredAt: occurredAt,
+                ),
+                style: AppTypography.caption,
+              ),
+            ],
+          ),
         ),
       ],
     );

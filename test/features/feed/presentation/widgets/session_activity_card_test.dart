@@ -96,11 +96,11 @@ void main() {
     expect(find.text('Julian'), findsOneWidget);
   });
 
-  testWidgets('no author means no header — the card starts at the book', (
+  testWidgets('own activity uses its author when no header is supplied', (
     tester,
   ) async {
     await tester.pumpWidget(wrap('Atomic Habits'));
 
-    expect(find.byType(ActivityAuthorHeader), findsNothing);
+    expect(find.byType(ActivityAuthorHeader), findsOneWidget);
   });
 }

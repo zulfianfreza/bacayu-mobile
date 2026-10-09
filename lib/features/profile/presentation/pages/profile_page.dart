@@ -210,9 +210,14 @@ class _ActivityTab extends StatelessWidget {
                     }
                     return false;
                   },
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                  child: ListView.separated(
+                    padding: EdgeInsets.zero,
                     itemCount: activities.length + (isLoadingMore ? 1 : 0),
+                    separatorBuilder: (context, index) => Divider(
+                      height: 8,
+                      thickness: 8,
+                      color: context.colors.hairline,
+                    ),
                     itemBuilder: (context, index) {
                       if (index >= activities.length) {
                         return const Padding(
@@ -222,19 +227,18 @@ class _ActivityTab extends StatelessWidget {
                       }
 
                       final activity = activities[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: switch (activity.payload) {
-                          SessionActivityPayload() => SessionActivityCard(
-                            activity: activity,
-                            author: _authorOf(activity),
-                          ),
-                          BadgeActivityPayload() => BadgeActivityCard(
-                            activity: activity,
-                            author: _authorOf(activity),
-                          ),
-                        },
-                      );
+                      return switch (activity.payload) {
+                        SessionActivityPayload() => SessionActivityCard(
+                          activity: activity,
+                          author: _authorOf(activity),
+                          bordered: false,
+                        ),
+                        BadgeActivityPayload() => BadgeActivityCard(
+                          activity: activity,
+                          author: _authorOf(activity),
+                          bordered: false,
+                        ),
+                      };
                     },
                   ),
                 ),

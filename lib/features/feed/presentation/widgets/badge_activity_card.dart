@@ -24,12 +24,14 @@ class BadgeActivityCard extends StatelessWidget {
     required this.activity,
     this.isOwnActivity = true,
     this.author,
+    this.bordered = true,
   });
 
   final Activity activity;
   final bool isOwnActivity;
+  final bool bordered;
 
-  /// Who unlocked it. Omitted by callers that have nobody to name.
+  /// Optional author header override; own activities fall back to their author.
   final ActivityAuthorHeader? author;
 
   void _openDetail(BuildContext context) {
@@ -44,62 +46,71 @@ class BadgeActivityCard extends StatelessWidget {
     final l10n = context.l10n;
     final payload = activity.payload as BadgeActivityPayload;
 
-    return BorderedCard(
-      color: context.colors.lagoonWash,
-      // Tinted border rather than the neutral hairline: on a yellow card, the
-      // warm grey edge reads as a mistake.
-      borderColor: AppColors.lagoon300,
-      radius: AppRadius.md,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (author != null) ...[author!, const SizedBox(height: 12)],
-          Material(
-            // Transparent so the card's own colour still shows, but the tap
-            // ripple has something to paint on.
-            type: MaterialType.transparency,
-            child: InkWell(
-              onTap: () => _openDetail(context),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.newBadge,
-                          style: AppTypography.caption.copyWith(
-                            color: context.colors.sunshineAccent,
-                          ),
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (author != null || isOwnActivity) ...[
+          ActivityAuthorHeader(
+            name: author?.name ?? activity.author.name,
+            avatarUrl: author?.avatarUrl ?? activity.author.avatarUrl,
+            occurredAt: author?.occurredAt ?? activity.occurredAt,
+            trailing: isOwnActivity
+                ? ActivityVisibilityMenu(activityId: activity.id)
+                : null,
+          ),
+          const SizedBox(height: 12),
+        ],
+        Material(
+          // Transparent so the card's own colour still shows, but the tap
+          // ripple has something to paint on.
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: () => _openDetail(context),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.newBadge,
+                        style: AppTypography.caption.copyWith(
+                          color: context.colors.sunshineAccent,
                         ),
-                        Text(
-                          payload.badgeName,
-                          style: AppTypography.subheading,
-                        ),
-                        const SizedBox(height: 2),
-                        // Shown in full: a badge description is one or two
-                        // sentences, and cutting it mid-sentence reads worse
-                        // than a slightly taller card.
-                        Text(
-                          payload.badgeDescription,
-                          style: AppTypography.caption,
-                        ),
-                      ],
-                    ),
+                      ),
+                      Text(payload.badgeName, style: AppTypography.subheading),
+                      const SizedBox(height: 2),
+                      // Shown in full: a badge description is one or two
+                      // sentences, and cutting it mid-sentence reads worse
+                      // than a slightly taller card.
+                      Text(
+                        payload.badgeDescription,
+                        style: AppTypography.caption,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  // The feed payload carries the badge's emoji snapshot, not
-                  // its artwork — so this shows the placeholder until
-                  // `image_url` reaches the feed too.
-                  const BadgeArtwork(imageUrl: null, size: 60),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                // The feed payload carries the badge's emoji snapshot, not
+                // its artwork — so this shows the placeholder until
+                // `image_url` reaches the feed too.
+                const BadgeArtwork(imageUrl: null, size: 60),
+              ],
             ),
           ),
-          ActivityCardFooter(activity: activity, isOwnActivity: isOwnActivity),
-        ],
-      ),
+        ),
+        ActivityCardFooter(activity: activity, isOwnActivity: isOwnActivity),
+      ],
+    );
+    if (!bordered) {
+      return Padding(padding: const EdgeInsets.all(16), child: content);
+    }
+    return BorderedCard(
+      color: context.colors.lagoonWash,
+      borderColor: AppColors.lagoon300,
+      radius: AppRadius.md,
+      child: content,
     );
   }
 }

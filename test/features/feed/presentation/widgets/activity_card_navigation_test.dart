@@ -114,7 +114,9 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        await tester.tap(find.byIcon(Icons.mode_comment_outlined));
+        await tester.tap(
+          find.image(const AssetImage('assets/icons/message-stroke.png')),
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
@@ -151,7 +153,9 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        await tester.tap(find.byIcon(Icons.mode_comment_outlined));
+        await tester.tap(
+          find.image(const AssetImage('assets/icons/message-stroke.png')),
+        );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 
