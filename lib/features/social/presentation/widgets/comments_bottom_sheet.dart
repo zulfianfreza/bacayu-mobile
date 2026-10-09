@@ -8,6 +8,7 @@ import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/chunky_button.dart';
 import '../../../../core/widgets/error_listener.dart';
 import '../../../../core/widgets/sheet_header.dart';
 import '../../../auth/domain/entities/user.dart';
@@ -31,10 +32,7 @@ class CommentsBottomSheet extends StatefulWidget {
   /// inside the shell each tab has its own Navigator, which lives *within* the
   /// shell body, so a sheet pushed on that one would sit above the bottom bar
   /// instead of covering it.
-  static Future<void> show(
-    BuildContext context, {
-    required String activityId,
-  }) {
+  static Future<void> show(BuildContext context, {required String activityId}) {
     return showModalBottomSheet<void>(
       context: context,
       useRootNavigator: true,
@@ -188,19 +186,11 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _isSubmitting
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : IconButton(
-                            onPressed: _submit,
-                            icon: const Icon(
-                              Icons.send_rounded,
-                              color: AppColors.tangerine500,
-                            ),
-                          ),
+                    ChunkyButton(
+                      label: l10n.postComment,
+                      onPressed: _submit,
+                      isLoading: _isSubmitting,
+                    ),
                   ],
                 ),
               ),

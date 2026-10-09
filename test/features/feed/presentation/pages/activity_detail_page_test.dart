@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/di/injection.dart';
 import 'package:mobile/core/error/failure.dart';
+import 'package:mobile/core/widgets/bordered_card.dart';
+import 'package:mobile/core/widgets/chunky_button.dart';
 import 'package:mobile/features/auth/domain/entities/user.dart';
 import 'package:mobile/features/auth/domain/usecases/get_current_user.dart';
 import 'package:mobile/features/books/domain/entities/book.dart';
@@ -408,6 +410,47 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'centers the book with compact chunky actions and no card border',
+    (tester) async {
+      stubViewer('u1');
+      addTearDown(tester.view.reset);
+
+      for (final width in [360.0, 800.0]) {
+        tester.view.physicalSize = Size(width, 1000);
+        tester.view.devicePixelRatio = 1;
+        await tester.pumpWidget(
+          wrap(
+            ActivityDetailPage(
+              activityId: _sessionActivity.id,
+              activity: _sessionActivity,
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump();
+
+        final cover = find.byWidgetPredicate(
+          (widget) =>
+              widget is SizedBox && widget.width == 120 && widget.height == 170,
+        );
+        expect(tester.getCenter(cover).dx, closeTo(width / 2, 0.1));
+        expect(
+          tester.getCenter(find.text('Atomic Habits')).dx,
+          closeTo(width / 2, 0.1),
+        );
+        expect(find.byType(BorderedCard), findsNothing);
+        expect(find.byType(ChunkyButton), findsNWidgets(3));
+        final share = find.ancestor(
+          of: find.text('Share'),
+          matching: find.byType(ChunkyButton),
+        );
+        expect(tester.getSize(share).width, lessThan(160));
+        expect(tester.takeException(), isNull);
+      }
+    },
+  );
 
   testWidgets("someone else's session is not yours to share", (tester) async {
     stubViewer('u2');

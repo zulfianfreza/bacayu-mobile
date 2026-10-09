@@ -15,6 +15,12 @@ class _MockLikeActivity extends Mock implements LikeActivity {}
 
 class _MockUnlikeActivity extends Mock implements UnlikeActivity {}
 
+Finder _likeIcon({required bool liked}) => find.image(
+  AssetImage(
+    liked ? 'assets/icons/like-solid.png' : 'assets/icons/like-stroke.png',
+  ),
+);
+
 void main() {
   late _MockLikeActivity mockLike;
   late _MockUnlikeActivity mockUnlike;
@@ -46,72 +52,95 @@ void main() {
   }
 
   testWidgets(
-      'tapping flips the icon/count immediately (optimistic), before the '
-      'network call resolves', (tester) async {
+    'tapping flips the icon/count immediately (optimistic), before the '
+    'network call resolves',
+    (tester) async {
+      final completer = Completer<Either<Failure, Unit>>();
+      when(() => mockLike.call(any())).thenAnswer((_) => completer.future);
+
+      await tester.pumpWidget(
+        wrap(
+          const LikeButton(
+            activityId: 'a1',
+            initialIsLiked: false,
+            initialLikeCount: 3,
+            chunky: true,
+          ),
+        ),
+      );
+
+      expect(find.text('3'), findsOneWidget);
+      expect(_likeIcon(liked: false), findsOneWidget);
+
+      await tester.tap(find.byType(LikeButton));
+      await tester.pump(); // one frame only — the network call is still pending
+
+      expect(find.text('4'), findsOneWidget);
+      expect(_likeIcon(liked: true), findsOneWidget);
+
+      completer.complete(const Right(unit));
+      await tester.pumpAndSettle();
+    },
+  );
+
+  testWidgets('rolls back the optimistic update when the request fails', (
+    tester,
+  ) async {
     final completer = Completer<Either<Failure, Unit>>();
     when(() => mockLike.call(any())).thenAnswer((_) => completer.future);
 
-    await tester.pumpWidget(wrap(
-      const LikeButton(activityId: 'a1', initialIsLiked: false, initialLikeCount: 3),
-    ));
-
-    expect(find.text('3'), findsOneWidget);
-    expect(find.byIcon(Icons.favorite_border), findsOneWidget);
-
-    await tester.tap(find.byType(LikeButton));
-    await tester.pump(); // one frame only — the network call is still pending
-
-    expect(find.text('4'), findsOneWidget);
-    expect(find.byIcon(Icons.favorite), findsOneWidget);
-
-    completer.complete(const Right(unit));
-    await tester.pumpAndSettle();
-  });
-
-  testWidgets('rolls back the optimistic update when the request fails',
-      (tester) async {
-    final completer = Completer<Either<Failure, Unit>>();
-    when(() => mockLike.call(any())).thenAnswer((_) => completer.future);
-
-    await tester.pumpWidget(wrap(
-      const LikeButton(activityId: 'a1', initialIsLiked: false, initialLikeCount: 3),
-    ));
+    await tester.pumpWidget(
+      wrap(
+        const LikeButton(
+          activityId: 'a1',
+          initialIsLiked: false,
+          initialLikeCount: 3,
+        ),
+      ),
+    );
 
     await tester.tap(find.byType(LikeButton));
     await tester.pump();
 
     // Still optimistically liked while the request is in flight.
     expect(find.text('4'), findsOneWidget);
-    expect(find.byIcon(Icons.favorite), findsOneWidget);
+    expect(_likeIcon(liked: true), findsOneWidget);
 
     completer.complete(const Left(NetworkFailure()));
     await tester.pump(); // resolve the future + rebuild
     await tester.pump(); // let the snackbar animate in
 
     expect(find.text('3'), findsOneWidget);
-    expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+    expect(_likeIcon(liked: false), findsOneWidget);
   });
 
-  testWidgets('unliking an already-liked activity also rolls back on failure',
-      (tester) async {
+  testWidgets('unliking an already-liked activity also rolls back on failure', (
+    tester,
+  ) async {
     final completer = Completer<Either<Failure, Unit>>();
     when(() => mockUnlike.call(any())).thenAnswer((_) => completer.future);
 
-    await tester.pumpWidget(wrap(
-      const LikeButton(activityId: 'a1', initialIsLiked: true, initialLikeCount: 5),
-    ));
+    await tester.pumpWidget(
+      wrap(
+        const LikeButton(
+          activityId: 'a1',
+          initialIsLiked: true,
+          initialLikeCount: 5,
+        ),
+      ),
+    );
 
     await tester.tap(find.byType(LikeButton));
     await tester.pump();
 
     expect(find.text('4'), findsOneWidget);
-    expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+    expect(_likeIcon(liked: false), findsOneWidget);
 
     completer.complete(const Left(NetworkFailure()));
     await tester.pump();
     await tester.pump();
 
     expect(find.text('5'), findsOneWidget);
-    expect(find.byIcon(Icons.favorite), findsOneWidget);
+    expect(_likeIcon(liked: true), findsOneWidget);
   });
 }

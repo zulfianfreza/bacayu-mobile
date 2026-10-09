@@ -91,6 +91,7 @@ class _ChunkyButtonState extends State<ChunkyButton> {
         sink: _pressed ? _edge - 1 : 0,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (widget.isLoading)

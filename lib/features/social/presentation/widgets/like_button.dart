@@ -4,6 +4,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/error_listener.dart';
+import '../../../../core/widgets/chunky_button.dart';
 import '../../domain/usecases/like_activity.dart';
 import '../../domain/usecases/unlike_activity.dart';
 import '../../../../core/theme/build_context_extension.dart';
@@ -17,11 +18,13 @@ class LikeButton extends StatefulWidget {
     required this.activityId,
     required this.initialIsLiked,
     required this.initialLikeCount,
+    this.chunky = false,
   });
 
   final String activityId;
   final bool initialIsLiked;
   final int initialLikeCount;
+  final bool chunky;
 
   @override
   State<LikeButton> createState() => _LikeButtonState();
@@ -63,6 +66,22 @@ class _LikeButtonState extends State<LikeButton> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.chunky) {
+      return ChunkyButton(
+        label: '$_likeCount',
+        variant: ChunkyButtonVariant.secondary,
+        onPressed: _toggle,
+        icon: Image.asset(
+          _isLiked
+              ? 'assets/icons/like-solid.png'
+              : 'assets/icons/like-stroke.png',
+          width: 24,
+          height: 24,
+          color: _isLiked ? AppColors.berry : context.colors.textSecondary,
+        ),
+      );
+    }
+
     return InkWell(
       onTap: _toggle,
       borderRadius: BorderRadius.circular(999),

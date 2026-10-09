@@ -5,7 +5,6 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/navigation/full_screen_page.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/chunky_button.dart';
 import '../../../../core/widgets/error_listener.dart';
@@ -155,10 +154,9 @@ class _EmptyShelf extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              'assets/icons/book-open-02-stroke.png',
-              width: 48,
-              height: 48,
-              color: AppColors.tangerine300,
+              'assets/images/state-book-not-found.png',
+              width: 200,
+              height: 200,
             ),
             const SizedBox(height: 16),
             Text(

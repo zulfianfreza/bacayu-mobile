@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/di/injection.dart';
 import 'package:mobile/core/theme/app_colors.dart';
 import 'package:mobile/core/theme/app_theme.dart';
+import 'package:mobile/core/widgets/chunky_button.dart';
 import 'package:mobile/features/auth/domain/entities/user.dart';
 import 'package:mobile/features/auth/domain/usecases/get_current_user.dart';
 import 'package:mobile/features/social/domain/entities/activity_comment.dart';
@@ -77,7 +78,9 @@ void main() {
     WidgetTester tester,
     List<ActivityComment> comments,
   ) async {
-    when(() => listComments.call(any())).thenAnswer((_) async => Right(comments));
+    when(
+      () => listComments.call(any()),
+    ).thenAnswer((_) async => Right(comments));
 
     await tester.pumpWidget(
       MaterialApp(
@@ -105,7 +108,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('the sheet is white, not the seeded warm surface', (tester) async {
+  testWidgets('the sheet is white, not the seeded warm surface', (
+    tester,
+  ) async {
     await openSheet(tester, const []);
 
     final sheet = tester.widget<BottomSheet>(find.byType(BottomSheet));
@@ -129,6 +134,28 @@ void main() {
     expect(find.text('Maya'), findsOneWidget);
     expect(find.text('Semangat!'), findsOneWidget);
     expect(find.byType(CommentsEmpty), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('sends a comment using the compact chunky button', (
+    tester,
+  ) async {
+    await openSheet(tester, const []);
+
+    expect(find.byType(ChunkyButton), findsOneWidget);
+    expect(find.text('Kirim'), findsOneWidget);
+    expect(tester.getSize(find.byType(ChunkyButton)).width, lessThan(160));
+
+    await tester.enterText(find.byType(TextField), 'Semangat!');
+    await tester.tap(find.text('Kirim'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CommentTile), findsOneWidget);
+    expect(find.text('Semangat!'), findsOneWidget);
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      '',
+    );
     expect(tester.takeException(), isNull);
   });
 

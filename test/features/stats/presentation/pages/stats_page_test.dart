@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/di/injection.dart';
+import 'package:mobile/core/error/failure.dart';
 import 'package:mobile/features/badges/domain/entities/badge.dart';
 import 'package:mobile/features/badges/domain/repositories/badge_repository.dart';
 import 'package:mobile/features/badges/domain/usecases/get_all_badges.dart';
@@ -101,8 +102,14 @@ void main() {
     await pumpStats(tester);
 
     expect(find.text('Statistikmu'), findsOneWidget);
-    expect(find.text('Minggu ini'), findsOneWidget);
-    expect(find.text('Sepanjang waktu'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(DropdownButton<StatsRange>),
+        matching: find.text('Minggu ini'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Sepanjang waktu'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -114,6 +121,69 @@ void main() {
     expect(find.text('1200'), findsOneWidget);
     expect(find.text('10h 0m'), findsOneWidget);
     expect(find.text('1.2'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('selects a range without reloading the already active range', (
+    tester,
+  ) async {
+    await pumpStats(tester);
+
+    await tester.tap(find.byType(DropdownButton<StatsRange>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Minggu ini').last);
+    await tester.pumpAndSettle();
+    verify(() => statsRepository.getSummary(StatsRange.week)).called(1);
+
+    await tester.tap(find.byType(DropdownButton<StatsRange>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sepanjang waktu').last);
+    await tester.pumpAndSettle();
+    verify(() => statsRepository.getSummary(StatsRange.all)).called(1);
+    expect(
+      tester
+          .widget<DropdownButton<StatsRange>>(
+            find.byType(DropdownButton<StatsRange>),
+          )
+          .value,
+      StatsRange.all,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('range dropdown fits phones and larger text', (tester) async {
+    // Isolate the filter from the charts and metric grid.
+    when(
+      () => statsRepository.getSummary(any()),
+    ).thenAnswer((_) async => const Left(NetworkFailure()));
+    await pumpStats(tester);
+
+    tester.view.physicalSize = const Size(360 * 2, 900 * 2);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(DropdownButton<StatsRange>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sepanjang waktu').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Sepanjang waktu'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    tester.view.physicalSize = const Size(700 * 2, 1400 * 2);
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('id'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(2)),
+          child: child!,
+        ),
+        home: const StatsPage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(DropdownButton<StatsRange>), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

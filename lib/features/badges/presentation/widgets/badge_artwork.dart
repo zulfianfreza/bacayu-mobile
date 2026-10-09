@@ -9,18 +9,17 @@ import 'package:flutter/material.dart';
 class BadgeArtwork extends StatelessWidget {
   const BadgeArtwork({super.key, required this.imageUrl, this.size = 48});
 
-  /// The badge's `image_url` from the API. Null or empty means the backend has
-  /// no artwork for it yet — every badge today, hence the placeholder.
+  /// The badge's `image_url` from the API. Null or blank uses the placeholder.
   final String? imageUrl;
 
   final double size;
 
-  /// Stand-in artwork, used until the backend carries a badge image.
+  /// Stand-in artwork for badges without a usable image URL.
   static const placeholderAsset = 'assets/images/bookworm.png';
 
   @override
   Widget build(BuildContext context) {
-    final url = imageUrl;
+    final url = imageUrl?.trim();
     final hasImage = url != null && url.isNotEmpty;
 
     return SizedBox(

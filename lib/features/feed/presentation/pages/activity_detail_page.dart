@@ -223,69 +223,62 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // The post itself, in one card: who posted it, what they read or
-              // unlocked, and its like/share row — the same shape as the feed
-              // card it was opened from, at full size.
-              BorderedCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ActivityAuthorHeader(
-                      name: activity.author.name,
-                      avatarUrl: activity.author.avatarUrl,
-                      occurredAt: activity.occurredAt,
-                    ),
-                    const SizedBox(height: 16),
-                    _ActivityHeader(
-                      activity: activity,
-                      badgeImageUrl: widget.badgeImageUrl,
-                    ),
-                    if (widget.session != null &&
-                        widget.session!.pauses.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Divider(height: 1, color: context.colors.hairline),
-                      const SizedBox(height: 12),
-                      _PausesBlock(session: widget.session!),
-                    ],
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        LikeButton(
-                          activityId: activity.id,
-                          initialIsLiked: activity.isLiked,
-                          initialLikeCount: activity.likeCount,
-                        ),
-                        // Expanded + Align rather than a Spacer: ChunkyButton
-                        // wraps a Flexible label, so it needs a bounded width
-                        // — a plain Row child gets an unbounded one.
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            // Badge unlocks have nothing to render as a
-                            // reading card, and someone else's session is not
-                            // yours to share.
-                            child: canShare
-                                ? ChunkyButton(
-                                    label: l10n.share,
-                                    variant: ChunkyButtonVariant.secondary,
-                                    icon: Image.asset(
-                                      'assets/icons/share-stroke.png',
-                                      width: 18,
-                                      height: 18,
-                                      // Matches the variant's foreground, which
-                                      // a bundled PNG can't inherit.
-                                      color: context.colors.ink,
-                                    ),
-                                    onPressed: () =>
-                                        shareActivity(context, activity),
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-                        ),
-                      ],
-                    ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ActivityAuthorHeader(
+                    name: activity.author.name,
+                    avatarUrl: activity.author.avatarUrl,
+                    occurredAt: activity.occurredAt,
+                  ),
+                  const SizedBox(height: 24),
+                  _ActivityHeader(
+                    activity: activity,
+                    badgeImageUrl: widget.badgeImageUrl,
+                  ),
+                  if (widget.session != null &&
+                      widget.session!.pauses.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Divider(height: 1, color: context.colors.hairline),
+                    const SizedBox(height: 12),
+                    _PausesBlock(session: widget.session!),
                   ],
-                ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      LikeButton(
+                        activityId: activity.id,
+                        initialIsLiked: activity.isLiked,
+                        initialLikeCount: activity.likeCount,
+                        chunky: true,
+                      ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          // Badge unlocks have nothing to render as a
+                          // reading card, and someone else's session is not
+                          // yours to share.
+                          child: canShare
+                              ? ChunkyButton(
+                                  label: l10n.share,
+                                  variant: ChunkyButtonVariant.secondary,
+                                  icon: Image.asset(
+                                    'assets/icons/share-stroke.png',
+                                    width: 18,
+                                    height: 18,
+                                    // Matches the variant's foreground, which
+                                    // a bundled PNG can't inherit.
+                                    color: context.colors.ink,
+                                  ),
+                                  onPressed: () =>
+                                      shareActivity(context, activity),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               if (widget.session != null &&
@@ -357,19 +350,11 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                _isSubmitting
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : IconButton(
-                        onPressed: _submit,
-                        icon: const Icon(
-                          Icons.send_rounded,
-                          color: AppColors.tangerine500,
-                        ),
-                      ),
+                ChunkyButton(
+                  label: l10n.postComment,
+                  onPressed: _submit,
+                  isLoading: _isSubmitting,
+                ),
               ],
             ),
           ),
@@ -501,7 +486,9 @@ class _BadgeHeader extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           l10n.newBadge,
-          style: AppTypography.caption.copyWith(color: context.colors.sunshineAccent),
+          style: AppTypography.caption.copyWith(
+            color: context.colors.sunshineAccent,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
@@ -628,10 +615,7 @@ class _SessionBadges extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          context.l10n.sessionBadgesTitle,
-          style: AppTypography.heading,
-        ),
+        Text(context.l10n.sessionBadgesTitle, style: AppTypography.heading),
         const SizedBox(height: 12),
         for (final badge in badges)
           Padding(
@@ -647,10 +631,7 @@ class _SessionBadges extends StatelessWidget {
                         Text(badge.name, style: AppTypography.subheading),
                         const SizedBox(height: 2),
                         // In full, like every other badge description.
-                        Text(
-                          badge.description,
-                          style: AppTypography.caption,
-                        ),
+                        Text(badge.description, style: AppTypography.caption),
                       ],
                     ),
                   ),

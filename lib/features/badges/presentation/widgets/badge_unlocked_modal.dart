@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Badge;
 
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/chunky_button.dart';
 import 'badge_artwork.dart';
 import '../../../../core/theme/build_context_extension.dart';
 
@@ -88,7 +89,7 @@ class _BadgeUnlockedModalState extends State<BadgeUnlockedModal>
     final l10n = context.l10n;
 
     return Scaffold(
-      backgroundColor: context.colors.sunshineTint,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -134,9 +135,9 @@ class _BadgeUnlockedModalState extends State<BadgeUnlockedModal>
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: ChunkyButton(
+                  label: l10n.awesome,
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(l10n.awesome),
                 ),
               ),
             ],

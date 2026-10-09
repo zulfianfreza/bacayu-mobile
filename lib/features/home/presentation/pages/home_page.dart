@@ -442,10 +442,9 @@ class _FindFriendsCta extends StatelessWidget {
     return Column(
       children: [
         Image.asset(
-          'assets/icons/add-team-stroke.png',
-          width: 40,
-          height: 40,
-          color: AppColors.tangerine300,
+          'assets/images/state-find-friends.png',
+          width: 200,
+          height: 200,
         ),
         const SizedBox(height: 16),
         Text(

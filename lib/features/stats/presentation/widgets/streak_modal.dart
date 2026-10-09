@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/build_context_extension.dart';
+import '../../../../core/widgets/chunky_button.dart';
 
 class StreakModal extends StatefulWidget {
   const StreakModal({super.key, required this.current, required this.longest});
@@ -71,9 +70,9 @@ class _StreakModalState extends State<StreakModal>
                         ScaleTransition(
                           scale: _scale,
                           child: Image.asset(
-                            'assets/images/day-streak.png',
+                            'assets/images/state-streak.png',
                             width: 200,
-                            height: 245,
+                            height: 200,
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -103,15 +102,9 @@ class _StreakModalState extends State<StreakModal>
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                child: ChunkyButton(
+                  label: l10n.awesome,
                   onPressed: () => Navigator.of(context).pop(),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.tangerine,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                    ),
-                  ),
-                  child: Text(l10n.awesome),
                 ),
               ),
             ],

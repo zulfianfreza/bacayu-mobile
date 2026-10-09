@@ -63,7 +63,7 @@ class _BookPickerBottomSheetState extends State<BookPickerBottomSheet> {
                       child: Text(failure.localizedMessage(context)),
                     ),
                     (books) => books.isEmpty
-                        ? const _EmptyPicker()
+                        ? const SingleChildScrollView(child: _EmptyPicker())
                         : ListView.separated(
                             shrinkWrap: true,
                             itemCount: books.length,
@@ -99,11 +99,12 @@ class _EmptyPicker extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.menu_book_outlined,
-            size: 40,
-            color: AppColors.tangerine300,
+          Image.asset(
+            'assets/images/state-book-not-found.png',
+            width: 200,
+            height: 200,
           ),
           const SizedBox(height: 12),
           Text(

@@ -155,7 +155,23 @@ void main() {
       find.text('No books in progress. Add one to your shelf first.'),
       findsOneWidget,
     );
-    expect(find.byIcon(Icons.menu_book_outlined), findsOneWidget);
+    expect(find.byType(ListView), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('empty picker sheet fits its content instead of the list cap', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await openSheet(tester, const []);
+
+    expect(
+      tester.getSize(find.byType(BookPickerBottomSheet)).height,
+      lessThan(500),
+    );
     expect(tester.takeException(), isNull);
   });
 

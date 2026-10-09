@@ -10,7 +10,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
-import '../../../../core/widgets/filter_pill.dart';
 import '../../domain/entities/daily_stat.dart';
 import '../../domain/entities/stats_summary.dart';
 import '../cubit/stats_cubit.dart';
@@ -52,7 +51,7 @@ class _StatsView extends StatelessWidget {
                 children: [
                   Text(l10n.yourStats, style: AppTypography.displaySm),
                   const SizedBox(height: 20),
-                  _RangeSegmentedControl(
+                  _RangeDropdown(
                     activeRange: state.range,
                     onChanged: (range) =>
                         context.read<StatsCubit>().changeRange(range),
@@ -130,11 +129,8 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-class _RangeSegmentedControl extends StatelessWidget {
-  const _RangeSegmentedControl({
-    required this.activeRange,
-    required this.onChanged,
-  });
+class _RangeDropdown extends StatelessWidget {
+  const _RangeDropdown({required this.activeRange, required this.onChanged});
 
   final StatsRange activeRange;
   final ValueChanged<StatsRange> onChanged;
@@ -149,20 +145,39 @@ class _RangeSegmentedControl extends StatelessWidget {
       (StatsRange.all, l10n.rangeAll),
     ];
 
-    return Row(
-      children: [
-        for (var i = 0; i < options.length; i++) ...[
-          if (i > 0) const SizedBox(width: 8),
-          Expanded(
-            child: FilterPill(
-              label: options[i].$2,
-              isActive: options[i].$1 == activeRange,
-              onTap: () => onChanged(options[i].$1),
-              expand: true,
-            ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: context.colors.tangerineWash,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<StatsRange>(
+          value: activeRange,
+          isExpanded: true,
+          itemHeight: null,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          dropdownColor: context.colors.surface,
+          icon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: context.colors.tangerineAccent,
           ),
-        ],
-      ],
+          style: AppTypography.button.copyWith(color: context.colors.ink),
+          items: [
+            for (final (range, label) in options)
+              DropdownMenuItem(
+                value: range,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(label),
+                ),
+              ),
+          ],
+          onChanged: (range) {
+            if (range != null && range != activeRange) onChanged(range);
+          },
+        ),
+      ),
     );
   }
 }
@@ -259,9 +274,7 @@ class _WeeklyChart extends StatelessWidget {
       }
     }
 
-    final days = [
-      for (var i = 0; i < 7; i++) byWeekday[i],
-    ];
+    final days = [for (var i = 0; i < 7; i++) byWeekday[i]];
 
     final maxMin = days
         .map((d) => d?.totalMinutes ?? 0)
@@ -281,9 +294,15 @@ class _WeeklyChart extends StatelessWidget {
           // Legend
           Row(
             children: [
-              _LegendDot(color: AppColors.lagoon500, label: l10n.statsWeekChartDuration),
+              _LegendDot(
+                color: AppColors.lagoon500,
+                label: l10n.statsWeekChartDuration,
+              ),
               const SizedBox(width: 16),
-              _LegendDot(color: AppColors.tangerine500, label: l10n.statsWeekChartPages),
+              _LegendDot(
+                color: AppColors.tangerine500,
+                label: l10n.statsWeekChartPages,
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -321,9 +340,15 @@ class _WeeklyChart extends StatelessWidget {
                     ),
                 ],
                 titlesData: FlTitlesData(
-                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
@@ -365,10 +390,7 @@ class _LegendDot extends StatelessWidget {
         Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 4),
         Text(label, style: AppTypography.caption),

@@ -12,7 +12,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/build_context_extension.dart';
-import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/raised_box.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/logout.dart';
@@ -191,54 +190,54 @@ class _ActivityTab extends StatelessWidget {
 
     return BlocBuilder<MyActivityCubit, FeedState>(
       builder: (context, state) => switch (state) {
-        FeedInitial() || FeedLoading() => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        FeedInitial() ||
+        FeedLoading() => const Center(child: CircularProgressIndicator()),
         FeedError(:final failure) => _ActivityMessage(
           icon: Icons.cloud_off,
           text: failure.localizedMessage(context),
         ),
-        FeedLoaded(:final activities, :final isLoadingMore) => activities.isEmpty
-            ? _ActivityMessage(
-                icon: Icons.auto_stories_outlined,
-                text: l10n.noActivityYet,
-              )
-            : NotificationListener<ScrollNotification>(
-                onNotification: (notification) {
-                  final metrics = notification.metrics;
-                  if (metrics.pixels >= metrics.maxScrollExtent - 300) {
-                    context.read<MyActivityCubit>().loadMore();
-                  }
-                  return false;
-                },
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: activities.length + (isLoadingMore ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index >= activities.length) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Center(child: CircularProgressIndicator()),
-                      );
+        FeedLoaded(:final activities, :final isLoadingMore) =>
+          activities.isEmpty
+              ? _ActivityMessage(
+                  icon: Icons.auto_stories_outlined,
+                  text: l10n.noActivityYet,
+                )
+              : NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    final metrics = notification.metrics;
+                    if (metrics.pixels >= metrics.maxScrollExtent - 300) {
+                      context.read<MyActivityCubit>().loadMore();
                     }
-
-                    final activity = activities[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: switch (activity.payload) {
-                        SessionActivityPayload() => SessionActivityCard(
-                          activity: activity,
-                          author: _authorOf(activity),
-                        ),
-                        BadgeActivityPayload() => BadgeActivityCard(
-                          activity: activity,
-                          author: _authorOf(activity),
-                        ),
-                      },
-                    );
+                    return false;
                   },
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: activities.length + (isLoadingMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index >= activities.length) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      final activity = activities[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: switch (activity.payload) {
+                          SessionActivityPayload() => SessionActivityCard(
+                            activity: activity,
+                            author: _authorOf(activity),
+                          ),
+                          BadgeActivityPayload() => BadgeActivityCard(
+                            activity: activity,
+                            author: _authorOf(activity),
+                          ),
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
       },
     );
   }
@@ -396,67 +395,65 @@ class _ProfileHeader extends StatelessWidget {
     final hasAvatar = user.avatarUrl.isNotEmpty;
     final locale = Localizations.localeOf(context).toLanguageTag();
 
-    return BorderedCard(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: context.colors.hairline, width: 2),
-            ),
-            child: CircleAvatar(
-              radius: 26,
-              backgroundColor: context.colors.tangerineTint,
-              backgroundImage: hasAvatar ? NetworkImage(user.avatarUrl) : null,
-              child: hasAvatar
-                  ? null
-                  : Text(
-                      user.name.isEmpty ? '?' : user.name[0].toUpperCase(),
-                      style: AppTypography.heading.copyWith(
-                        color: context.colors.tangerineAccent,
-                      ),
-                    ),
-            ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: context.colors.hairline, width: 2),
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Uncapped, like every other identity line in the app: a
-                // long name wraps rather than being cut.
-                Text(user.name, style: AppTypography.displaySm),
-                const SizedBox(height: 2),
-                Text(
-                  l10n.memberSince(
-                    DateFormat.yMMMM(locale).format(user.createdAt),
+          child: CircleAvatar(
+            radius: 26,
+            backgroundColor: context.colors.tangerineTint,
+            backgroundImage: hasAvatar ? NetworkImage(user.avatarUrl) : null,
+            child: hasAvatar
+                ? null
+                : Text(
+                    user.name.isEmpty ? '?' : user.name[0].toUpperCase(),
+                    style: AppTypography.heading.copyWith(
+                      color: context.colors.tangerineAccent,
+                    ),
                   ),
-                  style: AppTypography.caption,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    _InlineFollowStat(
-                      count: followersCount,
-                      label: l10n.profileFollowersLabel,
-                      onTap: () => context.push(AppRoutes.followers),
-                    ),
-                    const SizedBox(width: 16),
-                    _InlineFollowStat(
-                      count: followingCount,
-                      label: l10n.profileFollowingLabel,
-                      onTap: () => context.push(AppRoutes.following),
-                    ),
-                  ],
-                ),
-              ],
-            ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Uncapped, like every other identity line in the app: a
+              // long name wraps rather than being cut.
+              Text(user.name, style: AppTypography.displaySm),
+              const SizedBox(height: 2),
+              Text(
+                l10n.memberSince(
+                  DateFormat.yMMMM(locale).format(user.createdAt),
+                ),
+                style: AppTypography.caption,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  _InlineFollowStat(
+                    count: followersCount,
+                    label: l10n.profileFollowersLabel,
+                    onTap: () => context.push(AppRoutes.followers),
+                  ),
+                  const SizedBox(width: 16),
+                  _InlineFollowStat(
+                    count: followingCount,
+                    label: l10n.profileFollowingLabel,
+                    onTap: () => context.push(AppRoutes.following),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

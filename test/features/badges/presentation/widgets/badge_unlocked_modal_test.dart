@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mobile/core/widgets/chunky_button.dart';
 import 'package:mobile/features/badges/presentation/widgets/badge_artwork.dart';
 import 'package:mobile/features/badges/presentation/widgets/badge_unlocked_modal.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -87,6 +88,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Bookworm'), findsOneWidget);
+    expect(find.byType(ChunkyButton), findsOneWidget);
 
     await tester.tap(find.text('Awesome!'));
     await tester.pumpAndSettle();

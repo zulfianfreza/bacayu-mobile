@@ -8,7 +8,9 @@ void main() {
   /// the errorBuilder's placeholder instead of the provider under test.
   Future<void> pumpArtwork(WidgetTester tester, BadgeArtwork artwork) async {
     await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: Center(child: artwork))),
+      MaterialApp(
+        home: Scaffold(body: Center(child: artwork)),
+      ),
     );
   }
 
@@ -39,12 +41,25 @@ void main() {
     );
   });
 
+  testWidgets('a whitespace-only image url uses the placeholder', (
+    tester,
+  ) async {
+    await pumpArtwork(tester, const BadgeArtwork(imageUrl: '  \n  '));
+
+    expect(
+      (providerOf(tester) as AssetImage).assetName,
+      BadgeArtwork.placeholderAsset,
+    );
+  });
+
   testWidgets('uses the artwork the API sent when there is one', (
     tester,
   ) async {
     await pumpArtwork(
       tester,
-      const BadgeArtwork(imageUrl: 'https://cdn.example.com/badges/first.png'),
+      const BadgeArtwork(
+        imageUrl: ' https://cdn.example.com/badges/first.png ',
+      ),
     );
 
     // The provider is what matters here — the test HTTP client never serves the
