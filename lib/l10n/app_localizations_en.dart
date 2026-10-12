@@ -116,7 +116,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alreadyInShelf => 'This book is already in your shelf.';
 
   @override
-  String get shelfTitle => 'My shelf';
+  String get shelfTitle => 'My Shelf';
 
   @override
   String get filterAll => 'All';
@@ -739,7 +739,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get download => 'Download';
 
   @override
-  String get shareSession => 'Share session';
+  String get shareSession => 'Share Session';
 
   @override
   String get savedToGallery => 'Saved to gallery';

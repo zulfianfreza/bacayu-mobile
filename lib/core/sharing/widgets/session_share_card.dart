@@ -84,6 +84,10 @@ class SessionShareCard extends StatelessWidget {
                   data: data,
                   theme: theme,
                 ),
+                ShareCardLayout.centered => _CenteredLayout(
+                  data: data,
+                  theme: theme,
+                ),
               },
             ],
           ),
@@ -202,12 +206,7 @@ class _OverlayLayout extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // At 9:16 the slack above the text block is most of the card, so
-          // it is split rather than dropped in one place: 6 above the
-          // block to 1 below it. That keeps the block in the lower third —
-          // where a story puts its subject — without letting it touch the
-          // bottom edge, which is where the platform's own reply bar sits.
-          const Spacer(flex: 6),
+          const Spacer(),
           if (theme.showWatermark) ...[
             // The brand opens the block instead of sitting in the top
             // corner: the top of the frame is what a story's own chrome
@@ -217,6 +216,7 @@ class _OverlayLayout extends StatelessWidget {
           ],
           Text(
             data.bookTitle,
+            textAlign: TextAlign.center,
             // Never truncated: a half-finished book title is worse than
             // a smaller one, and the card has no page to continue on.
             style: titleStyle.copyWith(fontSize: titleSize),
@@ -225,6 +225,7 @@ class _OverlayLayout extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               l10n.byAuthor(data.bookAuthors.join(', ')),
+              textAlign: TextAlign.center,
               style: _overlayTextStyle(
                 theme,
                 AppTypography.caption,
@@ -236,8 +237,63 @@ class _OverlayLayout extends StatelessWidget {
           ],
           const SizedBox(height: 16),
           _Stats(theme: theme, stats: _sessionStats(context, data)),
-          const Spacer(),
         ],
+      ),
+    );
+  }
+}
+
+class _CenteredLayout extends StatelessWidget {
+  const _CenteredLayout({required this.data, required this.theme});
+
+  final SessionShareData data;
+  final ShareCardTheme theme;
+
+  @override
+  Widget build(BuildContext context) {
+    final titleStyle = _overlayTextStyle(
+      theme,
+      AppTypography.displaySm,
+      Colors.white,
+    );
+    final titleSize = _fittedTitleSize(
+      context,
+      data.bookTitle,
+      titleStyle,
+      maxWidth: SessionShareCard._contentWidth,
+      maxLines: SessionShareCard._maxTitleLines,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.all(SessionShareCard._padding),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              data.bookTitle,
+              textAlign: TextAlign.center,
+              style: titleStyle.copyWith(fontSize: titleSize),
+            ),
+            const SizedBox(height: 24),
+            _Stats(theme: theme, stats: _sessionStats(context, data)),
+            const SizedBox(height: 24),
+            Center(
+              child: Image.asset(
+                'assets/icons/book-open-02-stroke.png',
+                width: 64,
+                height: 64,
+                color: AppColors.tangerine,
+                excludeFromSemantics: true,
+              ),
+            ),
+            if (theme.showWatermark) ...[
+              const SizedBox(height: 20),
+              Center(child: _Watermark(theme: theme)),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -391,8 +447,7 @@ class _FramedLayout extends StatelessWidget {
   }
 }
 
-/// Number-first composition: the session's duration leads as a display figure,
-/// the title (with author) explains it, and pages/speed close the card.
+/// Brand and title above two columns: cover left, session stats right.
 class _HeroLayout extends StatelessWidget {
   const _HeroLayout({required this.data, required this.theme});
 
@@ -400,13 +455,14 @@ class _HeroLayout extends StatelessWidget {
   final ShareCardTheme theme;
 
   static const _padding = 28.0;
+  static const _coverWidth = 112.0;
+  static const _gap = 20.0;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     final titleStyle = _overlayTextStyle(
       theme,
-      AppTypography.displaySm,
+      AppTypography.heading,
       Colors.white,
     );
     final titleSize = _fittedTitleSize(
@@ -416,88 +472,73 @@ class _HeroLayout extends StatelessWidget {
       maxWidth: SessionShareCard.designWidth - _padding * 2,
       maxLines: 2,
     );
-    final duration = formatSessionDurationWords(
-      Duration(seconds: data.durationSeconds),
-    );
-    // The duration is the hero, so the two stats underneath are the rest.
-    final stats = _sessionStats(context, data).sublist(1);
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // The hero card is deliberately off the book-cover backdrop: a giant
-        // number needs a calm field, so it wears the brand's own gradient.
-        const DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [AppColors.tangerine700, AppColors.ink],
+    return Padding(
+      padding: const EdgeInsets.all(_padding),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (theme.showWatermark) ...[
+              Center(child: _Watermark(theme: theme)),
+              const SizedBox(height: 12),
+            ],
+            Text(
+              data.bookTitle,
+              textAlign: TextAlign.center,
+              style: titleStyle.copyWith(fontSize: titleSize),
             ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(_padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (theme.showWatermark) _Watermark(theme: theme),
-              const Spacer(flex: 2),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.center,
-                child: Text(
-                  duration,
-                  style: _overlayTextStyle(
-                    theme,
-                    AppTypography.displayLg.copyWith(fontSize: 64),
-                    Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.center,
-                child: Text(
-                  l10n.shareStatTime.toUpperCase(),
-                  style: _overlayTextStyle(
-                    theme,
-                    AppTypography.caption.copyWith(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 2,
+            const SizedBox(height: 20),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: SizedBox(
+                      width: _coverWidth,
+                      height: _coverWidth * 3 / 2,
+                      child: _CoverArt(coverUrl: data.bookCoverUrl),
                     ),
-                    _overlaySecondary,
                   ),
                 ),
-              ),
-              const Spacer(),
-              Text(
-                data.bookTitle,
-                textAlign: TextAlign.center,
-                style: titleStyle.copyWith(fontSize: titleSize),
-              ),
-              if (data.bookAuthors.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  l10n.byAuthor(data.bookAuthors.join(', ')),
-                  textAlign: TextAlign.center,
-                  style: _overlayTextStyle(
-                    theme,
-                    AppTypography.caption,
-                    _overlaySecondary,
+                const SizedBox(width: _gap),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final stat in _sessionStats(context, data)) ...[
+                        Text(
+                          stat.label,
+                          style: _overlayTextStyle(
+                            theme,
+                            AppTypography.caption.copyWith(fontSize: 14),
+                            _overlaySecondary,
+                          ),
+                        ),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            stat.value,
+                            style: _overlayTextStyle(
+                              theme,
+                              AppTypography.heading.copyWith(fontSize: 22),
+                              Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                    ],
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
-              const Spacer(),
-              _Stats(theme: theme, stats: stats),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -649,7 +690,10 @@ class _Stats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final centered = theme.layout == ShareCardLayout.framed;
+    final centered =
+        theme.layout == ShareCardLayout.overlay ||
+        theme.layout == ShareCardLayout.framed ||
+        theme.layout == ShareCardLayout.centered;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -668,14 +712,9 @@ class _Stats extends StatelessWidget {
                   alignment: centered ? Alignment.center : Alignment.centerLeft,
                   child: Text(
                     stats[i].value,
-                    // A notch under the `heading` token: the widest value is
-                    // "0.8 ppm", and at 20px it ellipsized to "0.8 pp…" inside
-                    // a third of a 320px card. At 18px the row carries the
-                    // common values at their own size, and only the long time
-                    // values get scaled above.
                     style: _overlayTextStyle(
                       theme,
-                      AppTypography.heading.copyWith(fontSize: 18),
+                      AppTypography.heading.copyWith(fontSize: 24),
                       Colors.white,
                     ),
                   ),
@@ -685,11 +724,11 @@ class _Stats extends StatelessWidget {
                   fit: BoxFit.scaleDown,
                   alignment: centered ? Alignment.center : Alignment.centerLeft,
                   child: Text(
-                    stats[i].label.toUpperCase(),
+                    stats[i].label,
                     style: _overlayTextStyle(
                       theme,
                       AppTypography.caption.copyWith(
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1,
                       ),
@@ -733,7 +772,7 @@ class _VerticalStats extends StatelessWidget {
               textAlign: TextAlign.center,
               style: _overlayTextStyle(
                 theme,
-                AppTypography.heading.copyWith(fontSize: 26),
+                AppTypography.heading.copyWith(fontSize: 28),
                 Colors.white,
               ),
             ),
@@ -742,12 +781,12 @@ class _VerticalStats extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              stats[i].label.toUpperCase(),
+              stats[i].label,
               textAlign: TextAlign.center,
               style: _overlayTextStyle(
                 theme,
                 AppTypography.caption.copyWith(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.5,
                 ),
@@ -770,7 +809,7 @@ class _Watermark extends StatelessWidget {
   Widget build(BuildContext context) {
     return Image.asset(
       'assets/images/bacayu-logo-white.png',
-      height: 20,
+      height: 16,
       semanticLabel: context.l10n.appName,
     );
   }

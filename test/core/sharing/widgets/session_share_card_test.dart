@@ -45,16 +45,35 @@ void main() {
     expect(SessionShareCard.designHeight * 3, 1920);
   });
 
-  testWidgets('the text block stops short of the bottom of the story frame', (
+  testWidgets('photo content is centered and sits at the bottom padding', (
     tester,
   ) async {
     await tester.pumpWidget(wrap(buildData(), ShareCardTheme.photo));
 
-    // The platform's reply bar covers the last strip of a story, so the block
-    // keeps a margin there instead of sitting on the card's own padding.
     final card = tester.getRect(backgroundLayer());
-    final block = tester.getRect(find.text('TIME'));
-    expect(card.bottom - block.bottom, greaterThan(card.height * 0.05));
+    final stats = find
+        .ancestor(of: find.text('Time'), matching: find.byType(Row))
+        .first;
+    expect(
+      card.bottom - tester.getRect(stats).bottom,
+      closeTo(card.width * 20 / SessionShareCard.designWidth, 0.01),
+    );
+    for (final text in ['The Hobbit', 'by J.R.R. Tolkien']) {
+      expect(tester.widget<Text>(find.text(text)).textAlign, TextAlign.center);
+      expect(
+        tester.getRect(find.text(text)).center.dx,
+        closeTo(card.center.dx, 0.01),
+      );
+    }
+    for (final label in ['Time', 'Pages', 'Speed']) {
+      final column = find
+          .ancestor(of: find.text(label), matching: find.byType(Column))
+          .first;
+      expect(
+        tester.widget<Column>(column).crossAxisAlignment,
+        CrossAxisAlignment.center,
+      );
+    }
   });
 
   testWidgets('has no rounded frame, so the export is a full-bleed rectangle', (
@@ -132,16 +151,61 @@ void main() {
     );
   });
 
-  testWidgets('solid preset paints the flat dark fill instead of a cover', (
-    tester,
-  ) async {
-    await tester.pumpWidget(wrap(buildData(), ShareCardTheme.solid));
+  testWidgets(
+    'solid preset centers title, horizontal stats, icon and logo on alpha',
+    (tester) async {
+      await tester.pumpWidget(wrap(buildData(), ShareCardTheme.solid));
 
-    final fill = tester.widget<ColoredBox>(
-      find.descendant(of: backgroundLayer(), matching: find.byType(ColoredBox)),
-    );
-    expect(fill.color, AppColors.ink);
-  });
+      expect(ShareCardTheme.solid.isSticker, isTrue);
+      expect(
+        find.descendant(
+          of: backgroundLayer(),
+          matching: find.byType(ColoredBox),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(
+          of: backgroundLayer(),
+          matching: find.byType(DecoratedBox),
+        ),
+        findsNothing,
+      );
+      final title = tester.getRect(find.text('The Hobbit'));
+      final time = tester.getRect(find.text('Time'));
+      final pages = tester.getRect(find.text('Pages'));
+      final speed = tester.getRect(find.text('Speed'));
+      final iconFinder = find.image(
+        const AssetImage('assets/icons/book-open-02-stroke.png'),
+      );
+      final icon = tester.getRect(iconFinder);
+      final logo = tester.getRect(
+        find.image(const AssetImage('assets/images/bacayu-logo-white.png')),
+      );
+      final center = tester.getRect(backgroundLayer()).center.dx;
+      expect(title.bottom, lessThan(time.top));
+      final statColumns = ['Time', 'Pages', 'Speed']
+          .map(
+            (label) => tester.getRect(
+              find
+                  .ancestor(of: find.text(label), matching: find.byType(Column))
+                  .first,
+            ),
+          )
+          .toList();
+      expect(statColumns[0].top, closeTo(statColumns[1].top, 0.01));
+      expect(statColumns[1].top, closeTo(statColumns[2].top, 0.01));
+      expect(time.center.dx, lessThan(pages.center.dx));
+      expect(pages.center.dx, lessThan(speed.center.dx));
+      expect(time.bottom, lessThan(icon.top));
+      expect(icon.bottom, lessThan(logo.top));
+      for (final rect in [title, icon, logo]) {
+        expect(rect.center.dx, closeTo(center, 0.01));
+      }
+      expect(tester.widget<Image>(iconFinder).color, AppColors.tangerine);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('sticker preset exports the type alone on clear alpha', (
     tester,
@@ -268,24 +332,85 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('hero preset leads with the duration and leaves it out of the '
-      'stats', (tester) async {
-    await tester.pumpWidget(
-      wrap(buildData(durationSeconds: 1800), ShareCardTheme.hero),
-    );
+  testWidgets(
+    'hero preset aligns cover and stats below centered logo and title',
+    (tester) async {
+      await tester.pumpWidget(
+        wrap(buildData(durationSeconds: 1800), ShareCardTheme.hero),
+      );
 
-    // The duration is the headline, under its own label…
-    expect(find.text('30m'), findsOneWidget);
-    expect(find.text('TIME'), findsOneWidget);
+      expect(find.text('30m'), findsOneWidget);
+      expect(find.text('Time'), findsOneWidget);
+      expect(find.text('Pages'), findsOneWidget);
+      expect(find.text('Speed'), findsOneWidget);
+      expect(find.text('The Hobbit'), findsOneWidget);
 
-    // …so the footer carries only the numbers it does not already state.
-    expect(find.text('PAGES'), findsOneWidget);
-    expect(find.text('SPEED'), findsOneWidget);
-    expect(find.text('The Hobbit'), findsOneWidget);
+      expect(ShareCardTheme.hero.isSticker, isTrue);
+      expect(
+        find.descendant(
+          of: backgroundLayer(),
+          matching: find.byType(DecoratedBox),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(
+          of: backgroundLayer(),
+          matching: find.byType(ColoredBox),
+        ),
+        findsNothing,
+      );
+      final cover = tester.getRect(find.byType(ClipRRect));
+      final title = tester.getRect(find.text('The Hobbit'));
+      final time = tester.getRect(find.text('Time'));
+      final pages = tester.getRect(find.text('Pages'));
+      final speed = tester.getRect(find.text('Speed'));
+      final logo = tester.getRect(find.byType(Image));
+      expect(cover.right, lessThan(time.left));
+      expect(
+        (cover.right + time.left) / 2,
+        closeTo(tester.getRect(backgroundLayer()).center.dx, 0.01),
+      );
+      expect(cover.top, closeTo(time.top, 0.01));
+      expect(title.bottom, lessThan(cover.top));
+      expect(title.bottom, lessThan(time.top));
+      expect(time.bottom, lessThan(pages.top));
+      expect(pages.bottom, lessThan(speed.top));
+      expect(
+        logo.center.dx,
+        closeTo(tester.getRect(backgroundLayer()).center.dx, 0.01),
+      );
+      expect(logo.bottom, lessThan(cover.top));
+      expect(title.center.dx, closeTo(logo.center.dx, 0.01));
+      expect(logo.bottom, lessThan(title.top));
+      expect(tester.takeException(), isNull);
+    },
+  );
 
-    // Watermark on the new styles too.
-    expect(find.text('BacaYu'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+  testWidgets('every preset uses larger stats and fits a long duration', (
+    tester,
+  ) async {
+    for (final preset in ShareCardTheme.presets) {
+      await tester.pumpWidget(wrap(buildData(durationSeconds: 6367), preset));
+      final (valueSize, labelSize) = switch (preset.layout) {
+        ShareCardLayout.spread => (28.0, 14.0),
+        ShareCardLayout.hero => (22.0, 14.0),
+        _ => (20.0, 12.0),
+      };
+      for (final value in ['1h 46m 7s', '24', '0.8 ppm']) {
+        expect(
+          tester.widget<Text>(find.text(value)).style!.fontSize,
+          valueSize,
+        );
+      }
+      for (final label in ['Time', 'Pages', 'Speed']) {
+        expect(
+          tester.widget<Text>(find.text(label)).style!.fontSize,
+          labelSize,
+        );
+      }
+      expect(tester.takeException(), isNull, reason: '${preset.layout}');
+    }
   });
 
   testWidgets('every preset survives an absurd title without overflowing', (

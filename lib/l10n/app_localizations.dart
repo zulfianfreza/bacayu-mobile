@@ -305,7 +305,7 @@ abstract class AppLocalizations {
   /// Shelf page app bar title
   ///
   /// In en, this message translates to:
-  /// **'My shelf'**
+  /// **'My Shelf'**
   String get shelfTitle;
 
   /// Shelf filter tab: no status filter
@@ -1463,7 +1463,7 @@ abstract class AppLocalizations {
   /// Share preview sheet heading
   ///
   /// In en, this message translates to:
-  /// **'Share session'**
+  /// **'Share Session'**
   String get shareSession;
 
   /// Confirmation snackbar after a shareable card is saved to the device gallery

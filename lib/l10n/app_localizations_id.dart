@@ -116,7 +116,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get alreadyInShelf => 'Buku ini sudah ada di rakmu.';
 
   @override
-  String get shelfTitle => 'Rak bukuku';
+  String get shelfTitle => 'Rak Bukuku';
 
   @override
   String get filterAll => 'Semua';
@@ -742,7 +742,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get download => 'Unduh';
 
   @override
-  String get shareSession => 'Bagikan sesi';
+  String get shareSession => 'Bagikan Sesi';
 
   @override
   String get savedToGallery => 'Tersimpan ke galeri';

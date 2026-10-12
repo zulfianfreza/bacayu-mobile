@@ -7,10 +7,12 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/core/di/injection.dart';
 import 'package:mobile/core/error/failure.dart';
 import 'package:mobile/core/router/app_router.dart';
+import 'package:mobile/core/theme/app_typography.dart';
 import 'package:mobile/features/auth/domain/entities/user.dart';
 import 'package:mobile/features/auth/domain/usecases/get_current_user.dart';
 import 'package:mobile/features/feed/domain/entities/activity.dart';
 import 'package:mobile/features/feed/presentation/widgets/badge_activity_card.dart';
+import 'package:mobile/features/feed/presentation/widgets/activity_card_footer.dart';
 import 'package:mobile/features/feed/presentation/widgets/session_activity_card.dart';
 import 'package:mobile/features/social/domain/entities/activity_comment.dart';
 import 'package:mobile/features/social/domain/usecases/add_comment.dart';
@@ -106,6 +108,55 @@ void main() {
   }
 
   group('SessionActivityCard', () {
+    testWidgets('stats stack labels above bold values and footer has spacing', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(SessionActivityCard(activity: _sessionActivity)),
+      );
+      for (final stat in [
+        (label: 'Time', value: '10m'),
+        (label: 'Pages', value: '20'),
+        (label: 'Speed', value: '1.2 ppm'),
+      ]) {
+        expect(
+          tester.getRect(find.text(stat.label)).bottom,
+          lessThan(tester.getRect(find.text(stat.value)).top),
+        );
+        expect(
+          tester.widget<Text>(find.text(stat.value)).style,
+          AppTypography.subheading,
+        );
+      }
+      final footer = find.byType(ActivityCardFooter);
+      final row = find.descendant(of: footer, matching: find.byType(Row)).first;
+      expect(
+        tester.widget<Row>(row).mainAxisAlignment,
+        MainAxisAlignment.spaceAround,
+      );
+      final stats = find
+          .ancestor(of: find.text('20'), matching: find.byType(Wrap))
+          .first;
+      expect(tester.widget<Wrap>(stats).alignment, WrapAlignment.start);
+      expect(
+        tester.getRect(find.text('Time')).left,
+        tester.getRect(find.text('Atomic Habits')).left,
+      );
+      final timeColumn = find
+          .ancestor(of: find.text('Time'), matching: find.byType(Column))
+          .first;
+      expect(
+        tester.getRect(find.text('Pages')).left -
+            tester.getRect(timeColumn).right,
+        closeTo(16, 0.01),
+      );
+      expect(
+        tester.getRect(footer).top - tester.getRect(stats).bottom,
+        greaterThanOrEqualTo(16),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets(
       'tapping the comment icon still opens CommentsBottomSheet, unchanged',
       (tester) async {

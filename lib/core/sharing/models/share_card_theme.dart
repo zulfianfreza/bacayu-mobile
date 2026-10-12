@@ -31,8 +31,7 @@ enum ShareCardLayout {
   /// it. Reads like a book plate rather than a photo.
   framed,
 
-  /// The duration as one hero number, title below and secondary stats at the
-  /// foot. Number-first, the way a streak card leads with the count.
+  /// Cover left, stacked stats right, brand and title above.
   hero,
 
   /// The text block spread down the whole card: brand at the top, title in the
@@ -40,6 +39,9 @@ enum ShareCardLayout {
   /// anchor the lower-third [overlay], so it would otherwise export with a
   /// large empty top.
   spread,
+
+  /// Centered title, horizontal stats, book icon and brand.
+  centered,
 }
 
 /// Visual preset for a shareable card, deliberately kept as a plain data
@@ -89,10 +91,10 @@ class ShareCardTheme extends Equatable {
     showWatermark: true,
   );
 
-  /// Flat dark card, no cover image.
+  /// Transparent centered card with a book icon instead of cover art.
   static const solid = ShareCardTheme(
-    layout: ShareCardLayout.overlay,
-    background: ShareCardBackground.solid,
+    layout: ShareCardLayout.centered,
+    background: ShareCardBackground.scrimOnly,
     backgroundColor: AppColors.ink,
     fontFamily: null,
     showWatermark: true,
@@ -116,10 +118,10 @@ class ShareCardTheme extends Equatable {
     showWatermark: true,
   );
 
-  /// The session's duration blown up as the one hero number.
+  /// Transparent two-column card with the cover beside the session details.
   static const hero = ShareCardTheme(
     layout: ShareCardLayout.hero,
-    background: ShareCardBackground.solid,
+    background: ShareCardBackground.scrimOnly,
     backgroundColor: AppColors.ink,
     fontFamily: null,
     showWatermark: true,

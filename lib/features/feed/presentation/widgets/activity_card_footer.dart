@@ -40,8 +40,12 @@ class ActivityCardFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final canShare = canShareActivity(activity, isOwnActivity: isOwnActivity);
+    final isSession = activity.payload is SessionActivityPayload;
 
     return Row(
+      mainAxisAlignment: isSession
+          ? MainAxisAlignment.spaceAround
+          : MainAxisAlignment.start,
       children: [
         LikeButton(
           activityId: activity.id,
@@ -72,7 +76,7 @@ class ActivityCardFooter extends StatelessWidget {
         // page: posting the session is what the card is for, and on your own
         // activity this is the action you came back for.
         if (canShare) ...[
-          const SizedBox(width: 4),
+          if (!isSession) const SizedBox(width: 4),
           Semantics(
             label: l10n.share,
             button: true,
@@ -93,7 +97,7 @@ class ActivityCardFooter extends StatelessWidget {
             ),
           ),
         ],
-        const Spacer(),
+        if (!isSession) const Spacer(),
       ],
     );
   }

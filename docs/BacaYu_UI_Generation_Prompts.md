@@ -3,10 +3,12 @@
 Untuk dipakai di AI UI/code generator seperti **v0.dev, Galileo AI, Uizard, atau Figma AI (First Draft)**.
 
 **Dokumen Terkait:**
+
 - [Style Guide](./BacaYu_Style_Guide.md) — sumber semua token warna/tipografi yang dipakai di prompt ini
 - [PRD BacaYu](./PRD_BacaYu.md) — referensi fitur & user flow per layar
 
 **Cara pakai:**
+
 1. Tempel **Master Design System Prompt** di bagian paling atas/pertama setiap prompt (atau di "project context"/"style" setting kalau toolnya mendukung context terpisah seperti v0 project instructions).
 2. Lanjutkan dengan salah satu **prompt per layar** di bawahnya.
 3. Prompt ditulis dalam Bahasa Inggris karena kebanyakan tool AI UI generator memberi hasil lebih konsisten dengan input Inggris — tapi silakan diterjemahkan kalau tool-nya mendukung Bahasa Indonesia dengan baik.
@@ -99,7 +101,7 @@ Bottom navigation bar: 4 tabs (Home active, Shelf, Stats, Profile) with a center
 ```
 Design the Shelf screen for BacaYu — the user's personal book collection.
 
-Top app bar: title "My shelf", a search icon and a "+" add icon on the right (add icon opens search/scan/manual add options).
+Top app bar: title "My Shelf", a search icon and a "+" add icon on the right (add icon opens search/scan/manual add options).
 
 Below the app bar, a horizontal row of filter pill tabs: "All", "Want to read", "Reading", "Finished", "DNF" — active tab filled Tangerine, inactive tabs outlined/muted.
 

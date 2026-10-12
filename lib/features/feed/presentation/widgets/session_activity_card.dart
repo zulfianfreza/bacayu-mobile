@@ -74,21 +74,43 @@ class SessionActivityCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(payload.bookTitle, style: AppTypography.subheading),
-                      const SizedBox(height: 4),
-                      // One line, not three: the three numbers are read as a
-                      // set ("what did this session amount to"), and stacking
-                      // them made the card twice as tall as its content.
-                      Text(
-                        [
-                          formatSessionDuration(
-                            Duration(seconds: payload.activeDurationSeconds),
-                          ),
-                          l10n.pagesCount(payload.pagesRead),
-                          l10n.speedPpmValue(
-                            payload.speedPpm.toStringAsFixed(1),
-                          ),
-                        ].join(' · '),
-                        style: AppTypography.caption,
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 12,
+                        children: [
+                          for (final stat in [
+                            (
+                              label: l10n.shareStatTime,
+                              value: formatSessionDurationWords(
+                                Duration(
+                                  seconds: payload.activeDurationSeconds,
+                                ),
+                              ),
+                            ),
+                            (
+                              label: l10n.shareStatPages,
+                              value: payload.pagesRead.toString(),
+                            ),
+                            (
+                              label: l10n.shareStatSpeed,
+                              value: l10n.speedPpmValue(
+                                payload.speedPpm.toStringAsFixed(1),
+                              ),
+                            ),
+                          ])
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(stat.label, style: AppTypography.caption),
+                                const SizedBox(height: 4),
+                                Text(
+                                  stat.value,
+                                  style: AppTypography.subheading,
+                                ),
+                              ],
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -117,6 +139,7 @@ class SessionActivityCard extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(height: 16),
         ActivityCardFooter(activity: activity, isOwnActivity: isOwnActivity),
       ],
     );

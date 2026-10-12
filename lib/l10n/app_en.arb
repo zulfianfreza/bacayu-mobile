@@ -143,7 +143,7 @@
   "@alreadyInShelf": {
     "description": "Backend error ALREADY_IN_SHELF, localized"
   },
-  "shelfTitle": "My shelf",
+  "shelfTitle": "My Shelf",
   "@shelfTitle": {
     "description": "Shelf page app bar title"
   },
@@ -975,7 +975,7 @@
   "@download": {
     "description": "Button that saves the shareable card image to the gallery"
   },
-  "shareSession": "Share session",
+  "shareSession": "Share Session",
   "@shareSession": {
     "description": "Share preview sheet heading"
   },
