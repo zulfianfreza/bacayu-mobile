@@ -243,6 +243,31 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('plate has a transparent background and centered stat columns', (
+    tester,
+  ) async {
+    await tester.pumpWidget(wrap(buildData(), ShareCardTheme.plate));
+    expect(ShareCardTheme.plate.isSticker, isTrue);
+    expect(
+      find.descendant(of: backgroundLayer(), matching: find.byType(ColoredBox)),
+      findsNothing,
+    );
+    for (final label in ['TIME', 'PAGES', 'SPEED']) {
+      final column = find
+          .ancestor(of: find.text(label), matching: find.byType(Column))
+          .first;
+      expect(
+        tester.widget<Column>(column).crossAxisAlignment,
+        CrossAxisAlignment.center,
+      );
+      final fitted = find
+          .ancestor(of: find.text(label), matching: find.byType(FittedBox))
+          .first;
+      expect(tester.widget<FittedBox>(fitted).alignment, Alignment.center);
+    }
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('hero preset leads with the duration and leaves it out of the '
       'stats', (tester) async {
     await tester.pumpWidget(

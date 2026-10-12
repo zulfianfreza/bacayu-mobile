@@ -47,28 +47,36 @@ class _ShelfView extends StatelessWidget {
             }
           },
           builder: (context, state) {
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          l10n.shelfTitle,
-                          style: AppTypography.displaySm,
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.shelfTitle,
+                            style: AppTypography.displaySm,
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        tooltip: l10n.addABook,
-                        onPressed: () => _openAddBook(context),
-                      ),
-                    ],
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          tooltip: l10n.addABook,
+                          onPressed: () => _openAddBook(context),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                _FilterTabs(activeFilter: state.activeFilter),
-                Expanded(child: _ShelfBody(state: state)),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _FilterHeader(
+                    height: MediaQuery.textScalerOf(context).scale(48) + 8,
+                    activeFilter: state.activeFilter,
+                  ),
+                ),
+                _ShelfBody(state: state),
               ],
             );
           },
@@ -86,14 +94,20 @@ class _ShelfBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (state case ShelfLoading()) {
-      return const Center(child: CircularProgressIndicator());
+      return const SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (state case ShelfError(:final failure)) {
-      return Center(
-        child: Text(
-          failure.localizedMessage(context),
-          style: AppTypography.body,
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Text(
+            failure.localizedMessage(context),
+            style: AppTypography.body,
+          ),
         ),
       );
     }
@@ -101,8 +115,12 @@ class _ShelfBody extends StatelessWidget {
     final items = state.items;
 
     if (items.isEmpty) {
-      return _EmptyShelf(
-        onAddBook: () => pushFullScreen(context, (_) => const BookSearchPage()),
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: _EmptyShelf(
+          onAddBook: () =>
+              pushFullScreen(context, (_) => const BookSearchPage()),
+        ),
       );
     }
 
@@ -114,36 +132,38 @@ class _ShelfBody extends StatelessWidget {
     const gap = 12.0;
     final rowCount = (items.length / columns).ceil();
 
-    return ListView.builder(
+    return SliverPadding(
       padding: const EdgeInsets.all(16),
-      itemCount: rowCount,
-      itemBuilder: (context, rowIndex) {
-        final start = rowIndex * columns;
-        final row = items.skip(start).take(columns).toList();
+      sliver: SliverList.builder(
+        itemCount: rowCount,
+        itemBuilder: (context, rowIndex) {
+          final start = rowIndex * columns;
+          final row = items.skip(start).take(columns).toList();
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: gap),
-          // IntrinsicHeight gives the stretch something to resolve against;
-          // a ListView hands each row an unbounded height otherwise. Both
-          // cards then share the taller one's height, so a one-line title and
-          // a four-line title still read as one grid.
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < columns; i++) ...[
-                  if (i > 0) const SizedBox(width: gap),
-                  Expanded(
-                    child: i < row.length
-                        ? ShelfBookCard(userBook: row[i])
-                        : const SizedBox.shrink(),
-                  ),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: gap),
+            // IntrinsicHeight gives the stretch something to resolve against;
+            // a ListView hands each row an unbounded height otherwise. Both
+            // cards then share the taller one's height, so a one-line title and
+            // a four-line title still read as one grid.
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < columns; i++) ...[
+                    if (i > 0) const SizedBox(width: gap),
+                    Expanded(
+                      child: i < row.length
+                          ? ShelfBookCard(userBook: row[i])
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -208,10 +228,10 @@ class _FilterTabs extends StatelessWidget {
     return SizedBox(
       // Scaled with the user's font size: the pills carry labels, and a fixed
       // row would clip them the moment someone sets larger type.
-      height: MediaQuery.textScalerOf(context).scale(56),
+      height: MediaQuery.textScalerOf(context).scale(48) + 8,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         itemCount: tabs.length,
         separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
@@ -219,10 +239,40 @@ class _FilterTabs extends StatelessWidget {
           return FilterPill(
             label: label,
             isActive: status == activeFilter,
+            compact: true,
             onTap: () => context.read<ShelfCubit>().changeFilter(status),
           );
         },
       ),
     );
   }
+}
+
+class _FilterHeader extends SliverPersistentHeaderDelegate {
+  const _FilterHeader({required this.height, required this.activeFilter});
+
+  final double height;
+  final ShelfStatus? activeFilter;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: _FilterTabs(activeFilter: activeFilter),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_FilterHeader oldDelegate) =>
+      height != oldDelegate.height || activeFilter != oldDelegate.activeFilter;
 }

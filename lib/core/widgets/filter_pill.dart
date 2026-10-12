@@ -20,6 +20,7 @@ class FilterPill extends StatelessWidget {
     required this.isActive,
     required this.onTap,
     this.expand = false,
+    this.compact = false,
   });
 
   final String label;
@@ -27,31 +28,47 @@ class FilterPill extends StatelessWidget {
   final VoidCallback onTap;
 
   final bool expand;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final text = Text(
       label,
-      style: AppTypography.button.copyWith(
+      style: (compact ? AppTypography.caption : AppTypography.button).copyWith(
         color: isActive ? Colors.white : context.colors.textSecondary,
       ),
     );
 
-    return GestureDetector(
-      onTap: onTap,
-      child: RaisedBox(
-        color: isActive ? AppColors.tangerine : context.colors.surface,
-        radius: AppRadius.pill,
-        edgeHeight: 3,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: expand
-            ? SizedBox(
-                width: double.infinity,
-                // Four labels share one row in every language, and "Minggu" is
-                // already tight in Indonesian — shrink rather than truncate.
-                child: FittedBox(fit: BoxFit.scaleDown, child: text),
-              )
-            : text,
+    return Semantics(
+      button: true,
+      selected: isActive,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Align(
+            widthFactor: 1,
+            heightFactor: 1,
+            child: RaisedBox(
+              color: isActive ? AppColors.tangerine : context.colors.surface,
+              radius: AppRadius.pill,
+              edgeHeight: compact ? 2 : 3,
+              padding: EdgeInsets.symmetric(
+                horizontal: compact ? 12 : 16,
+                vertical: compact ? 7 : 10,
+              ),
+              child: expand
+                  ? SizedBox(
+                      width: double.infinity,
+                      // Four labels share one row in every language, and "Minggu" is
+                      // already tight in Indonesian — shrink rather than truncate.
+                      child: FittedBox(fit: BoxFit.scaleDown, child: text),
+                    )
+                  : text,
+            ),
+          ),
+        ),
       ),
     );
   }

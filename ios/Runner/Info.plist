@@ -42,6 +42,8 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>BacaYu menggunakan kamera untuk memindai barcode ISBN buku.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>BacaYu menyimpan gambar kartu sesi baca ke galeri fotomu.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

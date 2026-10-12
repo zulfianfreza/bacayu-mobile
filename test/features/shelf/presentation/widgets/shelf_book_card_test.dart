@@ -290,6 +290,14 @@ void main() {
       expect(tester.widget<Text>(label).style?.fontSize, 12);
       expect(tester.getSize(action).width, greaterThan(140));
       expect(tester.getSize(action).height, greaterThanOrEqualTo(48));
+      final surface = find.descendant(
+        of: action,
+        matching: find.byType(RaisedBox),
+      );
+      expect(
+        tester.getSize(surface).height,
+        lessThan(tester.getSize(action).height),
+      );
       expect(
         tester.getTopLeft(action).dy,
         greaterThan(tester.getBottomLeft(find.text('Atomic Habits')).dy),

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/di/injection.dart';
 import 'package:mobile/core/theme/app_typography.dart';
+import 'package:mobile/core/widgets/filter_pill.dart';
+import 'package:mobile/core/widgets/raised_box.dart';
 import 'package:mobile/features/books/domain/entities/book.dart';
 import 'package:mobile/features/shelf/domain/entities/user_book.dart';
 import 'package:mobile/features/shelf/domain/repositories/shelf_repository.dart';
@@ -124,6 +126,39 @@ void main() {
     expect(first.left, lessThan(second.left));
     expect(second.top, first.top);
     expect(third.top, greaterThan(first.top));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('compact filters stay pinned while the headline scrolls away', (
+    tester,
+  ) async {
+    when(
+      () => repository.listShelf(
+        status: any(named: 'status'),
+        page: any(named: 'page'),
+      ),
+    ).thenAnswer(
+      (_) async => Right([for (var i = 0; i < 20; i++) _userBook('Book $i')]),
+    );
+    await pumpShelf(tester);
+    final title = find.text(
+      AppLocalizations.of(tester.element(find.byType(ShelfPage)))!.shelfTitle,
+    );
+    final filter = find.byType(FilterPill).first;
+    final pill = find.descendant(of: filter, matching: find.byType(RaisedBox));
+    final label = find.descendant(of: filter, matching: find.byType(Text));
+    expect(tester.widget<Text>(label).style?.fontSize, 13);
+    expect(tester.getSize(pill).height, lessThanOrEqualTo(36));
+    expect(tester.getSize(filter).height, greaterThanOrEqualTo(48));
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -350));
+    await tester.pumpAndSettle();
+    expect(title.hitTestable(), findsNothing);
+    expect(filter.hitTestable(), findsOneWidget);
+    final top = tester.getTopLeft(filter).dy;
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(filter).dy, top);
     expect(tester.takeException(), isNull);
   });
 

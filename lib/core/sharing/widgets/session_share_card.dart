@@ -649,20 +649,23 @@ class _Stats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final centered = theme.layout == ShareCardLayout.framed;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < stats.length; i++) ...[
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: centered
+                  ? CrossAxisAlignment.center
+                  : CrossAxisAlignment.start,
               children: [
                 // Scaled down rather than ellipsized: the time value runs to
                 // "1h 46m 7s" inside a third of the card, and a stat that reads
                 // as a half-said number is worse than a slightly smaller one.
                 FittedBox(
                   fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
+                  alignment: centered ? Alignment.center : Alignment.centerLeft,
                   child: Text(
                     stats[i].value,
                     // A notch under the `heading` token: the widest value is
@@ -680,7 +683,7 @@ class _Stats extends StatelessWidget {
                 const SizedBox(height: 2),
                 FittedBox(
                   fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
+                  alignment: centered ? Alignment.center : Alignment.centerLeft,
                   child: Text(
                     stats[i].label.toUpperCase(),
                     style: _overlayTextStyle(

@@ -110,7 +110,7 @@ class ShareCardTheme extends Equatable {
   /// The cover in a plate above the text, rather than filling the frame.
   static const plate = ShareCardTheme(
     layout: ShareCardLayout.framed,
-    background: ShareCardBackground.solid,
+    background: ShareCardBackground.scrimOnly,
     backgroundColor: AppColors.ink,
     fontFamily: null,
     showWatermark: true,

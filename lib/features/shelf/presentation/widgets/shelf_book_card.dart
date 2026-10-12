@@ -313,19 +313,20 @@ class _StatusControl extends StatelessWidget {
     return Semantics(
       button: true,
       label: l10n.changeStatus,
-      child: RaisedBox(
-        color: background,
-        radius: AppRadius.md,
-        edgeHeight: 3,
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 48),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              alignment: Alignment.center,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
+            padding: const EdgeInsets.symmetric(vertical: 7),
+            alignment: Alignment.center,
+            child: RaisedBox(
+              color: background,
+              radius: AppRadius.sm,
+              edgeHeight: 2,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               child: Row(
                 children: [
                   Expanded(
