@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/core/di/injection.dart';
+import 'package:mobile/core/theme/app_typography.dart';
 import 'package:mobile/features/books/domain/entities/book.dart';
 import 'package:mobile/features/shelf/domain/entities/user_book.dart';
 import 'package:mobile/features/shelf/domain/repositories/shelf_repository.dart';
@@ -97,6 +98,21 @@ void main() {
 
   Rect cardAt(WidgetTester tester, int index) =>
       tester.getRect(find.byType(ShelfBookCard).at(index));
+
+  testWidgets('uses the stats headline style with an add action on the right', (
+    tester,
+  ) async {
+    await pumpShelf(tester);
+    final context = tester.element(find.byType(ShelfPage));
+    final title = find.text(AppLocalizations.of(context)!.shelfTitle);
+    expect(find.byType(AppBar), findsNothing);
+    expect(tester.widget<Text>(title).style, AppTypography.displaySm);
+    expect(tester.getTopLeft(title).dx, 16);
+    expect(
+      tester.getTopLeft(find.byIcon(Icons.add)).dx,
+      greaterThan(tester.getTopRight(title).dx),
+    );
+  });
 
   testWidgets('lays the shelf out two books per row', (tester) async {
     await pumpShelf(tester);

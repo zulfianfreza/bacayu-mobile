@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -339,6 +340,12 @@ class _SettingsTab extends StatelessWidget {
         const SizedBox(height: 16),
         SettingsListGroup(
           children: [
+            if (kDebugMode)
+              SettingsListTile(
+                iconData: Icons.bug_report_outlined,
+                label: l10n.debugLogs,
+                onTap: () => context.push(AppRoutes.debugLogs),
+              ),
             SettingsListTile(
               icon: "assets/icons/logout-stroke.png",
               label: l10n.logOut,

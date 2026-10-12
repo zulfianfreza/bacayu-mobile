@@ -9,6 +9,9 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get debugLogs => 'Debug Logs';
+
+  @override
   String get retry => 'Retry';
 
   @override

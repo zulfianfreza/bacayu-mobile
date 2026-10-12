@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Badge;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -158,9 +160,6 @@ class _BadgeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final artwork = BadgeArtwork(imageUrl: badge.imageUrl, size: 72);
-    final stateColor = badge.unlocked
-        ? context.colors.lagoonAccent
-        : context.colors.textSecondary;
 
     return GestureDetector(
       onLongPress: kDebugMode
@@ -175,40 +174,45 @@ class _BadgeCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            badge.unlocked
-                ? artwork
-                : ColorFiltered(
-                    colorFilter: _grayscale,
-                    child: Opacity(opacity: 0.45, child: artwork),
-                  ),
+            Semantics(
+              label: badge.unlocked ? l10n.badgeUnlocked : l10n.badgeLocked,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  badge.unlocked
+                      ? artwork
+                      : ColorFiltered(
+                          colorFilter: _grayscale,
+                          child: ClipRect(
+                            child: ImageFiltered(
+                              imageFilter: ui.ImageFilter.blur(
+                                sigmaX: 3,
+                                sigmaY: 3,
+                              ),
+                              child: Opacity(opacity: 0.45, child: artwork),
+                            ),
+                          ),
+                        ),
+                  if (!badge.unlocked)
+                    Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Image.asset(
+                        'assets/icons/lock-stroke.png',
+                        width: 20,
+                        height: 20,
+                        color: context.colors.textSecondary,
+                      ),
+                    ),
+                ],
+              ),
+            ),
             const SizedBox(height: 10),
             // Uncapped, like every other name in the app: it wraps rather than
             // being cut.
             Text(
               badge.name,
-              style: AppTypography.subheading,
+              style: AppTypography.statusLabel,
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            // The state is said out loud, not carried by the greying alone.
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  badge.unlocked
-                      ? Icons.check_circle_outline
-                      : Icons.lock_outline,
-                  size: 14,
-                  color: stateColor,
-                ),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    badge.unlocked ? l10n.badgeUnlocked : l10n.badgeLocked,
-                    style: AppTypography.caption.copyWith(color: stateColor),
-                  ),
-                ),
-              ],
             ),
           ],
         ),

@@ -42,7 +42,7 @@ class _NotesView extends StatelessWidget {
     final l10n = context.l10n;
 
     final outcome = await NoteEditorSheet.show(context, note: note);
-    if (outcome == null) return;
+    if (outcome == null || !context.mounted || cubit.isClosed) return;
 
     final Failure? failure;
     final String message;

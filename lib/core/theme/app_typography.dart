@@ -79,6 +79,13 @@ class AppTypography {
         height: 1.4,
       );
 
+  /// 12px Bold — compact status labels.
+  static TextStyle get statusLabel => _nunito(
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
+        height: 1.4,
+      );
+
   /// 15px SemiBold — button and nav labels.
   static TextStyle get button => _nunito(
         fontSize: 15,

@@ -32,9 +32,12 @@ class NotesCubit extends Cubit<NotesState> {
   String? _userBookId;
 
   Future<void> load(String userBookId) async {
+    if (isClosed) return;
     _userBookId = userBookId;
     emit(const NotesLoading());
     final result = await _listNotes(userBookId: userBookId);
+    // Scrolling can dispose the section while its request is still in flight.
+    if (isClosed) return;
     result.fold(
       (failure) => emit(NotesError(failure: failure)),
       (notes) => emit(NotesLoaded(items: notes)),
@@ -92,9 +95,10 @@ class NotesCubit extends Cubit<NotesState> {
 
   Future<void> _refresh() async {
     final userBookId = _userBookId;
-    if (userBookId == null) return;
+    if (isClosed || userBookId == null) return;
 
     final result = await _listNotes(userBookId: userBookId);
+    if (isClosed) return;
     result.fold(
       // A failed refresh keeps the previous list on screen; the write itself
       // already succeeded, so this must not surface as a failed save.

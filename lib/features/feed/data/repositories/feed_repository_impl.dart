@@ -50,6 +50,8 @@ class FeedRepositoryImpl implements FeedRepository {
       final page = await request(cursor);
       final activities = page.items
           .cast<Map<String, dynamic>>()
+          // Starting a reread is not a feed post; actual reading sessions are.
+          .where((item) => item['activity_type'] != 'reread_started')
           .map(ActivityModel.fromJson)
           .toList();
       return Right(

@@ -9,6 +9,9 @@ class AppLocalizationsId extends AppLocalizations {
   AppLocalizationsId([String locale = 'id']) : super(locale);
 
   @override
+  String get debugLogs => 'Log Debug';
+
+  @override
   String get retry => 'Coba lagi';
 
   @override

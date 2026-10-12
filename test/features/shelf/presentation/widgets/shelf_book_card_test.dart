@@ -273,9 +273,21 @@ void main() {
   ) async {
     for (final status in ShelfStatus.values) {
       await tester.pumpWidget(wrap(_userBook(status: status)));
-      final arrow = find.byIcon(Icons.keyboard_arrow_down_rounded);
-      expect(arrow, findsOneWidget);
-      final action = find.ancestor(of: arrow, matching: find.byType(InkWell));
+      final label = find.text(switch (status) {
+        ShelfStatus.wantToRead => 'Want to read',
+        ShelfStatus.reading => 'Reading',
+        ShelfStatus.finished => 'Finished',
+        ShelfStatus.dnf => 'DNF',
+      });
+      expect(label, findsOneWidget);
+      final action = find.ancestor(of: label, matching: find.byType(InkWell));
+      final icons = find.descendant(of: action, matching: find.byType(Icon));
+      expect(icons, findsOneWidget);
+      expect(
+        tester.widget<Icon>(icons).icon,
+        Icons.keyboard_arrow_down_rounded,
+      );
+      expect(tester.widget<Text>(label).style?.fontSize, 12);
       expect(tester.getSize(action).width, greaterThan(140));
       expect(tester.getSize(action).height, greaterThanOrEqualTo(48));
       expect(

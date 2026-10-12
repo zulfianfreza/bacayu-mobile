@@ -1,5 +1,6 @@
 {
   "@@locale": "en",
+  "debugLogs": "Debug Logs",
   "retry": "Retry",
   "@retry": {
     "description": "Button label to retry a failed action"

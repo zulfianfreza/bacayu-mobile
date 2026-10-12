@@ -287,30 +287,26 @@ class _StatusControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final (label, background, foreground, icon) = switch (status) {
+    final (label, background, foreground) = switch (status) {
       ShelfStatus.wantToRead => (
         l10n.statusWantToRead,
         context.colors.hairline,
         context.colors.textSecondary,
-        Icons.bookmark_outline_rounded,
       ),
       ShelfStatus.reading => (
         l10n.statusReading,
         context.colors.lagoonTint,
         context.colors.lagoonAccent,
-        Icons.auto_stories_rounded,
       ),
       ShelfStatus.finished => (
         l10n.statusFinished,
         context.colors.sunshineTint,
         context.colors.sunshineAccent,
-        Icons.check_circle_outline_rounded,
       ),
       ShelfStatus.dnf => (
         l10n.statusDnf,
         context.colors.hairline,
         context.colors.textSecondary,
-        Icons.pause_circle_outline_rounded,
       ),
     };
 
@@ -329,16 +325,15 @@ class _StatusControl extends StatelessWidget {
             child: Container(
               constraints: const BoxConstraints(minHeight: 48),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              alignment: Alignment.center,
               child: Row(
                 children: [
-                  Icon(icon, size: 18, color: foreground),
-                  const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       label,
-                      style: AppTypography.caption.copyWith(
+                      textAlign: TextAlign.start,
+                      style: AppTypography.statusLabel.copyWith(
                         color: foreground,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

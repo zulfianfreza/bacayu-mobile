@@ -80,9 +80,10 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('each badge says whether it is unlocked, not just shows it', (
+  testWidgets('status is semantic and locked artwork has a lock overlay', (
     tester,
   ) async {
+    final semantics = tester.ensureSemantics();
     stubBadges([
       _badge('b1', unlocked: true),
       _badge('b2', unlocked: false, name: 'Night Owl'),
@@ -90,11 +91,31 @@ void main() {
 
     await pumpGallery(tester);
 
-    expect(find.text('Terbuka'), findsOneWidget);
-    expect(find.text('Terkunci'), findsOneWidget);
+    expect(find.text('Terbuka'), findsNothing);
+    expect(find.text('Terkunci'), findsNothing);
+    expect(find.bySemanticsLabel(RegExp('Terbuka')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Terkunci')), findsOneWidget);
+    expect(find.byIcon(Icons.check_circle_outline), findsNothing);
+    final lock = find.byIcon(Icons.lock_outline);
+    expect(lock, findsOneWidget);
+    final artwork = find.byType(BadgeArtwork).last;
+    expect(tester.getCenter(lock), tester.getCenter(artwork));
+    expect(find.byType(ImageFiltered), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(ImageFiltered),
+        matching: find.byType(BadgeArtwork),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: find.byType(ImageFiltered), matching: lock),
+      findsNothing,
+    );
     // Artwork for every badge, locked ones included.
     expect(find.byType(BadgeArtwork), findsNWidgets(2));
     expect(tester.takeException(), isNull);
+    semantics.dispose();
   });
 
   testWidgets('unlocked badges come first while preserving each group order', (

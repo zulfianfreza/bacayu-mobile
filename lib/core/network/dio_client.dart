@@ -2,12 +2,14 @@ import 'dart:developer' as developer;
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../di/injection.dart';
 import '../error/failure.dart';
 import '../storage/secure_token_storage.dart';
 import 'session_expired_handler.dart';
+import 'debug_network_logger.dart';
 
 /// Creates the single [Dio] instance the whole app shares. Base URL comes
 /// from `--dart-define=API_BASE_URL=...`, never hardcoded.
@@ -35,6 +37,7 @@ abstract class DioClientModule {
       // still zero direct imports from `features/auth`.
       SessionExpiryInterceptor(() => getIt<SessionExpiredHandler>()),
       RequestLoggingInterceptor(),
+      if (kDebugMode) DebugNetworkLogger(debugTalker),
     ]);
 
     return dio;
@@ -101,7 +104,10 @@ class AuthInterceptor extends Interceptor {
 class RequestLoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    developer.log('--> ${options.method} ${options.uri}', name: 'DioClient');
+    developer.log(
+      '--> ${options.method} ${options.uri.replace(query: '')}',
+      name: 'DioClient',
+    );
     handler.next(options);
   }
 
@@ -112,7 +118,7 @@ class RequestLoggingInterceptor extends Interceptor {
   ) {
     final requestId = _requestIdOf(response);
     developer.log(
-      '<-- ${response.statusCode} ${response.requestOptions.uri} '
+      '<-- ${response.statusCode} ${response.requestOptions.uri.replace(query: '')} '
       '(request_id: $requestId)',
       name: 'DioClient',
     );
@@ -123,10 +129,9 @@ class RequestLoggingInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final requestId = _requestIdOf(err.response);
     developer.log(
-      '<-- ERROR ${err.response?.statusCode} ${err.requestOptions.uri} '
-      '(request_id: $requestId): ${err.message}',
+      '<-- ERROR ${err.response?.statusCode} ${err.requestOptions.uri.replace(query: '')} '
+      '(request_id: $requestId): ${err.type.name}',
       name: 'DioClient',
-      error: err,
     );
     handler.next(err);
   }

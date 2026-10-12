@@ -1,5 +1,6 @@
 {
   "@@locale": "id",
+  "debugLogs": "Log Debug",
   "retry": "Coba lagi",
   "cancel": "Batal",
   "save": "Simpan",

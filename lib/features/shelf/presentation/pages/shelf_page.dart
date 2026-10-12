@@ -39,30 +39,40 @@ class _ShelfView extends StatelessWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.shelfTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: l10n.addABook,
-            onPressed: () => _openAddBook(context),
-          ),
-        ],
-      ),
-      body: BlocConsumer<ShelfCubit, ShelfState>(
-        listener: (context, state) {
-          if (state is ShelfUpdateError) {
-            context.showFailureSnackBar(state.failure);
-          }
-        },
-        builder: (context, state) {
-          return Column(
-            children: [
-              _FilterTabs(activeFilter: state.activeFilter),
-              Expanded(child: _ShelfBody(state: state)),
-            ],
-          );
-        },
+      body: SafeArea(
+        child: BlocConsumer<ShelfCubit, ShelfState>(
+          listener: (context, state) {
+            if (state is ShelfUpdateError) {
+              context.showFailureSnackBar(state.failure);
+            }
+          },
+          builder: (context, state) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.shelfTitle,
+                          style: AppTypography.displaySm,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        tooltip: l10n.addABook,
+                        onPressed: () => _openAddBook(context),
+                      ),
+                    ],
+                  ),
+                ),
+                _FilterTabs(activeFilter: state.activeFilter),
+                Expanded(child: _ShelfBody(state: state)),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

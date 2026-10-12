@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
@@ -18,6 +20,7 @@ import '../../features/social/presentation/pages/leaderboard_page.dart';
 import '../../features/stats/presentation/pages/stats_page.dart';
 import '../navigation/app_shell.dart';
 import '../storage/secure_token_storage.dart';
+import '../network/debug_network_logger.dart';
 import 'go_router_refresh_stream.dart';
 
 /// Route paths as constants — never hardcode a path string at a call site.
@@ -32,6 +35,7 @@ class AppRoutes {
   static const shelf = '/shelf';
   static const stats = '/stats';
   static const profile = '/profile';
+  static const debugLogs = '/debug/logs';
 
   static const followers = '/followers';
   static const following = '/following';
@@ -86,6 +90,7 @@ abstract class AppRouterModule {
 
         // Splash owns its own navigation decision; never intercept it here.
         if (location == AppRoutes.splash) return null;
+        if (kDebugMode && location == AppRoutes.debugLogs) return null;
 
         final hasToken = await tokenStorage.hasToken();
         final isPublicRoute = _publicRoutes.contains(location);
@@ -95,6 +100,11 @@ abstract class AppRouterModule {
         return null;
       },
       routes: [
+        if (kDebugMode)
+          GoRoute(
+            path: AppRoutes.debugLogs,
+            builder: (context, state) => TalkerScreen(talker: debugTalker),
+          ),
         GoRoute(
           path: AppRoutes.splash,
           builder: (context, state) => const SplashPage(),

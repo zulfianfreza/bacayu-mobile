@@ -98,6 +98,12 @@ abstract class AppLocalizations {
     Locale('id'),
   ];
 
+  /// No description provided for @debugLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug Logs'**
+  String get debugLogs;
+
   /// Button label to retry a failed action
   ///
   /// In en, this message translates to:
