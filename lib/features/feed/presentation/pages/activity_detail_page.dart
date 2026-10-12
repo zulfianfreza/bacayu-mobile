@@ -231,7 +231,7 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                     avatarUrl: activity.author.avatarUrl,
                     occurredAt: activity.occurredAt,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                   _ActivityHeader(
                     activity: activity,
                     badgeImageUrl: widget.badgeImageUrl,
@@ -239,11 +239,9 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                   if (widget.session != null &&
                       widget.session!.pauses.isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    Divider(height: 1, color: context.colors.hairline),
-                    const SizedBox(height: 12),
                     _PausesBlock(session: widget.session!),
                   ],
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       LikeButton(
@@ -280,11 +278,11 @@ class _ActivityDetailBodyState extends State<_ActivityDetailBody> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const _SectionDivider(),
               if (widget.session != null &&
                   widget.session!.badges.isNotEmpty) ...[
                 _SessionBadges(badges: widget.session!.badges),
-                const SizedBox(height: 24),
+                const _SectionDivider(),
               ],
               FutureBuilder<Either<Failure, List<ActivityComment>>>(
                 future: _commentsFuture,
@@ -439,16 +437,21 @@ class _SessionHeader extends StatelessWidget {
         const SizedBox(height: 12),
         Wrap(
           alignment: WrapAlignment.center,
-          spacing: 8,
-          runSpacing: 8,
+          spacing: 24,
+          runSpacing: 12,
           children: [
             _StatChip(
-              text: formatSessionDuration(
+              label: l10n.shareStatTime,
+              text: formatSessionDurationWords(
                 Duration(seconds: payload.activeDurationSeconds),
               ),
             ),
-            _StatChip(text: l10n.pagesCount(payload.pagesRead)),
             _StatChip(
+              label: l10n.shareStatPages,
+              text: payload.pagesRead.toString(),
+            ),
+            _StatChip(
+              label: l10n.shareStatSpeed,
               text: l10n.speedPpmValue(payload.speedPpm.toStringAsFixed(1)),
             ),
           ],
@@ -507,20 +510,44 @@ class _BadgeHeader extends StatelessWidget {
   }
 }
 
-class _StatChip extends StatelessWidget {
-  const _StatChip({required this.text});
+class _SectionDivider extends StatelessWidget {
+  const _SectionDivider();
 
+  @override
+  Widget build(BuildContext context) {
+    // Extend through the ListView's 16px padding on both sides.
+    return LayoutBuilder(
+      builder: (context, constraints) => SizedBox(
+        height: 32,
+        child: OverflowBox(
+          minWidth: constraints.maxWidth + 32,
+          maxWidth: constraints.maxWidth + 32,
+          child: Divider(
+            height: 32,
+            thickness: 4,
+            color: context.colors.hairline,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  const _StatChip({required this.label, required this.text});
+
+  final String label;
   final String text;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: context.colors.hairline,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Text(text, style: AppTypography.bodyStrong),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label, style: AppTypography.caption),
+        const SizedBox(height: 4),
+        Text(text, style: AppTypography.subheading),
+      ],
     );
   }
 }

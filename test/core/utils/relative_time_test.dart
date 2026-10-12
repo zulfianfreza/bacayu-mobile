@@ -42,4 +42,28 @@ void main() {
     expect(month, isNot(contains('ago')));
     expect(month, contains('2026'));
   });
+
+  test('activity dates include local time, recent times stay relative', () {
+    final occurredAt = DateTime(2026, 3, 1, 9, 35).toUtc();
+    expect(
+      formatRelativeTime(
+        l10n: l10n,
+        locale: 'en',
+        occurredAt: occurredAt,
+        now: now,
+        includeTime: true,
+      ),
+      'Mar 1, 2026 09:35',
+    );
+    expect(
+      formatRelativeTime(
+        l10n: l10n,
+        locale: 'en',
+        occurredAt: now.subtract(const Duration(minutes: 5)),
+        now: now,
+        includeTime: true,
+      ),
+      '5m ago',
+    );
+  });
 }

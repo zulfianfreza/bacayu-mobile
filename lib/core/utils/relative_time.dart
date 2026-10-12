@@ -13,6 +13,7 @@ String formatRelativeTime({
   required String locale,
   required DateTime occurredAt,
   DateTime? now,
+  bool includeTime = false,
 }) {
   final elapsed = (now ?? DateTime.now()).difference(occurredAt);
 
@@ -21,5 +22,7 @@ String formatRelativeTime({
   if (elapsed.inDays < 1) return l10n.timeHoursAgo(elapsed.inHours);
   if (elapsed.inDays < 7) return l10n.timeDaysAgo(elapsed.inDays);
 
-  return DateFormat.yMMMd(locale).format(occurredAt);
+  final date = DateFormat.yMMMd(locale);
+  if (includeTime) date.add_Hm();
+  return date.format(occurredAt.toLocal());
 }

@@ -124,6 +124,45 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('long genre labels stay in their slots with full-name tooltips', (
+    tester,
+  ) async {
+    const genre = 'Foreign Language study / English as a Second Language';
+    when(() => statsRepository.getSummary(any())).thenAnswer(
+      (_) async => const Right(
+        StatsSummary(
+          booksFinished: 12,
+          totalPages: 1200,
+          totalMinutes: 600,
+          avgSpeedPpm: 1.2,
+          genreDistribution: [
+            GenreCount(genre: genre, count: 3),
+            GenreCount(genre: 'Fiction', count: 2),
+            GenreCount(genre: 'History', count: 1),
+          ],
+        ),
+      ),
+    );
+    await pumpStats(tester);
+    final label = tester.widget<Text>(find.text(genre));
+    expect(label.maxLines, 2);
+    expect(label.overflow, TextOverflow.ellipsis);
+    expect(label.textAlign, TextAlign.center);
+    final tooltip = find.byWidgetPredicate(
+      (widget) => widget is Tooltip && widget.message == genre,
+    );
+    expect(tooltip, findsOneWidget);
+    expect(
+      tester.getRect(find.text(genre)).right,
+      lessThanOrEqualTo(tester.getRect(find.text('Fiction')).left),
+    );
+    await tester.ensureVisible(tooltip);
+    await tester.longPress(tooltip);
+    await tester.pumpAndSettle();
+    expect(find.text(genre), findsNWidgets(2));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('selects a range without reloading the already active range', (
     tester,
   ) async {

@@ -190,6 +190,30 @@ void main() {
     // is on screen from the first frame.
     expect(find.text('Atomic Habits'), findsOneWidget);
     expect(find.byType(ActivityAuthorHeader), findsOneWidget);
+    expect(find.byType(Divider), findsNWidgets(3));
+    for (final divider in find.byType(Divider).evaluate()) {
+      expect((divider.widget as Divider).thickness, 8);
+      expect(
+        tester.getRect(find.byWidget(divider.widget)).width,
+        tester.getRect(find.byType(Scaffold).first).width,
+      );
+    }
+    for (final stat in [
+      (label: 'Time', value: '10m'),
+      (label: 'Pages', value: '20'),
+      (label: 'Speed', value: '1.2 ppm'),
+    ]) {
+      expect(
+        tester.getRect(find.text(stat.label)).bottom,
+        lessThan(tester.getRect(find.text(stat.value)).top),
+      );
+      expect(tester.widget<Text>(find.text(stat.label)).style!.fontSize, 13);
+      expect(tester.widget<Text>(find.text(stat.value)).style!.fontSize, 16);
+      expect(
+        tester.widget<Text>(find.text(stat.value)).style!.fontWeight,
+        FontWeight.w700,
+      );
+    }
     expect(tester.takeException(), isNull);
   });
 

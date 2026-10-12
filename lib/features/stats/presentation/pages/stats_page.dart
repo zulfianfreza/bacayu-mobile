@@ -424,55 +424,71 @@ class _GenreDistributionChart extends StatelessWidget {
       title: l10n.statsGenresTitle,
       child: SizedBox(
         height: 180,
-        child: BarChart(
-          BarChartData(
-            maxY: maxCount * 1.2,
-            gridData: const FlGridData(show: false),
-            borderData: FlBorderData(show: false),
-            barGroups: [
-              for (var i = 0; i < genreDistribution.length; i++)
-                BarChartGroupData(
-                  x: i,
-                  barRods: [
-                    BarChartRodData(
-                      toY: genreDistribution[i].count.toDouble(),
-                      color: _colors[i % _colors.length],
-                      width: 20,
-                      // Rounded like everything else that carries the brand —
-                      // sharp-topped bars read as a charting library default.
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(AppRadius.sm),
+        child: LayoutBuilder(
+          builder: (context, constraints) => BarChart(
+            BarChartData(
+              maxY: maxCount * 1.2,
+              alignment: BarChartAlignment.spaceAround,
+              gridData: const FlGridData(show: false),
+              borderData: FlBorderData(show: false),
+              barGroups: [
+                for (var i = 0; i < genreDistribution.length; i++)
+                  BarChartGroupData(
+                    x: i,
+                    barRods: [
+                      BarChartRodData(
+                        toY: genreDistribution[i].count.toDouble(),
+                        color: _colors[i % _colors.length],
+                        width: 20,
+                        // Rounded like everything else that carries the brand —
+                        // sharp-topped bars read as a charting library default.
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(AppRadius.sm),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+              ],
+              titlesData: FlTitlesData(
+                leftTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
                 ),
-            ],
-            titlesData: FlTitlesData(
-              leftTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  getTitlesWidget: (value, meta) {
-                    final index = value.toInt();
-                    if (index < 0 || index >= genreDistribution.length) {
-                      return const SizedBox.shrink();
-                    }
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        genreDistribution[index].genre,
-                        style: AppTypography.caption,
-                      ),
-                    );
-                  },
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize:
+                        MediaQuery.textScalerOf(context).scale(40) + 8,
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (index < 0 || index >= genreDistribution.length) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: SizedBox(
+                          width:
+                              constraints.maxWidth / genreDistribution.length -
+                              8,
+                          child: Tooltip(
+                            message: genreDistribution[index].genre,
+                            child: Text(
+                              genreDistribution[index].genre,
+                              style: AppTypography.caption,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

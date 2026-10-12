@@ -26,7 +26,7 @@ class ActivityAuthorHeader extends StatelessWidget {
 
   final String name;
 
-  /// When it happened — "2h ago", or a plain date once it is over a week old.
+  /// When it happened: relative time, or local date and time after a week.
   final DateTime occurredAt;
 
   final String? avatarUrl;
@@ -60,7 +60,10 @@ class ActivityAuthorHeader extends StatelessWidget {
             children: [
               Text(
                 name,
-                style: AppTypography.bodyStrong,
+                style: AppTypography.displaySm.copyWith(
+                  fontSize: AppTypography.caption.fontSize,
+                  height: AppTypography.caption.height,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -69,8 +72,13 @@ class ActivityAuthorHeader extends StatelessWidget {
                   l10n: context.l10n,
                   locale: Localizations.localeOf(context).toLanguageTag(),
                   occurredAt: occurredAt,
+                  includeTime: true,
                 ),
-                style: AppTypography.caption,
+                style: AppTypography.body.copyWith(
+                  fontSize: AppTypography.statusLabel.fontSize,
+                  height: AppTypography.statusLabel.height,
+                  color: context.colors.textSecondary,
+                ),
               ),
             ],
           ),

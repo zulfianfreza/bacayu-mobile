@@ -215,8 +215,8 @@ class _ActivityTab extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     itemCount: activities.length + (isLoadingMore ? 1 : 0),
                     separatorBuilder: (context, index) => Divider(
-                      height: 8,
-                      thickness: 8,
+                      height: 4,
+                      thickness: 4,
                       color: context.colors.hairline,
                     ),
                     itemBuilder: (context, index) {

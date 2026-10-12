@@ -29,67 +29,40 @@ class AppTypography {
   }
 
   /// 40px ExtraBold — streak count, other large dashboard numbers.
-  static TextStyle get displayLg => _nunito(
-        fontSize: 40,
-        fontWeight: FontWeight.w800,
-        height: 1.15,
-      );
+  static TextStyle get displayLg =>
+      _nunito(fontSize: 40, fontWeight: FontWeight.w800, height: 1.15);
 
   /// 28px ExtraBold — main page titles.
-  static TextStyle get displaySm => _nunito(
-        fontSize: 28,
-        fontWeight: FontWeight.w800,
-        height: 1.2,
-      );
+  static TextStyle get displaySm =>
+      _nunito(fontSize: 28, fontWeight: FontWeight.w800, height: 1.2);
 
   /// 20px Bold — section/card titles.
-  static TextStyle get heading => _nunito(
-        fontSize: 20,
-        fontWeight: FontWeight.w700,
-        height: 1.3,
-      );
+  static TextStyle get heading =>
+      _nunito(fontSize: 20, fontWeight: FontWeight.w700, height: 1.3);
 
   /// 16px Bold — book titles, badge names.
-  static TextStyle get subheading => _nunito(
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-        height: 1.4,
-      );
+  static TextStyle get subheading =>
+      _nunito(fontSize: 16, fontWeight: FontWeight.w700, height: 1.4);
 
   /// 15px Regular — description paragraphs.
-  static TextStyle get body => _nunito(
-        fontSize: 15,
-        fontWeight: FontWeight.w400,
-        height: 1.6,
-      );
+  static TextStyle get body =>
+      _nunito(fontSize: 15, fontWeight: FontWeight.w400, height: 1.6);
 
   /// 15px SemiBold — important labels, small statistic numbers.
-  static TextStyle get bodyStrong => _nunito(
-        fontSize: 15,
-        fontWeight: FontWeight.w600,
-        height: 1.5,
-      );
+  static TextStyle get bodyStrong =>
+      _nunito(fontSize: 15, fontWeight: FontWeight.w600, height: 1.5);
 
   /// 13px Medium — metadata, timestamps, helper text. Muted by role: pair it
   /// with the secondary text colour (`context.captionStyle`) unless the
   /// surrounding copy is already that quiet.
-  static TextStyle get caption => _nunito(
-        fontSize: 13,
-        fontWeight: FontWeight.w500,
-        height: 1.4,
-      );
+  static TextStyle get caption =>
+      _nunito(fontSize: 13, fontWeight: FontWeight.w500, height: 1.4);
 
   /// 12px Bold — compact status labels.
-  static TextStyle get statusLabel => _nunito(
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-        height: 1.4,
-      );
+  static TextStyle get statusLabel =>
+      _nunito(fontSize: 12, fontWeight: FontWeight.w700, height: 1.4);
 
   /// 15px SemiBold — button and nav labels.
-  static TextStyle get button => _nunito(
-        fontSize: 15,
-        fontWeight: FontWeight.w600,
-        height: 1,
-      );
+  static TextStyle get button =>
+      _nunito(fontSize: 15, fontWeight: FontWeight.w600, height: 1);
 }
