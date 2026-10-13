@@ -148,6 +148,8 @@ class SessionTimerCubit extends Cubit<SessionTimerState>
       },
     );
 
+    // Local persistence must finish even if the user leaves during submission.
+    if (isClosed) return;
     result.fold(
       (failure) => emit(SessionTimerError(failure)),
       (_) => emit(const SessionTimerSubmitted(badgesUnlocked: [])),

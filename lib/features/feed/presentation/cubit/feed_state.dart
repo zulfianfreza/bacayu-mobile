@@ -26,6 +26,7 @@ class FeedLoaded extends FeedState {
     required this.isLoadingMore,
     required this.cursor,
     required this.viewerId,
+    this.hasFollowing,
   });
 
   final List<Activity> activities;
@@ -45,6 +46,9 @@ class FeedLoaded extends FeedState {
   /// visibility menu).
   final String viewerId;
 
+  /// Checked only for an empty social feed; null for other feed states.
+  final bool? hasFollowing;
+
   FeedLoaded copyWith({
     List<Activity>? activities,
     bool? hasMore,
@@ -57,6 +61,7 @@ class FeedLoaded extends FeedState {
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       cursor: cursor ?? this.cursor,
       viewerId: viewerId,
+      hasFollowing: hasFollowing,
     );
   }
 
@@ -67,6 +72,7 @@ class FeedLoaded extends FeedState {
     isLoadingMore,
     cursor,
     viewerId,
+    hasFollowing,
   ];
 }
 

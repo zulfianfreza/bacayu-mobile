@@ -10,11 +10,16 @@ import 'package:mobile/features/feed/domain/usecases/get_feed.dart';
 import 'package:mobile/features/feed/domain/usecases/get_social_feed.dart';
 import 'package:mobile/features/feed/presentation/cubit/feed_cubit.dart';
 import 'package:mobile/features/feed/presentation/cubit/feed_state.dart';
+import 'package:mobile/core/error/failure.dart';
+import 'package:mobile/features/social/domain/repositories/social_repository.dart';
+import 'package:mobile/features/social/domain/usecases/get_following_count.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockFeedRepository extends Mock implements FeedRepository {}
 
 class _MockAuthRepository extends Mock implements AuthRepository {}
+
+class _MockSocialRepository extends Mock implements SocialRepository {}
 
 User _user() => User(
   id: 'viewer',
@@ -61,20 +66,69 @@ void main() {
   late _MockFeedRepository repository;
   late _MockAuthRepository authRepository;
   late SocialFeedCubit cubit;
+  late _MockSocialRepository socialRepository;
 
   setUp(() {
     repository = _MockFeedRepository();
     authRepository = _MockAuthRepository();
+    socialRepository = _MockSocialRepository();
     when(
       () => authRepository.getCurrentUser(),
     ).thenAnswer((_) async => Right(_user()));
     cubit = SocialFeedCubit(
       GetSocialFeed(repository),
       GetCurrentUser(authRepository),
+      GetFollowingCount(socialRepository),
     );
   });
 
   tearDown(() => cubit.close());
+
+  for (final count in [0, 1]) {
+    test('empty feed checks following count $count', () async {
+      when(() => repository.getSocialFeed(cursor: null)).thenAnswer(
+        (_) async => const Right(ActivityPage(items: [], nextCursor: null)),
+      );
+      when(
+        () => socialRepository.getFollowingCount(),
+      ).thenAnswer((_) async => Right(count));
+      final states = <FeedState>[];
+      final subscription = cubit.stream.listen(states.add);
+
+      await cubit.refresh();
+      await Future<void>.delayed(Duration.zero);
+      await subscription.cancel();
+
+      expect(states, [
+        const FeedLoading(),
+        FeedLoaded(
+          activities: const [],
+          hasMore: false,
+          isLoadingMore: false,
+          cursor: null,
+          viewerId: 'viewer',
+          hasFollowing: count > 0,
+        ),
+      ]);
+    });
+  }
+
+  test('following count failure does not claim user has no friends', () async {
+    when(() => repository.getSocialFeed(cursor: null)).thenAnswer(
+      (_) async => const Right(ActivityPage(items: [], nextCursor: null)),
+    );
+    when(
+      () => socialRepository.getFollowingCount(),
+    ).thenAnswer((_) async => const Left(NetworkFailure()));
+    final states = <FeedState>[];
+    final subscription = cubit.stream.listen(states.add);
+
+    await cubit.refresh();
+    await Future<void>.delayed(Duration.zero);
+    await subscription.cancel();
+
+    expect(states, [const FeedLoading(), const FeedError(NetworkFailure())]);
+  });
 
   test('refresh() loads the first page with cursor: null', () async {
     final page1 = _items(20, DateTime(2026, 1, 10));
@@ -91,6 +145,7 @@ void main() {
     expect(state.hasMore, isTrue);
     expect(state.cursor, 'c1');
     expect(state.viewerId, 'viewer');
+    verifyNever(() => socialRepository.getFollowingCount());
   });
 
   test('a null next_cursor means there is no further page', () async {

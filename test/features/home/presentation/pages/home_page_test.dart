@@ -19,6 +19,7 @@ import 'package:mobile/features/shelf/domain/repositories/shelf_repository.dart'
 import 'package:mobile/features/shelf/domain/usecases/list_shelf.dart';
 import 'package:mobile/features/social/domain/repositories/social_repository.dart';
 import 'package:mobile/features/social/domain/usecases/follow_user.dart';
+import 'package:mobile/features/social/domain/usecases/get_following_count.dart';
 import 'package:mobile/features/social/domain/usecases/search_users.dart';
 import 'package:mobile/features/social/domain/usecases/unfollow_user.dart';
 import 'package:mobile/features/social/presentation/cubit/user_search_bloc.dart';
@@ -108,6 +109,9 @@ void main() {
     shelfRepository = _MockShelfRepository();
     feedRepository = _MockFeedRepository();
     socialRepository = _MockSocialRepository();
+    when(
+      () => socialRepository.getFollowingCount(),
+    ).thenAnswer((_) async => const Right(0));
 
     when(
       () => authRepository.getCurrentUser(),
@@ -134,6 +138,7 @@ void main() {
       () => SocialFeedCubit(
         GetSocialFeed(feedRepository),
         GetCurrentUser(authRepository),
+        GetFollowingCount(socialRepository),
       ),
     );
     getIt.registerFactory<UserSearchBloc>(
@@ -199,7 +204,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('an empty feed offers the find-friends call to action', (
+  testWidgets('an empty feed with no following offers the find-friends CTA', (
     tester,
   ) async {
     stubFeed(const []);
@@ -209,6 +214,22 @@ void main() {
     expect(find.text('Cari teman baca'), findsOneWidget);
     expect(find.text('Cari teman'), findsOneWidget);
     expect(find.byType(ActivityAuthorHeader), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('an empty feed with following shows no-activity copy, not CTA', (
+    tester,
+  ) async {
+    stubFeed(const []);
+    when(
+      () => socialRepository.getFollowingCount(),
+    ).thenAnswer((_) async => const Right(1));
+
+    await pumpHome(tester);
+
+    expect(find.text('Belum ada aktivitas dari temanmu'), findsOneWidget);
+    expect(find.text('Cari teman baca'), findsNothing);
+    expect(find.text('Cari teman'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

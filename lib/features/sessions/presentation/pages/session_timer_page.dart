@@ -41,6 +41,7 @@ class _SessionTimerView extends StatefulWidget {
 
 class _SessionTimerViewState extends State<_SessionTimerView> {
   UserBook? _selectedBook;
+  bool _showSummary = false;
 
   @override
   void initState() {
@@ -79,32 +80,23 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
     context.read<SessionTimerCubit>().start(userBookId: userBook.id);
   }
 
-  void _onStopped(BuildContext context) {
-    final book = _selectedBook!;
-    final cubit = context.read<SessionTimerCubit>();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => BlocProvider.value(
-          value: cubit,
-          child: SessionSummaryPage(userBook: book),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final book = _selectedBook;
     if (book == null) {
       return const Scaffold(body: SizedBox.shrink());
     }
+    // Keep the owning provider alive through saving and sharing the session.
+    if (_showSummary) return SessionSummaryPage(userBook: book);
 
     return Scaffold(
       backgroundColor: context.colors.tangerineWash,
       body: SafeArea(
         child: BlocConsumer<SessionTimerCubit, SessionTimerState>(
           listener: (context, state) {
-            if (state is SessionTimerStopped) _onStopped(context);
+            if (state is SessionTimerStopped) {
+              setState(() => _showSummary = true);
+            }
           },
           builder: (context, state) {
             final (elapsed, pauseCount, isPaused) = switch (state) {

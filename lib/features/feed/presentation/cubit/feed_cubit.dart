@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/error/failure.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/usecases/get_current_user.dart';
+import '../../../social/domain/usecases/get_following_count.dart';
 import '../../domain/entities/activity_page.dart';
 import '../../domain/usecases/get_feed.dart';
 import '../../domain/usecases/get_social_feed.dart';
@@ -19,10 +20,15 @@ typedef ActivityPageLoader =
 /// an explicit `next_cursor`, so the walking lives here once instead of once
 /// per endpoint. Construct it through [SocialFeedCubit] or [MyActivityCubit].
 class FeedCubit extends Cubit<FeedState> {
-  FeedCubit(this._load, this._getCurrentUser) : super(const FeedInitial());
+  FeedCubit(
+    this._load,
+    this._getCurrentUser, [
+    this._getFollowingCount,
+  ]) : super(const FeedInitial());
 
   final ActivityPageLoader _load;
   final GetCurrentUser _getCurrentUser;
+  final GetFollowingCount? _getFollowingCount;
 
   Future<void> refresh() async {
     emit(const FeedLoading());
@@ -30,10 +36,7 @@ class FeedCubit extends Cubit<FeedState> {
     // The viewer rides along with the first page: every card has to know
     // whether it is looking at the viewer's own activity, and that is a
     // comparison against this id.
-    final results = await Future.wait<dynamic>([
-      _load(),
-      _getCurrentUser(),
-    ]);
+    final results = await Future.wait<dynamic>([_load(), _getCurrentUser()]);
 
     final pageResult = results[0] as Either<Failure, ActivityPage>;
     final userResult = results[1] as Either<Failure, User>;
@@ -50,6 +53,20 @@ class FeedCubit extends Cubit<FeedState> {
       return;
     }
 
+    bool? hasFollowing;
+    final getFollowingCount = _getFollowingCount;
+    if (page!.items.isEmpty && getFollowingCount != null) {
+      final countsResult = await getFollowingCount();
+      countsResult.fold(
+        (f) => firstFailure = f,
+        (count) => hasFollowing = count > 0,
+      );
+      if (firstFailure != null) {
+        emit(FeedError(firstFailure!));
+        return;
+      }
+    }
+
     emit(
       FeedLoaded(
         activities: page!.items,
@@ -57,6 +74,7 @@ class FeedCubit extends Cubit<FeedState> {
         isLoadingMore: false,
         cursor: page!.nextCursor,
         viewerId: user!.id,
+        hasFollowing: hasFollowing,
       ),
     );
   }
@@ -91,8 +109,11 @@ class FeedCubit extends Cubit<FeedState> {
 /// Home's feed: everyone the reader follows.
 @injectable
 class SocialFeedCubit extends FeedCubit {
-  SocialFeedCubit(GetSocialFeed feed, GetCurrentUser getCurrentUser)
-    : super(feed.call, getCurrentUser);
+  SocialFeedCubit(
+    GetSocialFeed feed,
+    GetCurrentUser getCurrentUser,
+    GetFollowingCount getFollowingCount,
+  ) : super(feed.call, getCurrentUser, getFollowingCount);
 }
 
 /// The reader's own activity, newest first — what the Profile tab lists.

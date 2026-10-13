@@ -9,6 +9,13 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get friendsActivityEmptyTitle => 'No activity from your friends yet';
+
+  @override
+  String get friendsActivityEmptyBody =>
+      'Your friends\' shared reading activity will appear here.';
+
+  @override
   String get debugLogs => 'Debug Logs';
 
   @override

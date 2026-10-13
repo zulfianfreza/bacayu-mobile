@@ -383,9 +383,29 @@ class _ActivityFeed extends StatelessWidget {
             :final activities,
             :final isLoadingMore,
             :final viewerId,
+            :final hasFollowing,
           ) =>
             activities.isEmpty
-                ? const _FindFriendsCta()
+                ? hasFollowing == false
+                      ? const _FindFriendsCta()
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          child: Column(
+                            children: [
+                              Text(
+                                l10n.friendsActivityEmptyTitle,
+                                style: AppTypography.heading,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                l10n.friendsActivityEmptyBody,
+                                style: AppTypography.body,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -429,9 +449,7 @@ class _ActivityFeed extends StatelessWidget {
   );
 }
 
-/// Shown instead of the feed when there is nothing in it — which, on a social
-/// feed, means the reader follows nobody yet rather than that they haven't
-/// read anything.
+/// Shown when the social feed is empty and the reader follows nobody.
 class _FindFriendsCta extends StatelessWidget {
   const _FindFriendsCta();
 

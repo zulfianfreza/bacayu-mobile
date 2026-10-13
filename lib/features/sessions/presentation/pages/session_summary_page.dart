@@ -15,7 +15,7 @@ import '../cubit/session_timer_state.dart';
 import '../../../../core/theme/build_context_extension.dart';
 
 /// Expects a `SessionTimerCubit` already provided by the caller (same
-/// instance as `SessionTimerPage`, passed via `BlocProvider.value`) — this
+/// instance owned by `SessionTimerPage`) — this
 /// page never creates its own.
 class SessionSummaryPage extends StatefulWidget {
   const SessionSummaryPage({super.key, required this.userBook});

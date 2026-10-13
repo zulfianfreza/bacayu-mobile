@@ -1,5 +1,7 @@
 {
   "@@locale": "en",
+  "friendsActivityEmptyTitle": "No activity from your friends yet",
+  "friendsActivityEmptyBody": "Your friends' shared reading activity will appear here.",
   "debugLogs": "Debug Logs",
   "retry": "Retry",
   "@retry": {

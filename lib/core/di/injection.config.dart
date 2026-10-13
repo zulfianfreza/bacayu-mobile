@@ -173,6 +173,8 @@ import 'package:mobile/features/social/domain/usecases/follow_user.dart'
     as _i242;
 import 'package:mobile/features/social/domain/usecases/get_follow_counts.dart'
     as _i815;
+import 'package:mobile/features/social/domain/usecases/get_following_count.dart'
+    as _i69;
 import 'package:mobile/features/social/domain/usecases/get_leaderboard.dart'
     as _i643;
 import 'package:mobile/features/social/domain/usecases/like_activity.dart'
@@ -318,6 +320,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i815.GetFollowCounts>(
       () => _i815.GetFollowCounts(gh<_i784.SocialRepository>()),
+    );
+    gh.factory<_i69.GetFollowingCount>(
+      () => _i69.GetFollowingCount(gh<_i784.SocialRepository>()),
     );
     gh.factory<_i643.GetLeaderboard>(
       () => _i643.GetLeaderboard(gh<_i784.SocialRepository>()),
@@ -485,18 +490,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i52.GetSocialFeed>(
       () => _i52.GetSocialFeed(gh<_i675.FeedRepository>()),
     );
-    gh.factory<_i498.SocialFeedCubit>(
-      () => _i498.SocialFeedCubit(
-        gh<_i52.GetSocialFeed>(),
-        gh<_i1052.GetCurrentUser>(),
-      ),
-    );
     gh.factory<_i313.NotesCubit>(
       () => _i313.NotesCubit(
         gh<_i1034.ListNotes>(),
         gh<_i605.CreateNote>(),
         gh<_i666.UpdateNote>(),
         gh<_i142.DeleteNote>(),
+      ),
+    );
+    gh.factory<_i498.SocialFeedCubit>(
+      () => _i498.SocialFeedCubit(
+        gh<_i52.GetSocialFeed>(),
+        gh<_i1052.GetCurrentUser>(),
+        gh<_i69.GetFollowingCount>(),
       ),
     );
     gh.lazySingleton<_i180.ShelfRepository>(

@@ -51,7 +51,7 @@ class _StatsView extends StatelessWidget {
                 children: [
                   Text(l10n.yourStats, style: AppTypography.displaySm),
                   const SizedBox(height: 20),
-                  _RangeDropdown(
+                  _RangeFilter(
                     activeRange: state.range,
                     onChanged: (range) =>
                         context.read<StatsCubit>().changeRange(range),
@@ -129,8 +129,8 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-class _RangeDropdown extends StatelessWidget {
-  const _RangeDropdown({required this.activeRange, required this.onChanged});
+class _RangeFilter extends StatelessWidget {
+  const _RangeFilter({required this.activeRange, required this.onChanged});
 
   final StatsRange activeRange;
   final ValueChanged<StatsRange> onChanged;
@@ -145,39 +145,36 @@ class _RangeDropdown extends StatelessWidget {
       (StatsRange.all, l10n.rangeAll),
     ];
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: context.colors.tangerineWash,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<StatsRange>(
-          value: activeRange,
-          isExpanded: true,
-          itemHeight: null,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          dropdownColor: context.colors.surface,
-          icon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: context.colors.tangerineAccent,
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      children: [
+        for (final (range, label) in options)
+          ChoiceChip(
+            label: Text(label),
+            selected: range == activeRange,
+            showCheckmark: true,
+            checkmarkColor: context.colors.tangerineAccent,
+            selectedColor: context.colors.tangerineWash,
+            backgroundColor: context.colors.surface,
+            labelStyle: AppTypography.button.copyWith(
+              color: range == activeRange
+                  ? context.colors.tangerineAccent
+                  : context.colors.textSecondary,
+            ),
+            side: BorderSide(
+              color: range == activeRange
+                  ? context.colors.tangerineAccent
+                  : context.colors.hairline,
+            ),
+            shape: const StadiumBorder(),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            materialTapTargetSize: MaterialTapTargetSize.padded,
+            onSelected: (_) {
+              if (range != activeRange) onChanged(range);
+            },
           ),
-          style: AppTypography.button.copyWith(color: context.colors.ink),
-          items: [
-            for (final (range, label) in options)
-              DropdownMenuItem(
-                value: range,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(label),
-                ),
-              ),
-          ],
-          onChanged: (range) {
-            if (range != null && range != activeRange) onChanged(range);
-          },
-        ),
-      ),
+      ],
     );
   }
 }

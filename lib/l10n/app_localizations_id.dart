@@ -9,6 +9,13 @@ class AppLocalizationsId extends AppLocalizations {
   AppLocalizationsId([String locale = 'id']) : super(locale);
 
   @override
+  String get friendsActivityEmptyTitle => 'Belum ada aktivitas dari temanmu';
+
+  @override
+  String get friendsActivityEmptyBody =>
+      'Aktivitas membaca yang dibagikan temanmu akan muncul di sini.';
+
+  @override
   String get debugLogs => 'Log Debug';
 
   @override

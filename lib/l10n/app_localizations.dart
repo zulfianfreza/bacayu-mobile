@@ -98,6 +98,18 @@ abstract class AppLocalizations {
     Locale('id'),
   ];
 
+  /// No description provided for @friendsActivityEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity from your friends yet'**
+  String get friendsActivityEmptyTitle;
+
+  /// No description provided for @friendsActivityEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friends\' shared reading activity will appear here.'**
+  String get friendsActivityEmptyBody;
+
   /// No description provided for @debugLogs.
   ///
   /// In en, this message translates to:

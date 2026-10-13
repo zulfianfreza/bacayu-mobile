@@ -104,12 +104,13 @@ void main() {
     expect(find.text('Statistikmu'), findsOneWidget);
     expect(
       find.descendant(
-        of: find.byType(DropdownButton<StatsRange>),
+        of: find.byType(ChoiceChip),
         matching: find.text('Minggu ini'),
       ),
       findsOneWidget,
     );
-    expect(find.text('Sepanjang waktu'), findsNothing);
+    expect(find.byType(ChoiceChip), findsNWidgets(4));
+    expect(find.text('Sepanjang waktu'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -168,29 +169,25 @@ void main() {
   ) async {
     await pumpStats(tester);
 
-    await tester.tap(find.byType(DropdownButton<StatsRange>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Minggu ini').last);
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Minggu ini'));
     await tester.pumpAndSettle();
     verify(() => statsRepository.getSummary(StatsRange.week)).called(1);
 
-    await tester.tap(find.byType(DropdownButton<StatsRange>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Sepanjang waktu').last);
+    await tester.tap(find.text('Sepanjang waktu'));
     await tester.pumpAndSettle();
     verify(() => statsRepository.getSummary(StatsRange.all)).called(1);
     expect(
       tester
-          .widget<DropdownButton<StatsRange>>(
-            find.byType(DropdownButton<StatsRange>),
+          .widget<ChoiceChip>(
+            find.widgetWithText(ChoiceChip, 'Sepanjang waktu'),
           )
-          .value,
-      StatsRange.all,
+          .selected,
+      isTrue,
     );
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('range dropdown fits phones and larger text', (tester) async {
+  testWidgets('range chips fit phones and larger text', (tester) async {
     // Isolate the filter from the charts and metric grid.
     when(
       () => statsRepository.getSummary(any()),
@@ -199,14 +196,11 @@ void main() {
 
     tester.view.physicalSize = const Size(360 * 2, 900 * 2);
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(DropdownButton<StatsRange>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Sepanjang waktu').last);
+    await tester.tap(find.text('Sepanjang waktu'));
     await tester.pumpAndSettle();
     expect(find.text('Sepanjang waktu'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
-    tester.view.physicalSize = const Size(700 * 2, 1400 * 2);
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('id'),
@@ -222,7 +216,12 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.byType(DropdownButton<StatsRange>), findsOneWidget);
+    expect(find.byType(ChoiceChip), findsNWidgets(4));
+    for (final chip in find.byType(ChoiceChip).evaluate()) {
+      final rect = tester.getRect(find.byWidget(chip.widget));
+      expect(rect.right, lessThanOrEqualTo(360));
+      expect(rect.height, greaterThanOrEqualTo(48));
+    }
     expect(tester.takeException(), isNull);
   });
 

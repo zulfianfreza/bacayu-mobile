@@ -1,5 +1,7 @@
 {
   "@@locale": "id",
+  "friendsActivityEmptyTitle": "Belum ada aktivitas dari temanmu",
+  "friendsActivityEmptyBody": "Aktivitas membaca yang dibagikan temanmu akan muncul di sini.",
   "debugLogs": "Log Debug",
   "retry": "Coba lagi",
   "cancel": "Batal",
