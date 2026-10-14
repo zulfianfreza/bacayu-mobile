@@ -1,5 +1,12 @@
 {
   "@@locale": "id",
+  "dailyGoalTitle": "Target baca hari ini",
+  "dailyGoalMinutesProgress": "{minutes} / {goal} menit",
+  "@dailyGoalMinutesProgress": {"placeholders": {"minutes": {"type": "int"}, "goal": {"type": "int"}}},
+  "dailyGoalRemaining": "{minutes} menit lagi untuk mencapai targetmu",
+  "@dailyGoalRemaining": {"placeholders": {"minutes": {"type": "int"}}},
+  "dailyGoalAchieved": "Target harian tercapai. Teruskan!",
+  "dailyGoalNotSet": "Atur target baca harian di Profil untuk melihat progresmu.",
   "friendsActivityEmptyTitle": "Belum ada aktivitas dari temanmu",
   "friendsActivityEmptyBody": "Aktivitas membaca yang dibagikan temanmu akan muncul di sini.",
   "debugLogs": "Log Debug",

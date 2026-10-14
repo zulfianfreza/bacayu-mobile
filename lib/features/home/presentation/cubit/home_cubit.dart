@@ -11,6 +11,8 @@ import '../../../auth/domain/usecases/get_current_user.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../../shelf/domain/usecases/list_shelf.dart';
 import '../../../stats/domain/entities/daily_stat.dart';
+import '../../../stats/domain/entities/daily_goal_progress.dart';
+import '../../../stats/domain/usecases/get_daily_goal.dart';
 import '../../../stats/domain/usecases/get_heatmap.dart';
 import 'home_state.dart';
 
@@ -27,35 +29,43 @@ class HomeCubit extends Cubit<HomeState> {
     this._getHeatmap,
     this._listShelf,
     this._streakWidgetService,
+    this._getDailyGoal,
   ) : super(const HomeInitial());
 
   final GetCurrentUser _getCurrentUser;
   final GetHeatmap _getHeatmap;
   final ListShelf _listShelf;
   final StreakWidgetService _streakWidgetService;
+  final GetDailyGoal _getDailyGoal;
 
   Future<void> load() async {
     emit(const HomeLoading());
 
-    // All 3 fired together — never awaited one at a time.
+    // Fetch dashboard data in parallel.
     final results = await Future.wait<dynamic>([
       _getCurrentUser(),
       _getHeatmap(DateTime.now().year),
       _listShelf(status: ShelfStatus.reading),
+      _getDailyGoal(),
     ]);
 
     final userResult = results[0] as Either<Failure, User>;
     final heatmapResult = results[1] as Either<Failure, List<DailyStat>>;
     final shelfResult = results[2] as Either<Failure, List<UserBook>>;
+    final goalResult = results[3] as Either<Failure, DailyGoalProgress>;
 
     Failure? firstFailure;
     User? user;
     List<DailyStat>? heatmap;
     List<UserBook>? continueReading;
+    DailyGoalProgress? dailyGoal;
 
     userResult.fold((f) => firstFailure ??= f, (v) => user = v);
     heatmapResult.fold((f) => firstFailure ??= f, (v) => heatmap = v);
     shelfResult.fold((f) => firstFailure ??= f, (v) => continueReading = v);
+    goalResult.fold((f) => firstFailure ??= f, (v) => dailyGoal = v);
+
+    if (isClosed) return;
 
     final failure = firstFailure;
     if (failure != null) {
@@ -73,6 +83,7 @@ class HomeCubit extends Cubit<HomeState> {
         longestStreak: user!.longestStreak,
         last7Days: last7Days,
         continueReading: continueReading!,
+        dailyGoal: dailyGoal!,
       ),
     );
 

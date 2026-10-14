@@ -10,6 +10,9 @@ import 'package:mobile/features/shelf/domain/entities/user_book.dart';
 import 'package:mobile/features/shelf/domain/repositories/shelf_repository.dart';
 import 'package:mobile/features/shelf/domain/usecases/list_shelf.dart';
 import 'package:mobile/features/stats/domain/entities/daily_stat.dart';
+import 'package:mobile/features/stats/domain/entities/daily_goal_progress.dart';
+import 'package:mobile/features/stats/domain/usecases/get_daily_goal.dart';
+import 'package:mobile/core/error/failure.dart';
 import 'package:mobile/features/stats/domain/repositories/stats_repository.dart';
 import 'package:mobile/features/stats/domain/usecases/get_heatmap.dart';
 import 'package:mocktail/mocktail.dart';
@@ -57,6 +60,7 @@ void main() {
       GetHeatmap(statsRepository),
       ListShelf(shelfRepository),
       StreakWidgetService(),
+      GetDailyGoal(statsRepository),
     );
 
     when(
@@ -65,6 +69,20 @@ void main() {
     when(
       () => statsRepository.getHeatmap(any()),
     ).thenAnswer((_) async => const Right(<DailyStat>[]));
+    when(() => statsRepository.getDailyGoal()).thenAnswer(
+      (_) async => const Right(
+        DailyGoalProgress(
+          date: '2026-10-13',
+          timezone: 'Asia/Jakarta',
+          goalMinutes: 20,
+          totalSeconds: 720,
+          totalMinutes: 12,
+          remainingMinutes: 8,
+          progressPercent: 60,
+          achieved: false,
+        ),
+      ),
+    );
     when(
       () => shelfRepository.listShelf(
         status: any(named: 'status'),
@@ -76,7 +94,7 @@ void main() {
   tearDown(() => cubit.close());
 
   test(
-    'load() fires all 3 usecases in parallel, not one after another',
+    'load() fires all 4 usecases in parallel, not one after another',
     () async {
       const delay = Duration(milliseconds: 60);
       when(
@@ -85,6 +103,21 @@ void main() {
       when(() => statsRepository.getHeatmap(any())).thenAnswer(
         (_) => Future.delayed(delay, () => const Right(<DailyStat>[])),
       );
+      when(() => statsRepository.getDailyGoal()).thenAnswer((_) async {
+        await Future<void>.delayed(delay);
+        return const Right(
+          DailyGoalProgress(
+            date: '2026-10-13',
+            timezone: 'Asia/Jakarta',
+            goalMinutes: 20,
+            totalSeconds: 0,
+            totalMinutes: 0,
+            remainingMinutes: 20,
+            progressPercent: 0,
+            achieved: false,
+          ),
+        );
+      });
       when(
         () => shelfRepository.listShelf(
           status: any(named: 'status'),
@@ -98,7 +131,7 @@ void main() {
       await cubit.load();
       stopwatch.stop();
 
-      // Sequential would take ~3x delay (~180ms); parallel finishes close to
+      // Sequential would take ~4x delay (~240ms); parallel finishes close to
       // a single delay.
       expect(stopwatch.elapsed, lessThan(delay * 2));
     },
@@ -114,6 +147,23 @@ void main() {
       expect(state.last7Days.every((d) => d.totalMinutes == 0), isTrue);
       expect(state.continueReading, isEmpty);
       expect(state.userName, 'Reader');
+      expect(state.dailyGoal.totalMinutes, 12);
+      expect(state.dailyGoal.progressPercent, 60);
+    },
+  );
+
+  test(
+    'daily goal failure emits error rather than fabricated progress',
+    () async {
+      when(
+        () => statsRepository.getDailyGoal(),
+      ).thenAnswer((_) async => const Left(NetworkFailure()));
+      final states = <HomeState>[];
+      final subscription = cubit.stream.listen(states.add);
+      await cubit.load();
+      await Future<void>.delayed(Duration.zero);
+      await subscription.cancel();
+      expect(states, [const HomeLoading(), const HomeError(NetworkFailure())]);
     },
   );
 }

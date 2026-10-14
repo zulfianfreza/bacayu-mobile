@@ -98,6 +98,36 @@ abstract class AppLocalizations {
     Locale('id'),
   ];
 
+  /// No description provided for @dailyGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s reading goal'**
+  String get dailyGoalTitle;
+
+  /// No description provided for @dailyGoalMinutesProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} / {goal} minutes'**
+  String dailyGoalMinutesProgress(int minutes, int goal);
+
+  /// No description provided for @dailyGoalRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} more minutes to reach your goal'**
+  String dailyGoalRemaining(int minutes);
+
+  /// No description provided for @dailyGoalAchieved.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily goal reached. Keep it up!'**
+  String get dailyGoalAchieved;
+
+  /// No description provided for @dailyGoalNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a daily reading goal in Profile to track your progress.'**
+  String get dailyGoalNotSet;
+
   /// No description provided for @friendsActivityEmptyTitle.
   ///
   /// In en, this message translates to:

@@ -8,6 +8,7 @@ import '../../../../core/error/failure_localizer.dart';
 import '../../../../core/localization/build_context_extension.dart';
 import '../../../../core/navigation/full_screen_page.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/bordered_card.dart';
 import '../../../../core/widgets/chunky_button.dart';
@@ -21,6 +22,7 @@ import '../../../shelf/domain/entities/user_book.dart';
 import '../../../shelf/presentation/widgets/shelf_book_card.dart';
 import '../../../social/presentation/pages/user_search_page.dart';
 import '../../../stats/domain/entities/daily_stat.dart';
+import '../../../stats/domain/entities/daily_goal_progress.dart';
 import '../../../stats/presentation/widgets/streak_modal.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
@@ -116,6 +118,8 @@ class _HomeViewState extends State<_HomeView> {
                       longestStreak: state.longestStreak,
                       last7Days: state.last7Days,
                     ),
+                    const SizedBox(height: 16),
+                    _DailyGoalCard(progress: state.dailyGoal),
                     const SizedBox(height: 24),
                     if (state.continueReading.isNotEmpty) ...[
                       _ContinueReadingSection(books: state.continueReading),
@@ -128,6 +132,55 @@ class _HomeViewState extends State<_HomeView> {
             };
           },
         ),
+      ),
+    );
+  }
+}
+
+class _DailyGoalCard extends StatelessWidget {
+  const _DailyGoalCard({required this.progress});
+
+  final DailyGoalProgress progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final goal = progress.goalMinutes;
+    final hasGoal = goal != null && goal > 0;
+    final accent = progress.achieved ? AppColors.lagoon : AppColors.tangerine;
+
+    return BorderedCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.dailyGoalTitle, style: AppTypography.heading),
+          const SizedBox(height: 12),
+          if (hasGoal) ...[
+            Text(
+              l10n.dailyGoalMinutesProgress(progress.totalMinutes, goal),
+              style: AppTypography.subheading.copyWith(color: accent),
+            ),
+            const SizedBox(height: 12),
+            LinearProgressIndicator(
+              value: (progress.progressPercent / 100).clamp(0.0, 1.0),
+              minHeight: 8,
+              borderRadius: BorderRadius.circular(AppRadius.pill),
+              color: accent,
+              backgroundColor: context.colors.hairline,
+              semanticsLabel: l10n.dailyGoalTitle,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              progress.achieved
+                  ? l10n.dailyGoalAchieved
+                  : l10n.dailyGoalRemaining(progress.remainingMinutes),
+              style: AppTypography.caption.copyWith(
+                color: context.colors.textSecondary,
+              ),
+            ),
+          ] else
+            Text(l10n.dailyGoalNotSet, style: AppTypography.body),
+        ],
       ),
     );
   }

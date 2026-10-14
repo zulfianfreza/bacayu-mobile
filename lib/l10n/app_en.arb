@@ -1,5 +1,12 @@
 {
   "@@locale": "en",
+  "dailyGoalTitle": "Today's reading goal",
+  "dailyGoalMinutesProgress": "{minutes} / {goal} minutes",
+  "@dailyGoalMinutesProgress": {"placeholders": {"minutes": {"type": "int"}, "goal": {"type": "int"}}},
+  "dailyGoalRemaining": "{minutes} more minutes to reach your goal",
+  "@dailyGoalRemaining": {"placeholders": {"minutes": {"type": "int"}}},
+  "dailyGoalAchieved": "Daily goal reached. Keep it up!",
+  "dailyGoalNotSet": "Set a daily reading goal in Profile to track your progress.",
   "friendsActivityEmptyTitle": "No activity from your friends yet",
   "friendsActivityEmptyBody": "Your friends' shared reading activity will appear here.",
   "debugLogs": "Debug Logs",

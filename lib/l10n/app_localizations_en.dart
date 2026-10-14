@@ -9,6 +9,26 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get dailyGoalTitle => 'Today\'s reading goal';
+
+  @override
+  String dailyGoalMinutesProgress(int minutes, int goal) {
+    return '$minutes / $goal minutes';
+  }
+
+  @override
+  String dailyGoalRemaining(int minutes) {
+    return '$minutes more minutes to reach your goal';
+  }
+
+  @override
+  String get dailyGoalAchieved => 'Daily goal reached. Keep it up!';
+
+  @override
+  String get dailyGoalNotSet =>
+      'Set a daily reading goal in Profile to track your progress.';
+
+  @override
   String get friendsActivityEmptyTitle => 'No activity from your friends yet';
 
   @override

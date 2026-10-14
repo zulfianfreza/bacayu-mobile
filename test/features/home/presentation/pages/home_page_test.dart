@@ -25,6 +25,8 @@ import 'package:mobile/features/social/domain/usecases/unfollow_user.dart';
 import 'package:mobile/features/social/presentation/cubit/user_search_bloc.dart';
 import 'package:mobile/features/social/presentation/pages/user_search_page.dart';
 import 'package:mobile/features/stats/domain/entities/daily_stat.dart';
+import 'package:mobile/features/stats/domain/entities/daily_goal_progress.dart';
+import 'package:mobile/features/stats/domain/usecases/get_daily_goal.dart';
 import 'package:mobile/features/stats/domain/repositories/stats_repository.dart';
 import 'package:mobile/features/stats/domain/usecases/get_heatmap.dart';
 import 'package:mobile/features/stats/presentation/widgets/streak_modal.dart';
@@ -106,6 +108,20 @@ void main() {
   setUp(() {
     authRepository = _MockAuthRepository();
     statsRepository = _MockStatsRepository();
+    when(() => statsRepository.getDailyGoal()).thenAnswer(
+      (_) async => const Right(
+        DailyGoalProgress(
+          date: '2026-10-13',
+          timezone: 'Asia/Jakarta',
+          goalMinutes: 20,
+          totalSeconds: 720,
+          totalMinutes: 12,
+          remainingMinutes: 8,
+          progressPercent: 60,
+          achieved: false,
+        ),
+      ),
+    );
     shelfRepository = _MockShelfRepository();
     feedRepository = _MockFeedRepository();
     socialRepository = _MockSocialRepository();
@@ -132,6 +148,7 @@ void main() {
         GetHeatmap(statsRepository),
         ListShelf(shelfRepository),
         StreakWidgetService(),
+        GetDailyGoal(statsRepository),
       ),
     );
     getIt.registerFactory<SocialFeedCubit>(
@@ -190,6 +207,79 @@ void main() {
     expect(find.text('Budi'), findsOneWidget);
     // Never the signed-in user, whose name only appears in the greeting.
     expect(find.text('Julian'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('daily goal shows backend progress and remaining minutes', (
+    tester,
+  ) async {
+    stubFeed(const []);
+    await pumpHome(tester);
+    expect(find.text('12 / 20 menit'), findsOneWidget);
+    expect(find.text('8 menit lagi untuk mencapai targetmu'), findsOneWidget);
+    expect(
+      tester
+          .widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator))
+          .value,
+      0.6,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('exceeded daily goal caps bar and shows achieved message', (
+    tester,
+  ) async {
+    stubFeed(const []);
+    when(() => statsRepository.getDailyGoal()).thenAnswer(
+      (_) async => const Right(
+        DailyGoalProgress(
+          date: '2026-10-13',
+          timezone: 'Asia/Jakarta',
+          goalMinutes: 20,
+          totalSeconds: 1800,
+          totalMinutes: 30,
+          remainingMinutes: 0,
+          progressPercent: 150,
+          achieved: true,
+        ),
+      ),
+    );
+    await pumpHome(tester);
+    expect(find.text('30 / 20 menit'), findsOneWidget);
+    expect(find.text('Target harian tercapai. Teruskan!'), findsOneWidget);
+    expect(
+      tester
+          .widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator))
+          .value,
+      1,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('unset daily goal points to Profile without progress bar', (
+    tester,
+  ) async {
+    stubFeed(const []);
+    when(() => statsRepository.getDailyGoal()).thenAnswer(
+      (_) async => const Right(
+        DailyGoalProgress(
+          date: '2026-10-13',
+          timezone: 'Asia/Jakarta',
+          goalMinutes: null,
+          totalSeconds: 0,
+          totalMinutes: 0,
+          remainingMinutes: 0,
+          progressPercent: 0,
+          achieved: false,
+        ),
+      ),
+    );
+    await pumpHome(tester);
+    expect(
+      find.text('Atur target baca harian di Profil untuk melihat progresmu.'),
+      findsOneWidget,
+    );
+    expect(find.byType(LinearProgressIndicator), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

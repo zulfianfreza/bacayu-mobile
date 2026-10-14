@@ -205,6 +205,8 @@ import 'package:mobile/features/stats/data/repositories/stats_repository_impl.da
     as _i554;
 import 'package:mobile/features/stats/domain/repositories/stats_repository.dart'
     as _i385;
+import 'package:mobile/features/stats/domain/usecases/get_daily_goal.dart'
+    as _i444;
 import 'package:mobile/features/stats/domain/usecases/get_heatmap.dart'
     as _i485;
 import 'package:mobile/features/stats/domain/usecases/get_stats_summary.dart'
@@ -358,6 +360,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i312.NotificationRepositoryImpl(
         gh<_i593.NotificationRemoteDataSource>(),
       ),
+    );
+    gh.factory<_i444.GetDailyGoal>(
+      () => _i444.GetDailyGoal(gh<_i385.StatsRepository>()),
     );
     gh.factory<_i485.GetHeatmap>(
       () => _i485.GetHeatmap(gh<_i385.StatsRepository>()),
@@ -589,6 +594,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i485.GetHeatmap>(),
         gh<_i156.ListShelf>(),
         gh<_i766.StreakWidgetService>(),
+        gh<_i444.GetDailyGoal>(),
       ),
     );
     return this;

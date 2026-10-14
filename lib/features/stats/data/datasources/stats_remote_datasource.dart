@@ -8,6 +8,11 @@ class StatsRemoteDataSource {
 
   final Dio _dio;
 
+  Future<Map<String, dynamic>> getDailyGoal() async {
+    final response = await _dio.get<Map<String, dynamic>>('/stats/daily-goal');
+    return response.data!['data'] as Map<String, dynamic>;
+  }
+
   /// GET /stats/summary?range=
   Future<Map<String, dynamic>> getSummary(String range) async {
     final response = await _dio.get<Map<String, dynamic>>(

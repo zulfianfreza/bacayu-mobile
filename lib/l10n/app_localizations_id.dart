@@ -9,6 +9,26 @@ class AppLocalizationsId extends AppLocalizations {
   AppLocalizationsId([String locale = 'id']) : super(locale);
 
   @override
+  String get dailyGoalTitle => 'Target baca hari ini';
+
+  @override
+  String dailyGoalMinutesProgress(int minutes, int goal) {
+    return '$minutes / $goal menit';
+  }
+
+  @override
+  String dailyGoalRemaining(int minutes) {
+    return '$minutes menit lagi untuk mencapai targetmu';
+  }
+
+  @override
+  String get dailyGoalAchieved => 'Target harian tercapai. Teruskan!';
+
+  @override
+  String get dailyGoalNotSet =>
+      'Atur target baca harian di Profil untuk melihat progresmu.';
+
+  @override
   String get friendsActivityEmptyTitle => 'Belum ada aktivitas dari temanmu';
 
   @override

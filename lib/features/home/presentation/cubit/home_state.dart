@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import '../../../../core/error/failure.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../../../stats/domain/entities/daily_stat.dart';
+import '../../../stats/domain/entities/daily_goal_progress.dart';
 
 sealed class HomeState extends Equatable {
   const HomeState();
@@ -27,6 +28,7 @@ class HomeLoaded extends HomeState {
     required this.longestStreak,
     required this.last7Days,
     required this.continueReading,
+    required this.dailyGoal,
   });
 
   final String userName;
@@ -37,6 +39,7 @@ class HomeLoaded extends HomeState {
   /// Exactly 7 entries, oldest first, zero-filled for days with no stat row.
   final List<DailyStat> last7Days;
   final List<UserBook> continueReading;
+  final DailyGoalProgress dailyGoal;
 
   @override
   List<Object?> get props => [
@@ -46,6 +49,7 @@ class HomeLoaded extends HomeState {
     longestStreak,
     last7Days,
     continueReading,
+    dailyGoal,
   ];
 }
 
