@@ -49,7 +49,7 @@ class _BookDetailPageState extends State<BookDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: Text('Book Detail')),
       body: SafeArea(
         child: FutureBuilder<Either<Failure, Book>>(
           future: _future,

@@ -384,6 +384,34 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get timerRunning => 'Reading...';
+
+  @override
+  String get timerPaused => 'Paused';
+
+  @override
+  String get timerPause => 'Pause reading';
+
+  @override
+  String get timerResume => 'Resume reading';
+
+  @override
+  String get timerClose => 'Cancel session?';
+
+  @override
+  String get timerStop => 'Stop and review';
+
+  @override
+  String get timerDiscardMessage =>
+      'This reading session will not be saved. Stop the timer instead if you want to save it.';
+
+  @override
+  String get timerKeepReading => 'Keep session';
+
+  @override
+  String get timerDiscard => 'Discard session';
+
+  @override
   String pausesSoFar(int count) {
     return '$count pauses so far';
   }

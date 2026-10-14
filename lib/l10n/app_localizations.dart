@@ -782,6 +782,60 @@ abstract class AppLocalizations {
   /// **'{count}d ago'**
   String timeDaysAgo(int count);
 
+  /// No description provided for @timerRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading...'**
+  String get timerRunning;
+
+  /// No description provided for @timerPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get timerPaused;
+
+  /// No description provided for @timerPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause reading'**
+  String get timerPause;
+
+  /// No description provided for @timerResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume reading'**
+  String get timerResume;
+
+  /// No description provided for @timerClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel session?'**
+  String get timerClose;
+
+  /// No description provided for @timerStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop and review'**
+  String get timerStop;
+
+  /// No description provided for @timerDiscardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This reading session will not be saved. Stop the timer instead if you want to save it.'**
+  String get timerDiscardMessage;
+
+  /// No description provided for @timerKeepReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep session'**
+  String get timerKeepReading;
+
+  /// No description provided for @timerDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard session'**
+  String get timerDiscard;
+
   /// Caption under the running/paused session timer
   ///
   /// In en, this message translates to:

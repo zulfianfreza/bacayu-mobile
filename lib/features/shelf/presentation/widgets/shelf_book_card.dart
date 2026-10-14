@@ -232,14 +232,17 @@ class ShelfBookCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Uncapped, like the shelf tile: the card is as tall as its
-                    // own title needs, and the carousel row takes the tallest.
-                    Text(book.title, style: AppTypography.subheading),
+                    Text(
+                      book.title,
+                      style: AppTypography.subheading.copyWith(fontSize: 13),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     if (book.authors.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
                         l10n.byAuthor(book.authors.join(', ')),
-                        style: AppTypography.caption,
+                        style: AppTypography.caption.copyWith(fontSize: 12),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -264,7 +267,7 @@ class ShelfBookCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         l10n.pageProgress(userBook.currentPage, totalPages),
-                        style: AppTypography.caption,
+                        style: AppTypography.caption.copyWith(fontSize: 12),
                       ),
                     ],
                   ],

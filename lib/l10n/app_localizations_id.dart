@@ -386,6 +386,34 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
+  String get timerRunning => 'Lagi Baca...';
+
+  @override
+  String get timerPaused => 'Dijeda';
+
+  @override
+  String get timerPause => 'Jeda membaca';
+
+  @override
+  String get timerResume => 'Lanjut membaca';
+
+  @override
+  String get timerClose => 'Batalkan sesi?';
+
+  @override
+  String get timerStop => 'Stop dan tinjau sesi';
+
+  @override
+  String get timerDiscardMessage =>
+      'Sesi membaca ini tidak akan disimpan. Gunakan tombol Stop jika ingin menyimpannya.';
+
+  @override
+  String get timerKeepReading => 'Pertahankan sesi';
+
+  @override
+  String get timerDiscard => 'Buang sesi';
+
+  @override
   String pausesSoFar(int count) {
     return '$count kali jeda';
   }

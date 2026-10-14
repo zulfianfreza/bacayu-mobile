@@ -463,6 +463,15 @@
       }
     }
   },
+  "timerRunning": "Reading...",
+  "timerPaused": "Paused",
+  "timerPause": "Pause reading",
+  "timerResume": "Resume reading",
+  "timerClose": "Cancel session?",
+  "timerStop": "Stop and review",
+  "timerDiscardMessage": "This reading session will not be saved. Stop the timer instead if you want to save it.",
+  "timerKeepReading": "Keep session",
+  "timerDiscard": "Discard session",
   "pausesSoFar": "{count} pauses so far",
   "@pausesSoFar": {
     "description": "Caption under the running/paused session timer",

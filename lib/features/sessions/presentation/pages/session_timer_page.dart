@@ -1,40 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/localization/build_context_extension.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/session_timer_theme.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/utils/duration_formatter.dart';
+import '../../../../core/theme/build_context_extension.dart';
+import '../../../../core/widgets/chunky_button.dart';
+import '../../../../core/widgets/sheet_header.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../cubit/session_timer_cubit.dart';
 import '../cubit/session_timer_state.dart';
 import '../widgets/book_picker_bottom_sheet.dart';
+import '../widgets/pause_button.dart';
+import '../widgets/pulsing_circles.dart';
+import '../widgets/timer_display.dart';
 import 'session_summary_page.dart';
-import '../../../../core/theme/build_context_extension.dart';
 
 class SessionTimerPage extends StatelessWidget {
   const SessionTimerPage({super.key, this.initialUserBook});
-
-  /// When provided (e.g. the shell FAB already ran the picker), the page
-  /// starts the timer immediately instead of showing its own picker.
   final UserBook? initialUserBook;
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<SessionTimerCubit>(),
-      child: _SessionTimerView(initialUserBook: initialUserBook),
-    );
-  }
+  Widget build(BuildContext context) => BlocProvider(
+    create: (_) => getIt<SessionTimerCubit>(),
+    child: _SessionTimerView(initialUserBook: initialUserBook),
+  );
 }
 
 class _SessionTimerView extends StatefulWidget {
   const _SessionTimerView({this.initialUserBook});
-
   final UserBook? initialUserBook;
-
   @override
   State<_SessionTimerView> createState() => _SessionTimerViewState();
 }
@@ -42,194 +40,310 @@ class _SessionTimerView extends StatefulWidget {
 class _SessionTimerViewState extends State<_SessionTimerView> {
   UserBook? _selectedBook;
   bool _showSummary = false;
+  bool _discardConfirmed = false;
+  bool _confirmingDiscard = false;
 
   @override
   void initState() {
     super.initState();
-    final preselected = widget.initialUserBook;
-    if (preselected != null) {
-      _selectedBook = preselected;
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) =>
-            context.read<SessionTimerCubit>().start(userBookId: preselected.id),
-      );
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _pickBook());
-    }
+    _selectedBook = widget.initialUserBook;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      if (_selectedBook == null) {
+        _selectedBook = await showModalBottomSheet<UserBook>(
+          context: context,
+          useRootNavigator: true,
+          isScrollControlled: true,
+          builder: (_) => const BookPickerBottomSheet(),
+        );
+        if (!mounted) return;
+        if (_selectedBook == null) {
+          Navigator.of(context).pop();
+          return;
+        }
+        setState(() {});
+      }
+      context.read<SessionTimerCubit>().start(userBookId: _selectedBook!.id);
+    });
   }
 
-  Future<void> _pickBook() async {
-    final userBook = await showModalBottomSheet<UserBook>(
+  Future<void> _confirmDiscard() async {
+    if (_confirmingDiscard) return;
+    _confirmingDiscard = true;
+    final l10n = context.l10n;
+    final discard = await showModalBottomSheet<bool>(
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
-      builder: (_) => const BookPickerBottomSheet(),
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(SessionTimerTheme.padding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SheetHeader(title: l10n.timerClose),
+              const SizedBox(height: SessionTimerTheme.gap),
+              Text(
+                l10n.timerDiscardMessage,
+                textAlign: TextAlign.center,
+                style: AppTypography.body,
+              ),
+              const SizedBox(height: SessionTimerTheme.padding),
+              Semantics(
+                button: true,
+                child: ChunkyButton(
+                  label: l10n.timerKeepReading,
+                  onPressed: () => Navigator.pop(context, false),
+                ),
+              ),
+              const SizedBox(height: SessionTimerTheme.gap),
+              Semantics(
+                button: true,
+                child: ChunkyButton(
+                  label: l10n.timerDiscard,
+                  variant: ChunkyButtonVariant.secondary,
+                  onPressed: () => Navigator.pop(context, true),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
-
-    if (!mounted) return;
-
-    if (userBook == null) {
-      Navigator.of(context).pop();
-      return;
-    }
-
-    setState(() => _selectedBook = userBook);
-    context.read<SessionTimerCubit>().start(userBookId: userBook.id);
+    _confirmingDiscard = false;
+    if (!mounted || discard != true) return;
+    setState(() => _discardConfirmed = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) Navigator.of(context).pop();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final book = _selectedBook;
-    if (book == null) {
-      return const Scaffold(body: SizedBox.shrink());
-    }
-    // Keep the owning provider alive through saving and sharing the session.
+    if (book == null) return const Scaffold(body: SizedBox.shrink());
+    // Keep the provider alive so stopping can hand the session to the summary.
     if (_showSummary) return SessionSummaryPage(userBook: book);
-
-    return Scaffold(
-      backgroundColor: context.colors.tangerineWash,
-      body: SafeArea(
-        child: BlocConsumer<SessionTimerCubit, SessionTimerState>(
-          listener: (context, state) {
-            if (state is SessionTimerStopped) {
-              setState(() => _showSummary = true);
-            }
-          },
-          builder: (context, state) {
-            final (elapsed, pauseCount, isPaused) = switch (state) {
-              SessionTimerRunning(:final elapsed, :final pauseCount) => (
-                elapsed,
-                pauseCount,
-                false,
+    final l10n = context.l10n;
+    return PopScope(
+      canPop: _discardConfirmed,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _confirmDiscard();
+      },
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Scaffold(
+          backgroundColor: SessionTimerTheme.background,
+          body: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: SessionTimerTheme.gradient,
               ),
-              SessionTimerPaused(:final elapsed, :final pauseCount) => (
-                elapsed,
-                pauseCount,
-                true,
-              ),
-              _ => (Duration.zero, 0, false),
-            };
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                        child: SizedBox(
-                          width: 40,
-                          height: 56,
-                          child: book.book.coverUrl == null
-                              ? Container(color: context.colors.surface)
-                              : Image.network(
-                                  book.book.coverUrl!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(color: context.colors.surface),
+            ),
+            child: SafeArea(
+              child: BlocConsumer<SessionTimerCubit, SessionTimerState>(
+                listener: (context, state) {
+                  if (state is SessionTimerStopped) {
+                    setState(() => _showSummary = true);
+                  }
+                },
+                builder: (context, state) {
+                  final (elapsed, paused) = switch (state) {
+                    SessionTimerRunning(:final elapsed) => (elapsed, false),
+                    SessionTimerPaused(:final elapsed) => (elapsed, true),
+                    _ => (Duration.zero, false),
+                  };
+                  return LayoutBuilder(
+                    builder: (context, constraints) => Padding(
+                      padding: const EdgeInsets.all(SessionTimerTheme.padding),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: SessionTimerTheme.maxWidth,
+                            minHeight:
+                                (constraints.maxHeight -
+                                        SessionTimerTheme.padding * 2)
+                                    .clamp(0, double.infinity),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  IconButton(
+                                    tooltip: l10n.timerClose,
+                                    color: SessionTimerTheme.white.withValues(
+                                      alpha: 0.8,
+                                    ),
+                                    icon: const Icon(Icons.close),
+                                    onPressed: _confirmDiscard,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: SessionTimerTheme.padding),
+                              Container(
+                                padding: const EdgeInsets.all(
+                                  SessionTimerTheme.gap,
                                 ),
+                                decoration: BoxDecoration(
+                                  color: SessionTimerTheme.white.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    AppRadius.md,
+                                  ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(
+                                        AppRadius.sm,
+                                      ),
+                                      child: SizedBox(
+                                        width: SessionTimerTheme.touchSize,
+                                        height:
+                                            SessionTimerTheme.touchSize * 1.5,
+                                        child: book.book.coverUrl == null
+                                            ? const Icon(
+                                                Icons.menu_book_rounded,
+                                                color: SessionTimerTheme.white,
+                                              )
+                                            : Image.network(
+                                                book.book.coverUrl!,
+                                                fit: BoxFit.cover,
+                                                excludeFromSemantics: true,
+                                                errorBuilder:
+                                                    (
+                                                      _,
+                                                      error,
+                                                      stackTrace,
+                                                    ) => const Icon(
+                                                      Icons.menu_book_rounded,
+                                                      color: SessionTimerTheme
+                                                          .white,
+                                                    ),
+                                              ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: SessionTimerTheme.gap,
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            book.book.title,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: AppTypography.subheading
+                                                .copyWith(
+                                                  color:
+                                                      SessionTimerTheme.white,
+                                                ),
+                                          ),
+                                          if (book.book.authors.isNotEmpty)
+                                            Text(
+                                              l10n.byAuthor(
+                                                book.book.authors.join(', '),
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: AppTypography.caption
+                                                  .copyWith(
+                                                    color:
+                                                        SessionTimerTheme.white,
+                                                  ),
+                                            ),
+                                          if (book.book.totalPages != null &&
+                                              book.book.totalPages! > 0)
+                                            Text(
+                                              l10n.pageProgress(
+                                                book.currentPage,
+                                                book.book.totalPages!,
+                                              ),
+                                              style: AppTypography.caption
+                                                  .copyWith(
+                                                    color:
+                                                        SessionTimerTheme.white,
+                                                  ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: SessionTimerTheme.gap),
+                              Expanded(
+                                child: Center(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: SessionTimerTheme.circleSize,
+                                    ),
+                                    child: PulsingCircles(
+                                      paused: paused,
+                                      label: paused
+                                          ? l10n.timerPaused
+                                          : l10n.timerRunning,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: SessionTimerTheme.padding),
+                              TimerDisplay(elapsed: elapsed),
+                              const SizedBox(height: SessionTimerTheme.padding),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  PauseButton(
+                                    paused: paused,
+                                    label: paused
+                                        ? l10n.timerResume
+                                        : l10n.timerPause,
+                                    onPressed: () {
+                                      final cubit = context
+                                          .read<SessionTimerCubit>();
+                                      paused ? cubit.resume() : cubit.pause();
+                                    },
+                                  ),
+                                  const SizedBox(width: SessionTimerTheme.gap),
+                                  IconButton(
+                                    tooltip: l10n.timerStop,
+                                    style: IconButton.styleFrom(
+                                      foregroundColor: SessionTimerTheme.white,
+                                      minimumSize: const Size(
+                                        0,
+                                        SessionTimerTheme.touchSize,
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.stop),
+                                    onPressed: () => context
+                                        .read<SessionTimerCubit>()
+                                        .stop(),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          book.book.title,
-                          style: AppTypography.subheading,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Container(
-                    width: 240,
-                    height: 240,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: context.colors.surface,
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      formatSessionDuration(elapsed),
-                      style: AppTypography.displayLg,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (pauseCount > 0)
-                    Text(
-                      context.l10n.pausesSoFar(pauseCount),
-                      style: AppTypography.caption,
-                    ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _CircularIconButton(
-                        icon: isPaused ? Icons.play_arrow : Icons.pause,
-                        backgroundColor: AppColors.berry,
-                        iconColor: Colors.white,
-                        onPressed: () => isPaused
-                            ? context.read<SessionTimerCubit>().resume()
-                            : context.read<SessionTimerCubit>().pause(),
-                      ),
-                      const SizedBox(width: 24),
-                      _CircularIconButton(
-                        icon: Icons.stop,
-                        backgroundColor: context.colors.surface,
-                        iconColor: context.colors.ink,
-                        borderColor: context.colors.hairline,
-                        onPressed: () =>
-                            context.read<SessionTimerCubit>().stop(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                  );
+                },
               ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _CircularIconButton extends StatelessWidget {
-  const _CircularIconButton({
-    required this.icon,
-    required this.backgroundColor,
-    required this.iconColor,
-    required this.onPressed,
-    this.borderColor,
-  });
-
-  final IconData icon;
-  final Color backgroundColor;
-  final Color iconColor;
-  final Color? borderColor;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: backgroundColor,
-      shape: CircleBorder(
-        side: borderColor != null
-            ? BorderSide(color: borderColor!, width: 1.5)
-            : BorderSide.none,
-      ),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onPressed,
-        child: SizedBox(
-          width: 72,
-          height: 72,
-          child: Icon(icon, color: iconColor, size: 32),
+            ),
+          ),
         ),
       ),
     );
