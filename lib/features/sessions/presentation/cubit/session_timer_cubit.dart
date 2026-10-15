@@ -63,9 +63,13 @@ class SessionTimerCubit extends Cubit<SessionTimerState>
     emit(SessionTimerRunning(elapsed: Duration.zero, pauseCount: 0));
   }
 
-  void pause() {
+  void pause({DateTime? at}) {
     if (state is! SessionTimerRunning) return;
-    final now = _clock();
+    final now = at ?? _clock();
+    final lastTransition = _pauseIntervals.isEmpty
+        ? _startTime!
+        : _pauseIntervals.last.resumedAt;
+    if (now.isBefore(lastTransition) || now.isAfter(_clock())) return;
     _currentPauseStart = now;
     _stopTicker();
     emit(
@@ -76,9 +80,10 @@ class SessionTimerCubit extends Cubit<SessionTimerState>
     );
   }
 
-  void resume() {
+  void resume({DateTime? at}) {
     if (state is! SessionTimerPaused) return;
-    final now = _clock();
+    final now = at ?? _clock();
+    if (now.isBefore(_currentPauseStart!) || now.isAfter(_clock())) return;
     _pauseIntervals.add(
       PauseInterval(pausedAt: _currentPauseStart!, resumedAt: now),
     );
@@ -86,7 +91,7 @@ class SessionTimerCubit extends Cubit<SessionTimerState>
     _startTicker();
     emit(
       SessionTimerRunning(
-        elapsed: _elapsedAt(now),
+        elapsed: _elapsedAt(_clock()),
         pauseCount: _pauseIntervals.length,
       ),
     );

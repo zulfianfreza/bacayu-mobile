@@ -22,6 +22,34 @@ void main() {
 
   tearDown(() => cubit.close());
 
+  test('native background transitions preserve timestamps before stop', () {
+    final start = now;
+    cubit.start(userBookId: 'ub-1');
+    cubit.didChangeAppLifecycleState(AppLifecycleState.paused);
+    now = start.add(const Duration(minutes: 10));
+    cubit.pause(at: start.add(const Duration(minutes: 2)));
+    cubit.resume(at: start.add(const Duration(minutes: 4)));
+    expect((cubit.state as SessionTimerRunning).elapsed,
+        const Duration(minutes: 8));
+    cubit.pause(at: start.add(const Duration(minutes: 7)));
+    cubit.stop();
+    final stopped = cubit.state as SessionTimerStopped;
+    expect(stopped.activeDurationSeconds, 5 * 60);
+    expect(stopped.pauseCount, 2);
+  });
+
+  test('native transitions reject timestamps outside session order', () {
+    final start = now;
+    cubit.start(userBookId: 'ub-1');
+    cubit.pause(at: start.subtract(const Duration(seconds: 1)));
+    cubit.pause(at: start.add(const Duration(seconds: 1)));
+    expect(cubit.state, isA<SessionTimerRunning>());
+    now = start.add(const Duration(minutes: 2));
+    cubit.pause(at: start.add(const Duration(minutes: 1)));
+    cubit.resume(at: start);
+    expect(cubit.state, isA<SessionTimerPaused>());
+  });
+
   test(
       'idle -> running -> paused -> running -> stopped records pause '
       'intervals and active duration correctly', () {

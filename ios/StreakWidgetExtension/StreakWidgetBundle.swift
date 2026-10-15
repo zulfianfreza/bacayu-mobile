@@ -5,5 +5,6 @@ import WidgetKit
 struct StreakWidgetBundle: WidgetBundle {
     var body: some Widget {
         StreakWidget()
+        SessionLiveActivityWidget()
     }
 }

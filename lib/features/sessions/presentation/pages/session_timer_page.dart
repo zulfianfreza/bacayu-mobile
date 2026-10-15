@@ -13,6 +13,7 @@ import '../../../../core/widgets/sheet_header.dart';
 import '../../../shelf/domain/entities/user_book.dart';
 import '../cubit/session_timer_cubit.dart';
 import '../cubit/session_timer_state.dart';
+import '../session_live_activity.dart';
 import '../widgets/book_picker_bottom_sheet.dart';
 import '../widgets/pause_button.dart';
 import '../widgets/pulsing_circles.dart';
@@ -37,15 +38,76 @@ class _SessionTimerView extends StatefulWidget {
   State<_SessionTimerView> createState() => _SessionTimerViewState();
 }
 
-class _SessionTimerViewState extends State<_SessionTimerView> {
+class _SessionTimerViewState extends State<_SessionTimerView>
+    with WidgetsBindingObserver {
   UserBook? _selectedBook;
   bool _showSummary = false;
   bool _discardConfirmed = false;
   bool _confirmingDiscard = false;
+  final _liveActivity = SessionLiveActivity();
+  bool _applyingNative = false;
+  Future<void> _nativeSync = Future.value();
+
+  Future<void> _syncNative() {
+    return _nativeSync = _nativeSync.then((_) async {
+      if (!mounted) return;
+      final cubit = context.read<SessionTimerCubit>();
+      _applyingNative = true;
+      try {
+        await _liveActivity.consumeEvents((paused, at) {
+          if (!mounted || cubit.isClosed) return;
+          paused ? cubit.pause(at: at) : cubit.resume(at: at);
+        });
+      } finally {
+        _applyingNative = false;
+      }
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _syncNative();
+  }
+
+  void _updateActivity(SessionTimerState state) {
+    if (_applyingNative) return;
+    final (elapsed, paused) = switch (state) {
+      SessionTimerRunning(:final elapsed) => (elapsed, false),
+      SessionTimerPaused(:final elapsed) => (elapsed, true),
+      _ => (null, false),
+    };
+    if (elapsed == null) {
+      _liveActivity.end();
+      return;
+    }
+    _liveActivity.update(
+      title: _selectedBook!.book.title,
+      status: paused ? context.l10n.timerPaused : context.l10n.timerRunning,
+      elapsed: elapsed,
+      paused: paused,
+      tint: SessionTimerTheme.background.toARGB32(),
+      runningLabel: context.l10n.timerRunning,
+      pausedLabel: context.l10n.timerPaused,
+      pauseLabel: context.l10n.timerPause,
+      resumeLabel: context.l10n.timerResume,
+    );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    SessionLiveActivity.channel.setMethodCallHandler(null);
+    _liveActivity.end();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    SessionLiveActivity.channel.setMethodCallHandler((call) async {
+      if (call.method == 'changed') await _syncNative();
+    });
     _selectedBook = widget.initialUserBook;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
@@ -64,6 +126,7 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
         setState(() {});
       }
       context.read<SessionTimerCubit>().start(userBookId: _selectedBook!.id);
+      _updateActivity(context.read<SessionTimerCubit>().state);
     });
   }
 
@@ -149,7 +212,11 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
             ),
             child: SafeArea(
               child: BlocConsumer<SessionTimerCubit, SessionTimerState>(
+                listenWhen: (previous, current) =>
+                    previous is! SessionTimerIdle &&
+                    previous.runtimeType != current.runtimeType,
                 listener: (context, state) {
+                  _updateActivity(state);
                   if (state is SessionTimerStopped) {
                     setState(() => _showSummary = true);
                   }
@@ -311,10 +378,14 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
                                     label: paused
                                         ? l10n.timerResume
                                         : l10n.timerPause,
-                                    onPressed: () {
+                                    onPressed: () async {
                                       final cubit = context
                                           .read<SessionTimerCubit>();
-                                      paused ? cubit.resume() : cubit.pause();
+                                      await _syncNative();
+                                      if (!mounted) return;
+                                      cubit.state is SessionTimerPaused
+                                          ? cubit.resume()
+                                          : cubit.pause();
                                     },
                                   ),
                                   const SizedBox(width: SessionTimerTheme.gap),
@@ -328,9 +399,15 @@ class _SessionTimerViewState extends State<_SessionTimerView> {
                                       ),
                                     ),
                                     icon: const Icon(Icons.stop),
-                                    onPressed: () => context
-                                        .read<SessionTimerCubit>()
-                                        .stop(),
+                                    onPressed: () async {
+                                      final cubit = context
+                                          .read<SessionTimerCubit>();
+                                      await _syncNative();
+                                      if (!mounted) return;
+                                      await _liveActivity.end();
+                                      await _syncNative();
+                                      if (mounted) cubit.stop();
+                                    },
                                   ),
                                 ],
                               ),
